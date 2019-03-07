@@ -415,6 +415,7 @@ import {
   reqOuterManageAddList,
   reqEmpowermentTree,//内部员工tree
   reqEditWorkerManage,//编辑
+  reqEmpowermentOutTree,//
 }from '../../../api'
 import {checkPhone,checkIDCard} from '../../../util/regExp.js'
 export default {
@@ -517,6 +518,7 @@ export default {
         sexRadio:'',//新增弹窗选择性别
         org:'',//新增弹窗---选择tree
         uploadImageUrl:'',//新增弹窗---上传本地图片后返回的url
+        dialogImageUrl:"",//新增弹窗---拍照src
         isUndisabeld:true, //是否取消禁止选择下拉
         //新增弹窗end
         isShow:true,//数据导入按钮显示与隐藏
@@ -793,7 +795,7 @@ export default {
       },
       //新增---归属部门请求接口函数---外部员工
       async addDepatment(){
-        const res = await reqAddDepartment()
+        const res = await reqEmpowermentOutTree()
         if(res.data.code === 200){
           this.dataTanchuangTree = JSON.parse(res.data.data)
         }

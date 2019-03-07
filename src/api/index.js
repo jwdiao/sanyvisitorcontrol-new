@@ -21,8 +21,10 @@ export const reqNewAddPorterList = (userName,parkCode,userCode,org,remark) => ht
 export const reqGivePower = (parkCode,orgs) => http.post(`${BASE_URL}/visitorcontrol/sanyBasicParkOrg/givePower`,{parkCode:parkCode,orgs:orgs})
 //园区模块---门卫模糊查询员工名称
 export const reqCheckPorterName = (loginAccount) => http.post(`${BASE_URL}/user/SanyBasicShrUser/selectUsersByUserNo`,{loginAccount:loginAccount})
-//园区模块---组织授权tree
+//园区模块---组织授权tree ---内部
 export const reqEmpowermentTree = () => http.get(`${BASE_URL}/user/SanyBasicShrUser/treeFast`)
+//园区模块---组织授权tree ---外部
+export const reqEmpowermentOutTree = () => http.get(`${BASE_URL}/user/SanyBasicShrUser/treeFastOut`)
 //园区模块---编辑园区信息
 export const reqEditPark = (parkId,parkName,parkPosition,remark) => http.post(`${BASE_URL}/visitorcontrol/sanyBasicPark/updPark`,{parkId:parkId,parkName:parkName,parkPosition:parkPosition,remark:remark})
 //园区模块---删除园区信息

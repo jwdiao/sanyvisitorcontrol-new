@@ -55,10 +55,10 @@
 						:default-expanded-keys="expandedArr"
 						highlight-current
 						show-checkbox></el-tree> -->
-						 <el-tree 
+						 <el-tree
 						  :data="data"
 						  show-checkbox
-						  :props="defaultProps" 
+						  :props="defaultProps"
 						  :default-expanded-keys="expandedArr"
 						  ref="tree"
 						  node-key="flag"
@@ -133,6 +133,7 @@
 				this.tree(row.userNo);
 			},
 			toImpower(){
+
 				this.AddPrivillegeByUserNo();
 			},
 			/*
@@ -170,13 +171,6 @@
 			  点击授权
 			*/
 			async AddPrivillegeByUserNo(){
-				if(this.orgArrs.length === 0){
-				  this.$message({
-				    type:'error',
-				    message:"请选择组织"
-				  })
-				  return
-				}
 				const orgsArr = this.$refs.tree.getCheckedNodes().map((item)=>{
 					return item.orgId
 				})
@@ -187,10 +181,16 @@
 				})
 				if(res && res.data.code === 200){
 				    this.dialogFormVisible = false;
-					this.$message('授权成功');
+					this.$message({
+            type:'success',
+            message:'授权成功'
+          });
 				}else{
-					this.$message('授权失败');
-				} 
+          this.$message({
+            type:'error',
+            message:'授权失败'
+          });
+				}
 				//console.log(res);
 			}
 		}
