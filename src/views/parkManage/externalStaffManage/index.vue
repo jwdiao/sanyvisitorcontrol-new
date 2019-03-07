@@ -789,7 +789,7 @@ export default {
       handleAdd () {
         this.dialogVisibles = true
         this.addDepatment()       //外部员工tree
-        this.addDepatmentInner()   //内部员工tree
+        //this.addDepatmentInner()   //内部员工tree
       },
       //新增---归属部门请求接口函数---外部员工
       async addDepatment(){
