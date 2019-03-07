@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <style type="text/css" >
+  .photo_camera{
+    float:left;
+  }
+  .photo_text{
+    float:left;padding:200px 20px 0;font-size:16px;
+  }
+  .photo_img{
+    float:left;width:450px;height:350px;
+  }
+  .photo_img img {width: 100%;}
+  </style>
+</head>
+<body>
+  <div style="overflow:hidden;">
+    <div id="my_camera" class="photo_camera"></div>
+    <a href="javascript:void(take_snapshot())" class="photo_text">拍照</a>
+    <div id="results" class="photo_img"></div>
+  </div>
+
+  <script src="./webcam.min.js"></script>
+  <script language="JavaScript">
+    document.getElementById('results').innerHTML = ''
+    var TakePhotoUrl = ''
+    //设置镜头的大小
+    Webcam.set({
+      width: 450,
+      height: 350,
+      image_format: 'jpeg',
+      jpeg_quality: 90
+    }); 
+    Webcam.attach('#my_camera');
+
+    function take_snapshot() {
+       
+        Webcam.snap( function(data_uri) {
+          // console.log('hhhh:', data_uri)
+            document.getElementById('results').innerHTML = '<img src="'+data_uri+'" />'
+            // console.log(parent.window);
+            // parent.window.document.getElementById('photoUrl').value = data_uri
+            // parent.window.photoUrl = data_uri
+            TakePhotoUrl = data_uri
+        } );
+    }
+
+    function getTakePhotoUrl () {
+      return TakePhotoUrl
+    }
+
+    /* document.getElementById('close').onclick = function() {
+      Webcam.reset();
+    }
+    document.getElementById('start').onclick = function() {
+      Webcam.attach('#my_camera');
+    } */
+   
+</script>
+
+</body>
+</html>
