@@ -56,7 +56,7 @@
                  :close-on-click-modal="false"
                  class="edit-form"
                  :before-close="editParkDialogClose">
-        <el-form :v-model="editForm" label-width="80px" ref="editForm"><!--:rules="editFormRules"-->
+        <el-form :v-model="editForm" label-width="80px" ref="editForm" :model="editForm" :rules="editFormRules"><!--:rules="editFormRules"-->
           <div class="parkServiceDialog" style="display: flex">
             <el-form-item label="园区编号" prop="parkCode" style="width:48%;">
               <el-input v-model="editForm.parkCode" :disabled="true" auto-complete="off" clearable></el-input>
@@ -71,8 +71,8 @@
             </el-form-item>
           </div>
           <div class="parkServiceDialog" style="display: flex;width: 100%;">
-            <el-form-item label="备注" class="park-address-item" style="width:96%;">
-              <el-input v-model="editForm.remark" auto-complete="off" clearable></el-input><!--editForm.loginPwd-->
+            <el-form-item label="备注说明" class="park-address-item" style="width:96%;">
+              <el-input type="textarea" v-model="editForm.remark" auto-complete="off" clearable></el-input><!--editForm.loginPwd-->
             </el-form-item>
           </div>
         </el-form>
@@ -124,25 +124,24 @@
       </el-dialog>
     </div>
     <!--分页-->
-    <!--<div class="marginTop10 text-right">
+    <div class="marginTop10 text-right">
       <el-pagination
         background
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
         :current-page="currentPage"
-        :page-sizes="[100, 200, 300, 400]"
-        :page-size="100"
+        :page-sizes="[20,30,50,100]"
+        :page-size="pageSize"
         layout="total, sizes, prev, pager, next, jumper"
-        :total="400">
+        :total="total">
       </el-pagination>
-    </div>-->
+    </div>
   </div>
 </template>
 
 <script>
   import http from '../../../api/http'
-  import {reqParkServiceList,reqNewAddPark,reqEditPark,reqdeletePark,addParkCodeCheck} from '../../../api'
-  // import {checkPhone,checkIDCard,checkCarCard} from '../../../util/regExp'
+  import {reqParkServiceLists,reqNewAddPark,reqEditPark,reqdeletePark,addParkCodeCheck} from '../../../api'
   export default {
     name: "Template",
     data() {
@@ -160,6 +159,14 @@
             { required: true, message: '请输入园区名称', trigger: 'blur' }
           ],
           AddPparkAddress: [
+            { required: true, message: '请输入园区地址', trigger: 'blur' }
+          ]
+        },
+        editFormRules: {
+          parkName: [
+            { required: true, message: '请输入园区名称', trigger: 'blur' }
+          ],
+          parkPosition: [
             { required: true, message: '请输入园区地址', trigger: 'blur' }
           ]
         },
@@ -193,14 +200,16 @@
           label:'沈阳观产业园'
         }],value:'',
         parkTableData: [],
-        currentPage: 1
+        currentPage: 1,
+        pageSize: 20,
+        total: 0,
       }
     },
 
     mounted(){
       //初始化页面查询
-      const {parkServiceName} = this
-      this.getParkList(parkServiceName)
+      const {parkServiceName,currentPage,pageSize} = this
+      this.getParkList(parkServiceName,currentPage,pageSize)
     },
 
     methods: {
@@ -209,10 +218,11 @@
        * 参数：parkName
        * 描述：后台请求数据
        */
-      async getParkList (parkName){
-        const res = await reqParkServiceList(parkName)
+      async getParkList (parkName,pageNum,pageSize){
+        const res = await reqParkServiceLists(parkName,pageNum,pageSize)
         if(res.data.code === 200){
-          this.parkTableData = res.data.data
+          this.parkTableData = res.data.data.list
+          this.total = res.data.data.total
           // console.log('res:',res.data.data)
         }
       },
@@ -222,8 +232,8 @@
        * 描述：查询操作按钮
        */
       onSubmit(){
-        const {parkServiceName} = this
-        this.getParkList(parkServiceName)
+        const {parkServiceName,currentPage,pageSize} = this
+        this.getParkList(parkServiceName,currentPage,pageSize)
       },
       /**
        * 方法名：deleteParkSubmit
@@ -253,8 +263,8 @@
 
           setTimeout(()=>{
             //删除后渲染页面
-            const {parkServiceName} = this
-            this.getParkList(parkServiceName)
+            const {parkServiceName,currentPage,pageSize} = this
+            this.getParkList(parkServiceName,currentPage,pageSize)
           },300)
         }).catch(() => {
           this.$message({
@@ -286,6 +296,11 @@
        */
       newAddParkSubmit() {
         this.NewParkDialogVisible = true
+        //添加后清空
+        this.addParkTextContent.addParkName = ''
+        this.addParkTextContent.addParkCode = ''
+        this.addParkTextContent.AddPparkAddress = ''
+        this.remarkItem = ''
       },
       NewParkDialogClose(){this.NewParkDialogVisible = false},
       NewParkDialogCancel(){this.NewParkDialogVisible = false},
@@ -314,7 +329,8 @@
           this.parkTableData.unshift(newAddItemObj)
           // console.log('parkTableData:',this.parkTableData)
           var parkName = ''
-          this.getParkList(parkName)
+          const {currentPage,pageSize} = this
+          this.getParkList(parkName,currentPage,pageSize)
           this.$message({
             type:'success',
             message:res.data.data
@@ -345,38 +361,25 @@
         }
          console.log('园区名称改变:',addParkCode)
       },
-
-
-      handleCurrentChange(val) {
-        console.log(`当前页: ${val}`);
-      },
-      handleEdit(index, row) {
-        console.log(index, row);
-      },
-      handleDelete(index, row) {
-        console.log(index, row);
-      },
       handleEditPark(index, row){
         this.editParkDialogVisible = true
         this.editForm = Object.assign({}, row);
       },
       editParkDialogClose(){this.editParkDialogVisible = false},
       editParkDialogCancel(){this.editParkDialogVisible = false},
+      //点击编辑提交按钮
       editParkDialogAddFn(val){
-        var parkId = val.id
-        var parkName = val.parkName
-        var parkPosition = val.parkPosition
-        var remark = val.remark
-        if(!parkName || !parkPosition){
-          this.$message({
-            type:'error',
-            message:"添加失败，文本框不能为空"
-          })
-          return
-        }
-        this.editParkDialogVisible = false
-        //向后台发送编辑请求
-        this.editDataFn(parkId,parkName,parkPosition,remark)
+        this.$refs.editForm.validate(async (valid) => {
+          if (!valid) return;
+
+          var parkId = val.id
+          var parkName = val.parkName
+          var parkPosition = val.parkPosition
+          var remark = val.remark
+          this.editParkDialogVisible = false
+          //向后台发送编辑请求
+          this.editDataFn(parkId,parkName,parkPosition,remark)
+        });
       },
       //编辑数据方法
       async editDataFn(parkId,parkName,parkPosition,remark){
@@ -388,8 +391,8 @@
           })
         }
         //更新界面
-        const {parkServiceName} = this
-        this.getParkList(parkServiceName)
+        const {parkServiceName,currentPage,pageSize} = this
+        this.getParkList(parkServiceName,currentPage,pageSize)
       },
 
       handleSelectionChange(val) {
@@ -404,8 +407,16 @@
         this.parkName = obj.label
         // console.log('园区名称：',this.parkName)
       },
-      handleSizeChange(){},
-      handleCurrentChange(){},
+      handleSizeChange(val){
+        const {parkServiceName,currentPage} = this
+        this.pageSize = val
+        this.getParkList(parkServiceName,currentPage,this.pageSize)
+      },
+      handleCurrentChange(val) {
+        const {parkServiceName,pageSize} = this
+        this.currentPage = val
+        this.getParkList(parkServiceName,this.currentPage,pageSize)
+      },
     }
   }
 </script>

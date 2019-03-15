@@ -16,14 +16,15 @@
         <el-button type="primary" @click="handleSendMessages">发送短信</el-button>
       </el-form-item>
     </el-form>
+    <!--主列表-->
     <div class="common-table">
       <el-table header-row-class-name="table-header"  border  style="width: 100%" @selection-change="handleSelectionChange"
         :data="tableData">
 
-        <!--<el-table-column type="selection" label="选择" width="50"></el-table-column>-->
+        <el-table-column type="selection" label="选择" width="50"></el-table-column>
         <el-table-column type="index" label="序号" width="50" align="left" header-align="left"></el-table-column>
-        <el-table-column prop="planBeginTime" label="拜访开始时间" width="160" align="left" header-align="left">  </el-table-column>
-        <el-table-column prop="planEndTime" label="拜访结束时间"  width="160" align="left" header-align="left">  </el-table-column>
+        <el-table-column prop="planBeginTime" label="到访日期" width="160" align="left" header-align="left">  </el-table-column>
+        <el-table-column prop="visitingTime" label="拜访时间"  width="160" align="left" header-align="left">  </el-table-column>
         <el-table-column prop="vistorNum" label="访客人数" width="100" align="left" header-align="left">  </el-table-column>
         <el-table-column prop="isCar" label="是否驾车" width="80" align="left"> </el-table-column>
         <el-table-column prop="carNum" label="驾车数量" width="80" align="left" header-align="left"> </el-table-column>
@@ -35,13 +36,13 @@
         <el-table-column prop="reviewNumAndName" label="审核人" align="left" header-align="left"> </el-table-column>
         <el-table-column prop="reviewTime" label="审核时间" width="160" align="left" header-align="left"> </el-table-column>
         <el-table-column prop="downStatus" label="下发状态" align="left" header-align="left"> </el-table-column>
-        <el-table-column label="信息维护" width="90" align="left">
+        <el-table-column label="信息维护" width="90" align="left" header-align="left">
           <template slot-scope="scope">
             <el-button size="mini" type="text"
               @click="handleLookInfo(scope.$index, scope.row)">信息维护</el-button>
           </template>
         </el-table-column>
-        <el-table-column label="记录操作" width="140" align="left">
+        <el-table-column label="记录操作" width="140" align="left" header-align="left">
           <template slot-scope="scope">
             <!--<el-button size="mini" type="text"
                         v-show="scope.row.submitStatus==='编辑中'"
@@ -54,7 +55,7 @@
                        @click="handleInvalid(scope.$index, scope.row)">作废 </el-button>
             <el-button size="mini" type="text"
                         v-show="scope.row.submitStatus!=='审核通过' && scope.row.downStatus!=='已下发'"
-                       @click="handleDownSubPhoto(scope.$index, scope.row)">下发照片 </el-button>
+                       @click="handleDownSubPhoto(scope.$index, scope.row)" style="margin-left: 0px">下发照片 </el-button>
             <el-button size="mini" type="text"
                         v-show="scope.row.submitStatus==='审核通过' && scope.row.visitorStatus==='访问中'"
                        @click="handleEnd(scope.$index, scope.row)">手动结束 </el-button>
@@ -88,11 +89,11 @@
         >
         <el-form :v-model="editForm" label-width="110px" ref="editForm" :inline="true">
           <div class="">
-            <el-form-item label="开始时间">
+            <el-form-item label="到访日期">
               <el-input  v-model="editForm.sanyBussVisitor.planBeginTime" disabled></el-input>
             </el-form-item>
-            <el-form-item label="结束时间">
-              <el-input v-model="editForm.sanyBussVisitor.planEndTime" disabled></el-input>
+            <el-form-item label="拜访时间">
+              <el-input v-model="editForm.sanyBussVisitor.visitingTime" disabled></el-input>
             </el-form-item>
             <el-form-item label="来访人员数量">
               <el-input v-model="editForm.sanyBussVisitor.vistorNum" disabled></el-input>
@@ -142,9 +143,9 @@
                   :http-request="UploadImage"
                 >
                 <el-button size="mini" type="primary"
-                           v-show="scope.row.isSub==='未下发'"
+                           v-show="isShowDownSubBtn"
                            @click="handleRepeatUploadPhoto(scope.$index, scope.row)">重新上传 </el-button>&nbsp;
-                  <el-tooltip  v-show="scope.row.isSub==='未下发'" content="人脸图片命名一定和工卡号保持一致；人脸清晰；大小不超过2M" placement="top">
+                  <el-tooltip  v-show="isShowDownSubBtn" content="只能上传jpg/png文件，且大小不超过2M" placement="top">
                     <img src="./images/imageSize.png" style="vertical-align: middle" alt="">
                   </el-tooltip>
                 </el-upload>
@@ -153,10 +154,17 @@
             </el-table-column>
             <el-table-column prop="imgUrl" label="图片名称" width="100">
               <template slot-scope="scope">
-                <el-button size="mini" type="text"
+                <el-button size="mini" type="text" v-show="scope.row.imgUrl"
                             @click="checkPicture(scope.$index, scope.row)">查看图片</el-button>
               </template>
             </el-table-column>
+            <el-table-column label="操作" width="100">
+              <template slot-scope="scope">
+                <el-button size="mini" type="text"
+                            @click="handleSendMessagesInformation(scope.$index, scope.row)">发送信息</el-button>
+              </template>
+            </el-table-column>
+
           </el-table>
         </div><br/>
         <span slot="footer" class="dialog-footer">
@@ -215,6 +223,7 @@ import {
     data() {
       return {
         tableData: [],
+        qrCode:'',//二维码地址
         reImageId:'',//信息维护--重新上传id
         currentPage: 1, // 当前页
         pageSize: 10, // 每页多少条
@@ -235,7 +244,7 @@ import {
         currentImg: '',
         multipleSelection:[],//选择主列表内容选项  下发照片   发送短信
         currentUploadIndex:"",//重新上传索引
-        isShowDownSubBtn:false,//是否显信息维护弹窗内的确定按钮
+        isShowDownSubBtn:false,//是否显信息维护弹窗内的确定按钮  &&  重新上传按钮显示与隐藏（逻辑就是下发状态为已下发时，不需要重新上传和下发，否则其它状态都需要下发照片与重新上传照片）
         // submitStatusComing:true,//单据类型true为不通过,false为审核通过不显示(审核通过时,信息维护不可以重新上传照片)
       }
     },
@@ -298,6 +307,15 @@ import {
           }else if(downStatus === '4'){
             downStatus = '照片部分合规'
           }
+          var visitingTime = item.visitingTime
+          console.log('item.visitingtime:',visitingTime)
+          if(visitingTime === '01'){
+            visitingTime = '上午'
+          }else if(visitingTime === '02'){
+            visitingTime = '下午'
+          }else if(visitingTime === '03'){
+            visitingTime = '全天'
+          }
           // 审核人工号/姓名
           let auditingCode = item.auditingCode? item.auditingCode: ''
           let auditingName = item.auditingName? item.auditingName: ''
@@ -307,10 +325,11 @@ import {
           } else {
             reviewNumAndName = auditingName
           }
+          this.qrCode = item.qrCode
           return {
             id: item.id, // id
             planBeginTime:item.planBeginTime, // 拜访开始时间/*date(item.planBeginTime)*/
-            planEndTime: item.planEndTime, // 拜访结束时间
+            // planEndTime: item.planEndTime, // 拜访结束时间
             vistorNum: item.vistorNum, // 来访人员数
             isCar: item.isCar, // 是否驾车（1.是，0.否）
             carNum: item.carNum, // 来访车数量
@@ -318,6 +337,7 @@ import {
             submitStatus: submitStatus, // 审核状态（01:待审核（申请中）02：审核通过）
             auditingType: auditingType, // 审核通过类型（01：个人审核通过02：门岗审核通过'）
             recordType: recordType, // 录入类型（01：被访人录入02：访客机录入03：门岗录入'）
+            visitingTime: visitingTime, // 拜访时间
             // operatorNumAndName: item.operaterCode?item.operaterCode:'' + '/' + item.operaterName?item.operaterName:'', // 操作人工号/姓名
             operatorNumAndName: item.operaterCode, // 操作人工号/姓名
             reviewNumAndName: reviewNumAndName, // 审核人工号/姓名
@@ -325,9 +345,10 @@ import {
             downStatus: downStatus, // 下发状态
             qrCode:item.qrCode,  //二维码地址
             phone:item.phone, // 手机号
-
           }
+
         })
+
       },
       // 每页多少条改变回调
       handleSizeChange(val) {
@@ -369,12 +390,19 @@ import {
         }
         this.editForm = res.data.data
         this.editForm.sanyBussVisitor.isCar = this.editForm.sanyBussVisitor.isCar==='1'? '是':'否'
+        if(this.editForm.sanyBussVisitor.visitingTime === '01'){
+          this.editForm.sanyBussVisitor.visitingTime = '上午'
+        }else if(this.editForm.sanyBussVisitor.visitingTime === '02'){
+          this.editForm.sanyBussVisitor.visitingTime = '下午'
+        }else if(this.editForm.sanyBussVisitor.visitingTime === '03'){
+          this.editForm.sanyBussVisitor.visitingTime = '全天'
+        }
 
         this.editForm.sanyBussVisitorDetailsList.map(item=>{
           // var isSub = item.isSub // 下发状态
-          if (item.isSub == '1') {
+          if (item.isSub === '1') {
             item.isSub = '已下发'
-          } else if (item.isSub == '2') {
+          } else if (item.isSub === '2') {
             item.isSub = '未下发'
           }
           // console.log('isSub:',item.isSub)
@@ -516,7 +544,7 @@ import {
         }
       },
 
-    //发送短信按钮
+    //发送短信按钮---主页面
     handleSendMessages(){
       if(this.multipleSelection.length === 0){
         this.$message({
@@ -539,6 +567,26 @@ import {
           messageDto.push(ItemObj)
           //向后台发送短信请求
         }
+        this.sendMessageAsync(messageDto)
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消发送'
+        });
+      });
+    },
+    //发送短信按钮---信息维护
+      handleSendMessagesInformation(index,row){
+      this.$confirm('确定发送?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+       var messageDto = []
+        var ItemObj = {}
+        ItemObj.uid = row.id
+        ItemObj.param = this.qrCode
+        messageDto.push(ItemObj)
         this.sendMessageAsync(messageDto)
       }).catch(() => {
         this.$message({
@@ -581,7 +629,7 @@ import {
         this.checkPictureInformationVisible = true
         this.currentUploadIndex = index
         this.currentImg = this.editForm.sanyBussVisitorDetailsList[this.currentUploadIndex].imgUrl
-        // console.log('查看图片row',row)
+        console.log('查看图片row',row)
       },
       //重新上传照片
       handleRepeatUploadPhoto(index,row){
@@ -637,4 +685,6 @@ import {
   /deep/ .el-dialog__header{
     border-bottom: 1px solid #DCDFE6;
   }
+
+
 </style>

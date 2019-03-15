@@ -11,6 +11,8 @@ export const reqEndVisitList = (pageNo,pageSize,query) => http.post(`${BASE_URL}
 // export const reqEndVisitDetailList = (pageNo,pageSize,query) => http.post(`${BASE_URL}/visitorcontrol/SanyBussVisitor/getVisitorDetails`,{pageNo:pageNo,pageSize:pageSize,query:query})
 //园区模块---列表
 export const reqParkServiceList = (parkName) => http.post(`${BASE_URL}/visitorcontrol/sanyBasicPark/getParkList`,{parkName:parkName})
+//园区模块---列表
+export const reqParkServiceLists = (parkName,pageNum,pageSize) => http.post(`${BASE_URL}/visitorcontrol/sanyBasicPark/getParkLists`,{query:{parkName},pageNum,pageSize})
 //园区模块---新增园区
 export const reqNewAddPark = (parkName,parkCode,parkPosition,remark) => http.post(`${BASE_URL}/visitorcontrol/sanyBasicPark/insertPark`,{parkName:parkName,parkCode:parkCode,parkPosition:parkPosition,remark:remark})
 //园区模块---门岗列表
@@ -22,9 +24,9 @@ export const reqGivePower = (parkCode,orgs) => http.post(`${BASE_URL}/visitorcon
 //园区模块---门卫模糊查询员工名称
 export const reqCheckPorterName = (loginAccount) => http.post(`${BASE_URL}/user/SanyBasicShrUser/selectUsersByUserNo`,{loginAccount:loginAccount})
 //园区模块---组织授权tree ---内部
-export const reqEmpowermentTree = () => http.get(`${BASE_URL}/user/SanyBasicShrUser/treeFast`)
+export const reqEmpowermentTree = () => http.post(`${BASE_URL}/user/SanyBasicShrUser/treeFast`)
 //园区模块---组织授权tree ---外部
-export const reqEmpowermentOutTree = () => http.get(`${BASE_URL}/user/SanyBasicShrUser/treeFastOut`)
+export const reqEmpowermentOutTree = () => http.post(`${BASE_URL}/user/SanyBasicShrUser/treeFastOut`)
 //园区模块---编辑园区信息
 export const reqEditPark = (parkId,parkName,parkPosition,remark) => http.post(`${BASE_URL}/visitorcontrol/sanyBasicPark/updPark`,{parkId:parkId,parkName:parkName,parkPosition:parkPosition,remark:remark})
 //园区模块---删除园区信息
@@ -34,7 +36,7 @@ export const reqEditPorter = (parkEmployerId,parkCode,userCode,userName,remark,o
 //园区模块---删除门卫信息
 export const reqdeletePorter = (parkEmployerId) => http.post(`${BASE_URL}/visitorcontrol/sanyBussParkGater/delParkEmployer`,{parkEmployerId})
 //门闸管理---闸机类型
-export const reqBrakeTypeItem = () =>http.get(`${BASE_URL}/visitorcontrol/sanyGateBrake/getCodeNameByTypeCode`)
+export const reqBrakeTypeItem = () =>http.post(`${BASE_URL}/visitorcontrol/sanyGateBrake/getCodeNameByTypeCode`)
 //门闸管理---查询
 export const reqSearchBrakeList = (parkName,pageNum,pageSize) =>http.post(`${BASE_URL}/visitorcontrol/sanyGateBrake/getBusGatesByPark`,{query:{parkName:parkName},pageNum:pageNum,pageSize:pageSize})
 //门闸管理---新增园区闸机
@@ -58,7 +60,7 @@ export const reqdeleteSanyBasicShrOrg = (orgId) => http.post(`${BASE_URL}/user/S
   orgId: orgId
 })
 //园区模块---外部员工管理/外部员工账号---外部组织权限树
-export const reqOuterTrees = () => http.get(`${BASE_URL}/user/SanyBasicShrUser/outTreeHasPrivillege`)
+export const reqOuterTrees = () => http.post(`${BASE_URL}/user/SanyBasicShrUser/outTreeHasPrivillege`)
 //园区模块---外部员工管理---查询的接口
 export const reqSearchList = (isImgUrl,imgVerify,userName,orgIds,pageNum,pageSize) => http.post(`${BASE_URL}/user/SanyBasicShrUser/selectEmployerRoleResponseDtoByCondition`,{query:{isImgUrl: isImgUrl,imgVerify:imgVerify,userName:userName,orgIds:orgIds},pageNum:pageNum,pageSize:pageSize})
 //园区模块---外部员工管理---数据导入
@@ -70,7 +72,7 @@ export const reqOuterManageAddList = (username,userno,telephone,idCard,userSex,b
 //园区模块---外部员工管理---新增--归属部门下拉选项
 export const reqAddDepartment = (parkCode) => http.post(`${BASE_URL}/user/SanyBasicShrUser/outTreeHasPrivillegeBack`,{parkCode})
 //园区模块---外部员工管理---新增--角色
-export const reqRolelist = () => http.get(`${BASE_URL}/user/SanyBasicShrUser/selectRolesNoPage`)
+export const reqRolelist = () => http.post(`${BASE_URL}/user/SanyBasicShrUser/selectRolesNoPage`)
 //园区模块---外部员工管理---新增--上传图片接口
 export const reqUploadImages = (file) => http.postFileData(`${BASE_URL}/user/SanyBasicShrUser/fileUploadForOutEmployers`,file)
 //园区模块---外部员工管理---新增--拍照接口
@@ -90,7 +92,7 @@ export const addParkCodeCheck = (parkCode) =>http.post(`${BASE_URL}/visitorcontr
 //基础管理---园区组织机构---编辑
 export const reqEditParkOrg = (id,orgText) =>http.post(`${BASE_URL}/user/SanyBasicShrUser/modifySanyBasicShrOrg`,{id:id,orgText:orgText})
 //运营管理---园区员工管理---编辑
-export const reqEditWorkerManage = (id,username,telephone,idCard,roleCode,roleName,parkCode,parkName,birthday,imgUrlUpload) =>http.post(`${BASE_URL}/user/SanyBasicShrUser/modifySanyBasicShrEmployer`,{id,userName:username,telephone,idCard,roleCode,roleName,parkCode,parkName,birthday,imgUrlUpload})
+export const reqEditWorkerManage = (id,username,telephone,idCard,roleCode,roleName,parkCode,parkName,brithday,imgUrlUpload,org,userNo,employerType,userSex) =>http.post(`${BASE_URL}/user/SanyBasicShrUser/modifySanyBasicShrEmployer`,{id,userName:username,telephone,idCard,roleCode,roleName,parkCode,parkName,brithday,imgUrlUpload,org,userNo,employerType,userSex})
 //访客管理---我的访客信息---发送短信
 export const reqSendMessages = (messageDto) =>http.post(`${BASE_URL}/visitorcontrol/SanyBussVisitor/sendOneMessage`,{messageDto})
 
@@ -106,13 +108,23 @@ export const reqSearchCarsList = (carNo,userName,userNo,pageNum,pageSize) => htt
 // 园区管理---园区车辆---新增
 export const reqAddCars = (userNo,userName,carType,carNo,remark) => http.post(`${BASE_URL}/user/SanyBasicShrUser/insertBussParkCar`,{userNo,userName,carType,carNo,remark});
 // 园区管理---园区车辆---编辑
-export const reqEditCars = (id,carNo,carType,remark) => http.post(`${BASE_URL}/user/SanyBasicShrUser/modifyBussParkCar`,{id,carNo,carType,remark});
+export const reqEditCars = (id,carNo,carType,remark,userName,userNo) => http.post(`${BASE_URL}/user/SanyBasicShrUser/modifyBussParkCar`,{id,carNo,carType,remark,userName,userNo});
 // 园区管理---园区车辆---删除
 export const reqDeleteCars = (id) => http.post(`${BASE_URL}/user/SanyBasicShrUser/removeBussParkCar`,{id});
 // 园区管理---园区车辆---数据导入
 export const reqUploadCarsFile = (formData) => http.postFileData(`${BASE_URL}/user/SanyBasicShrUser/importExcel`,formData);
-
-
+// 园区管理---园区员工管理---新增和编辑--验证员工工号（外部员工为手机号）
+export const regExpUserNumber = (loginAccount) => http.post(`${BASE_URL}/user/SanyBasicShrUser/selectUserByUserNo`,{loginAccount});
+// 园区管理---园区车辆管理---新增--验证员工工号
+export const regCarsExpUserNumber = (loginAccount) => http.post(`${BASE_URL}/user/SanyBasicShrUser/selectUserByUserNoY`,{loginAccount});
+// 园区管理---园区员工管理---删除
+export const regDeleteData = (userNo,id) => http.post(`${BASE_URL}/user/SanyBasicShrUser/removeSanyBasicShrEmployer`,{userNo,id});
+// 园区管理---园区员工管理---新增、编辑---登录成功后判断roleCode是否为门岗--接口
+export const regRoleCodeIsMengang = () => http.post(`${BASE_URL}/visitorcontrol/sanyBasicPark/getParkListByRoleCode`);
+// 园区管理---园区员工管理---新增、编辑---组织机构tree接口--接口
+export const regOrgMengangTree = () => http.post(`${BASE_URL}/user/SanyBasicShrUser/treeFastOutHasOrgId`);
+// 园区管理---园区车辆管理---新增、编辑---员工工号模糊查询--接口
+export const regExpCarManageUserName = (queryString) => http.post(`${BASE_URL}/user/SanyBasicShrUser/getNamesByLike`,{queryString});
 
 
 

@@ -21,6 +21,9 @@
         <el-button type="primary" @click="parkCarManageOnSubmit" style="width: 100px;">查询</el-button>
       </el-form-item>
       <el-form-item>
+        <el-button type="primary" @click="uploadTemplateParkCarManage" style="width: 100px;">下载模板</el-button>
+      </el-form-item>
+      <el-form-item>
         <el-button type="primary" @click="newAddCarsSubmit">新增车辆</el-button>
       </el-form-item>
       <el-form-item>
@@ -74,16 +77,26 @@
       </el-table>
     </div>
     <!--编辑车辆-->
-    <div class="editParkDialog">
+    <div class="editParkDialog" @click="handleAllEditChange">
       <el-dialog title="园区车辆管理"
                  :visible.sync="editParkDialogVisible"
                  :close-on-click-modal="false"
                  class="edit-form"
                  :before-close="editParkDialogClose">
-        <el-form :v-model="editForm" label-width="80px" ref="editForm"><!--:rules="editFormRules"-->
+        <el-form :v-model="editForm" label-width="80px" ref="editForm" :model="editForm" :rules="editCarsRules"><!--:rules="editFormRules"-->
           <div class="parkServiceDialog" style="display: flex">
             <el-form-item label="员工工号" prop="userNo" style="width:48%;">
-              <el-input v-model="editForm.userNo" disabled auto-complete="off" clearable></el-input>
+              <el-input v-model="editForm.userNo" auto-complete="off" clearable @keyup.native="editChangeUserNumFun" ></el-input>
+              <div class="tempVisitInput_employerName"  id="editUserNameCarManage" ref="editUserNameCarManage" v-show="employerNameSelectShow" >
+                <el-scrollbar style="height:100%">
+                  <ul v-show="restaurantsListArr.length>0">
+                    <li style="cursor: pointer;" v-for="(item,index) in restaurantsListArr" :key="index" @click="handleSelectEditUserName(item)">
+                      {{item.userNo}}
+                    </li>
+                  </ul>
+                  <div v-show="restaurantsListArr.length<=0">暂无数据</div>
+                </el-scrollbar>
+              </div>
             </el-form-item>
             <el-form-item label="员工姓名" prop="userName" style="width:48%;">
               <el-input v-model="editForm.userName" disabled auto-complete="off" clearable></el-input>
@@ -94,7 +107,7 @@
               <el-input v-model="editForm.carNo" auto-complete="off" clearable></el-input><!--editForm.loginPwd-->
             </el-form-item>
             <el-form-item label="车辆类型" prop="carType" class="park-address-item" style="width:48%;">
-              <el-select v-model="editValue" clearable placeholder="请选择" @change="editCarsSelect" style="width: 100%;">
+              <el-select v-model="editForm.carType" clearable placeholder="请选择" @change="editCarsSelect" style="width: 100%;">
                 <el-option
                   v-for="item in editCarsOptions"
                   :key="item.value"
@@ -105,8 +118,8 @@
             </el-form-item>
           </div>
           <div class="parkServiceDialog" style="display: flex;width: 100%;">
-            <el-form-item label="备注" class="park-address-item" style="width:96%;" prop="remark">
-              <el-input v-model="editForm.remark" auto-complete="off" clearable></el-input><!--editForm.loginPwd-->
+            <el-form-item label="备注说明" class="park-address-item" style="width:96%;" prop="remark">
+              <el-input type="textarea" v-model="editForm.remark" auto-complete="off" clearable></el-input><!--editForm.loginPwd-->
             </el-form-item>
           </div>
         </el-form>
@@ -117,7 +130,7 @@
       </el-dialog>
     </div>
     <!--新增车辆-->
-    <div class="editParkDialog">
+    <div class="editParkDialog" @click="handleAllChange">
       <el-dialog title="园区车辆管理"
                  :visible.sync="NewParkDialogVisible"
                  :close-on-click-modal="false"
@@ -126,10 +139,20 @@
         <el-form  ref='addParkID' :model="addCarsContent" label-width="80px" :rules="rules" ><!--:rules="editFormRules"-->
           <div class="parkServiceDialog" style="display: flex">
             <el-form-item label="员工工号" prop="addWorkno" style="width: 48%;">
-              <el-input v-model="addCarsContent.addWorkno" auto-complete="off" clearable placeholder="请输入员工工号"></el-input>
+              <el-input v-model="addCarsContent.addWorkno" auto-complete="off" clearable placeholder="请输入员工工号" @keyup.native="changeUserNumFun"></el-input>
+              <div class="tempVisitInput_employerName"  id="userNameCarManage" ref="userNameCarManage" v-show="employerNameSelectShow" >
+                <el-scrollbar style="height:100%">
+                  <ul v-show="restaurantsListArr.length>0">
+                    <li style="cursor: pointer;" v-for="(item,index) in restaurantsListArr" :key="index" @click="handleSelectUserName(item)">
+                      {{item.userNo}}
+                    </li>
+                  </ul>
+                  <div v-show="restaurantsListArr.length<=0">暂无数据</div>
+                </el-scrollbar>
+              </div>
             </el-form-item>
             <el-form-item label="员工姓名" prop="addworkname" style="width: 48%;">
-              <el-input v-model="addCarsContent.addworkname" auto-complete="off" clearable placeholder="请输入员工姓名"></el-input>
+              <el-input v-model="addCarsContent.addworkname" disabled auto-complete="off" clearable placeholder="请输入员工姓名"></el-input>
             </el-form-item>
           </div>
           <div class="parkServiceDialog" style="display: flex;">
@@ -137,7 +160,7 @@
               <el-input v-model="addCarsContent.AddcarNum" auto-complete="off" clearable placeholder="请输入车牌号"></el-input><!--editForm.loginPwd-->
             </el-form-item>
             <el-form-item label="车牌类型" prop="addCarType" class="park-address-item" style="width: 48%;">
-              <el-select v-model="value" clearable placeholder="请选择" @change="selectParkName" style="width: 100%;">
+              <el-select v-model="addCarsContent.addCarType" clearable placeholder="请选择" @change="selectParkName" style="width: 100%;">
                 <el-option
                   v-for="item in parkNameOptions"
                   :key="item.value"
@@ -177,7 +200,16 @@
 
 <script>
   import http from '../../../api/http'
-  import {reqSearchCarsList,reqAddCars,reqEditCars,reqDeleteCars,reqUploadCarsFile} from '../../../api'
+  import BASE_URL from '../../../api/global'
+  import {reqSearchCarsList,
+    reqAddCars,
+    reqEditCars,
+    reqDeleteCars,
+    reqUploadCarsFile,
+    regCarsExpUserNumber,
+    regExpCarManageUserName,
+
+  } from '../../../api'
   export default {
     name: "Template",
     data() {
@@ -186,6 +218,9 @@
         parkCarManageNum:'',//查询工号
         parkCarManageCarNum:'',//查询车牌号
         isShow:true,//数据导入按钮显示与隐藏
+        employerNameSelectShow:false,//新增员工工号列表显示模糊查询
+        restaurantsListArr:[],//新增员工工号列表显示模糊查询到员工信息列表
+
         addCarsContent:{
           AddcarNum:'',// 新增车牌号
           addworkname:'', // 新增员工姓名
@@ -197,21 +232,39 @@
             { required: true, message: '请输入员工工号', trigger: 'blur' },
           ],
           addworkname: [
-            { required: true, message: '请输入员工姓名', trigger: 'blur' }
+            { required: true, message: ' ', trigger: 'blur' }
           ],
           AddcarNum: [
             { required: true, message: '请输入车牌号', trigger: 'blur' }
+
+          ],
+         addCarType: [
+            { required: true, message: '请选择车辆类型', trigger: 'blur' }
+          ]
+        },
+        editForm:{
+          userNo:'',// 编辑车牌号
+          userName:'', // 编辑员工姓名
+          carNo:'',//编辑员工工号
+          carType:'',//编辑车辆类型
+        },
+        editCarsRules: {
+          userNo: [
+            { required: true, message: '请输入员工工号', trigger: 'blur' },
+          ],
+          userName: [
+            { required: true, message: ' ', trigger: 'blur' }
+          ],
+          carNo: [
+            { required: true, message: '请输入车牌号', trigger: 'blur' }
+
+          ],
+          carType: [
+            { required: true, message: '请选择车辆类型', trigger: 'blur' }
           ]
         },
         bookVisitArr:'',
         visitDate:'',
-        editForm:{
-          id: 0,
-          name: '',
-          price: 0,
-          desc: '',
-          reserve:'',
-        },
         editParkDialogVisible:false,
         NewParkDialogVisible:false,
         multipleSelection: [],  //多选框所选择的内容
@@ -226,7 +279,6 @@
           value:'2',
           label:'小车'
         }],value:'',
-        addCarType:'',//新增当前车辆类型
         addCarValue:'',//新增当前车辆类型value
         editCarsOptions:[{ //编辑车辆
           value:'1',
@@ -331,19 +383,117 @@
       newAddCarsSubmit() {
         this.NewParkDialogVisible = true
       },
-      NewParkDialogClose(){this.NewParkDialogVisible = false},
-      NewParkDialogCancel(){this.NewParkDialogVisible = false},
+      //新增验证员工工号接口函数
+       changeUserNumFun(){
+        // this.regExpUserNo(this.addCarsContent.addWorkno)
+         this.employerNameSelectShow = true
+        this.regExpCarManageUserNo(this.addCarsContent.addWorkno)
+      },
+      //编辑验证员工工号接口函数
+       editChangeUserNumFun(){
+        // this.regExpUserNo(this.editForm.userNo)
+         this.employerNameSelectShow = true
+         this.regExpCarManageUserNo(this.editForm.userNo)
+      },
+      //验证员工工号接口函数
+      async regExpUserNo(loginAccount) {
+        const res = await regCarsExpUserNumber(loginAccount)
+        if (res && res.data.code === 200) {
+          this.addCarsContent.addworkname = res.data.data.userName
+          this.editForm.userName = res.data.data.userName
+        } else {
+          this.$message({
+            message: '该工号未匹配到员工姓名'
+          })
+          this.editForm.userName = ''
+        }
+      },
+      //验证员工工号模糊查询接口函数
+      async regExpCarManageUserNo(queryString){
+        const res = await regExpCarManageUserName(queryString)
+        if(res&&res.data.code===200){
+          this.restaurantsListArr = res.data.data
+        }
+      },
+      //新增员工模糊查询，点击列表中item触发的事件
+      handleSelectUserName(item){
+        this.employerNameSelectShow = false
+        this.addCarsContent.addWorkno = item.userNo
+        this.addCarsContent.addworkname = item.userName
+        console.log('item:',item)
+      },
+      //新增点击员工工号外时下拉框消失
+      handleAllChange(e){
+        var userNameClick = this.$refs.userNameCarManage
+        // var userNameClick = document.getElementById('userNameClick')
+        if(userNameClick){
+          if(!userNameClick.contains(e.target)){
+            this.employerNameSelectShow = false;
+          }
+        }
+      },
+      //编辑员工模糊查询，点击列表中item触发的事件
+      handleSelectEditUserName(item){
+        this.employerNameSelectShow = false
+        this.editForm.userNo = item.userNo
+        this.editForm.userName = item.userName
+        console.log('item:',item)
+      },
+      //编辑点击员工工号外时下拉框消失
+      handleAllEditChange(e){
+        var userNameClick = this.$refs.editUserNameCarManage
+        // var userNameClick = document.getElementById('userNameClick')
+        if(userNameClick){
+          if(!userNameClick.contains(e.target)){
+            this.employerNameSelectShow = false;
+          }
+        }
+
+      },
+
+      NewParkDialogClose(){
+        this.NewParkDialogVisible = false
+        //清空
+        this.addCarsContent.addworkname = ''
+        this.addCarsContent.addWorkno = ''
+        this.addCarsContent.AddcarNum = ''
+        this.remarkItem = ''
+        this.addCarsContent.addCarType = ''
+      },
+      NewParkDialogCancel(){
+        this.NewParkDialogVisible = false
+        //清空
+        this.addCarsContent.addworkname = ''
+        this.addCarsContent.addWorkno = ''
+        this.addCarsContent.AddcarNum = ''
+        this.remarkItem = ''
+        this.addCarsContent.addCarType = ''},
       /**
        * 方法名：NewParkDialogAddFn
        * 参数：
        * 描述：新增车辆提交操作，向后台发送请求，添加到数据库中
        */
       NewParkDialogAddFn(){
+        if(this.addCarsContent.addworkname === ''){this.$message({message:'提交失败，员工工号与姓名不一致'})}
+          var userNumberArr = []
+        this.restaurantsListArr.forEach((item,index)=>{
+          var uerNumbers = item.userNo
+          userNumberArr.push(uerNumbers)
+          if(this.addCarsContent.addWorkno===item.userNo){
+            this.addCarsContent.addworkname = item.userName
+          }else{
+            this.$message({message:'输入员工工号未找到'})
+          }
+        })
+        if(userNumberArr.indexOf(this.addCarsContent.addWorkno) === -1){
+          this.$message({message:'输入员工工号未找到~'})
+          return
+        }
+
         this.$refs.addParkID.validate(async (valid) => {
           if (!valid) return;
           const {addworkname,addWorkno,AddcarNum} = this.addCarsContent
           const {remarkItem,addCarValue} = this
-
           this.addCarsFun(addWorkno,addworkname,addCarValue,AddcarNum,remarkItem)
         });
       },
@@ -378,22 +528,48 @@
       handleEditCars(index, row){
         this.editParkDialogVisible = true
         this.editForm = Object.assign({}, row);
+        console.log('editForm:',this.editForm)
+        console.log('row:',row)
       },
       editParkDialogClose(){this.editParkDialogVisible = false},
       editParkDialogCancel(){this.editParkDialogVisible = false},
       editParkDialogAddFn(val){
-        console.log('val:',val)
+        console.log('val00000000000:',val)
         var carId = val.id
         var carNo = val.carNo
         var carType = this.editCarValue
         var remark = val.remark
-        this.editParkDialogVisible = false
-        //向后台发送编辑请求
-        this.editDataFn(carId,carNo,carType,remark)
+        var userName = val.userName
+        var userNo = val.userNo
+        var userNumberArr = []
+        //调一下模糊查询接口
+        this.regExpCarManageUserNo(userNo)
+       setTimeout(()=>{
+         this.restaurantsListArr.forEach((item,index)=>{
+           var uerNumbers = item.userNo
+           userNumberArr.push(uerNumbers)
+           if(this.editForm.userNo===item.userNo){
+             this.editForm.userName = item.userName
+           }else{
+             this.$message({message:'输入员工工号未找到'})
+           }
+         })
+         if(userNumberArr.indexOf(userNo) === -1){
+           this.$message({message:'输入员工工号未找到~'})
+           return
+         }
+         this.$refs.editForm.validate(async (valid) => {
+           if (!valid) return;
+           this.editParkDialogVisible = false
+           //向后台发送编辑请求
+           this.editDataFn(carId,carNo,this.editForm.carType,remark,this.editForm.userName,userNo)
+         })
+       },300)
+
       },
       //编辑数据方法
-      async editDataFn(id,carNo,carType,remark){
-        const res = await reqEditCars(id,carNo,carType,remark)
+      async editDataFn(id,carNo,carType,remark,userName,userNo){
+        const res = await reqEditCars(id,carNo,carType,remark,userName,userNo)
         if(res && res.data && res.data.code===200){
           this.$message({
             type:'success',
@@ -420,7 +596,7 @@
         obj = this.parkNameOptions.find((item)=>{
           return item.value === val;
         });
-        this.addCarType = obj.label
+        this.addCarsContent.addCarType = obj.label
         this.addCarValue = obj.value
          console.log('新增车辆类型：',this.addCarValue)
       },
@@ -503,6 +679,12 @@
         this.currentPage = val
         this.getCarManageList(parkCarManageCarNum,parkCarManageName,parkCarManageNum,this.currentPage,pageSize)
       },
+      //下载模板
+      uploadTemplateParkCarManage(){
+        let url = `${BASE_URL}/userMessage/export`
+        url = encodeURI(encodeURI(url));
+        location.href = url
+      },
     }
   }
 </script>
@@ -541,6 +723,10 @@
   }
   .parkServiceDialog .el-form-item .el-form-item__label{
     width: 100px!important;
+  }
+  .tempVisitInput_employerName{
+    height:200px;position:absolute;top:40px;z-index:20;border:1px solid #c0c4cc;width:216px;color:#606266;padding:0 10px;
+    background-color:#fff;
   }
 
 </style>

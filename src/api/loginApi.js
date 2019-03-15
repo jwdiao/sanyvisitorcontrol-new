@@ -4,4 +4,4 @@ export const LoginRequest = async (param) => $http.post(`${BASE_URL}/user/SanyBa
 //忘记找回密码
 export const resetPwd = (param) => $http.post(`${BASE_URL}/user/SanyBasicShrUser/updateLoginPwd`,param)
 //退出登录
-export const logOutRequest = () => $http.get(`${BASE_URL}/user/SanyBasicShrUser/logout`)
+export const logOutRequest = () => $http.post(`${BASE_URL}/user/SanyBasicShrUser/logout`)

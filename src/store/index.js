@@ -24,7 +24,8 @@ const store = new Vuex.Store({
       sessionStorage.setItem('username', state.adminObj.username)
       sessionStorage.setItem('roleCode', state.adminObj.roleCode)
 		  sessionStorage.setItem('userNumber', state.adminObj.userNumber)
-			sessionStorage.setItem('imgUrlUpload', state.adminObj.imgUrlUpload) 
+			sessionStorage.setItem('imgUrlUpload', state.adminObj.imgUrlUpload)
+			 sessionStorage.setItem('imgVerify', state.adminObj.imgVerify) 
     },
     // 注销登陆
     logoutMuta (state) {

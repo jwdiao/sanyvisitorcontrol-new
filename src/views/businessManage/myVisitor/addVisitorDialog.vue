@@ -14,30 +14,40 @@
         label-width="100px"
         class="marginTop20 common-form-inline addVisitorDialog_form"
         >
-          <el-form-item label="开始时间" prop="planBeginTime">
+          <el-form-item label="到访日期" prop="planBeginTime">
             <el-date-picker
               v-model="formInline.sanyBussVisitor.planBeginTime"
-              type="datetime"
-              format="yyyy-MM-dd HH:mm:ss"
-              value-format="yyyy-MM-dd HH:mm:ss"
+              type="date"
+              format="yyyy-MM-dd"
+              value-format="yyyy-MM-dd"
               :default-value="new Date()"
               :picker-options="pickerOptionsStart"
-              placeholder="选择日期时间">
+              placeholder="选择到访日期">
             </el-date-picker>
           </el-form-item>
-          <el-form-item label="结束时间" prop="planEndTime">
+         <!-- <el-form-item label="结束时间" prop="planEndTime">
             <el-date-picker
               v-model="formInline.sanyBussVisitor.planEndTime"
               type="datetime"
               format="yyyy-MM-dd HH:mm:ss"
               value-format="yyyy-MM-dd HH:mm:ss"
-              :default-value="new Date()"
+              :default-valsue="new Date()"
               :picker-options="pickerOptionsEnd"
               placeholder="选择日期时间">
             </el-date-picker>
-          </el-form-item>
+          </el-form-item>-->
+        <el-form-item label="拜访时间" prop="visitingTime">
+          <el-select v-model="formInline.sanyBussVisitor.visitingTime" placeholder="请选择">
+            <el-option
+              v-for="item in visitingTimeOptions"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value">
+            </el-option>
+          </el-select>
+        </el-form-item>
           <el-form-item label="来访人数量">
-            <el-input-number :controls="true" v-model="formInline.sanyBussVisitor.vistorNum" @change="handleInputPersonNum" :min="1"></el-input-number>
+            <el-input-number :controls="false" disabled v-model="formInline.sanyBussVisitor.vistorNum" @change="handleInputPersonNum" :min="formInline.sanyBussVisitor.vistorNum" @blur="blurVisitorNum()"></el-input-number>
           </el-form-item>
           <el-form-item label="是否驾车">
             <el-select v-model="formInline.sanyBussVisitor.isCar" placeholder="请选择">
@@ -61,6 +71,14 @@
               v-model="formInline.sanyBussVisitor.reason">
             </el-input>
           </el-form-item>
+        <div>
+          <el-form-item>
+            <el-button type="primary" @click="handleInputPersonNum" >新增</el-button> &nbsp;&nbsp;
+            <el-tooltip content="点击新增，增加来访人员列表数量" placement="top">
+              <img src="../../../../src/assets/images/imageSize.png" style="vertical-align: middle" alt="">
+            </el-tooltip>
+          </el-form-item>
+        </div>
       </el-form>
       <!-- 表单 end -->
       <!-- 来访人表格 start -->
@@ -80,6 +98,7 @@
 
             </th>
             <th>查看图片</th>
+            <th>操作</th>
           </tr>
           </thead>
           <tbody>
@@ -122,12 +141,12 @@
                     :file-list="item.fileList"
                     >
                       <div  v-show="!item.imgUrl"><el-button size="small" type="primary">点击上传</el-button>&nbsp;&nbsp;
-                        <el-tooltip content="人脸图片命名一定和工卡号保持一致；人脸清晰；大小不超过2M" placement="top">
+                        <el-tooltip content="只能上传jpg/png文件，且大小不超过2M" placement="top">
                           <img src="./images/imageSize.png" style="vertical-align: middle" alt="">
                         </el-tooltip>
                       </div>
                       <div v-show="item.imgUrl"><el-button size="small" type="primary" >重新上传</el-button>&nbsp;&nbsp;
-                        <el-tooltip content="人脸图片命名一定和工卡号保持一致；人脸清晰；大小不超过2M" placement="top">
+                        <el-tooltip content="只能上传jpg/png文件，且大小不超过2M" placement="top">
                           <img src="./images/imageSize.png" style="vertical-align: middle" alt="">
                         </el-tooltip></div>
                   </el-upload>
@@ -139,6 +158,9 @@
                   type="text"
                   v-show="item.imgUrl"
                   @click="handleLookImg(item, index)">查看图片</el-button>
+              </td>
+              <td>
+                <el-button type="danger" size="mini" :disabled="deleteDisabled" @click="deleteSingleLine(item,index)">删除</el-button>
               </td>
             </tr>
           </tbody>
@@ -204,6 +226,7 @@ export default {
   },
   data () {
     return {
+      deleteDisabled:false,//删除按钮是否可点击
       regIsNull:false,//动态添加Class
       regIsIDCard:false,//动态添加Class
       regIsName:false,//动态添加Class
@@ -221,6 +244,13 @@ export default {
         value: '0',
         label: '否'
       }],
+      visitingTimeOptions:[{
+        label: '上午',
+        value: '01',
+      },{label: '下午',
+        value: '02',},
+        {label: '全天',
+          value: '03',}],
       pickerOptionsStart: { // 拜访开始时间
         disabledDate(time) {
           return time.getTime() < Date.now()- 3600*1000*24;
@@ -235,15 +265,16 @@ export default {
           planBeginTime: [
             { required: true, message: '请选择开始时间', trigger: 'blur' },
           ],
-          planEndTime: [
+          /*planEndTime: [
             { required: true, message: '请选择结束时间', trigger: 'blur' }
           ]
-
+*/
       },
       formInline: {
         sanyBussVisitor: {
           planBeginTime: '', // 拜访开始时间
-          planEndTime: '', // 拜访结束时间
+          // planEndTime: '', // 拜访结束时间
+          visitingTime: '', // 拜访时间
           vistorNum: 1, // 来访人数量
           isCar: '0', // 是否驾车
           carNum: '', // 驾车数量
@@ -306,22 +337,19 @@ export default {
     },
     // 输入来访人数,动态增加来访人员表格
     handleInputPersonNum() {
-      let vistorNum = this.formInline.sanyBussVisitor.vistorNum
-      this.formInline.sanyBussVisitorDetailsList = []
-      // if (vistorNum <= 1) {
-      //   return;
-      // }
-      for (var i = 0; i< vistorNum; i++) {
-        this.formInline.sanyBussVisitorDetailsList.push(
-          {
-            visitorName: '', // 访客姓名
-            phone: '', // 手机号码
-            visitorId: '', // 访客身份证号
-            imgUrl: '', // 照片路径
-            carNo:''//车牌号
-          }
-        )
-      }
+      var detailListLength = this.formInline.sanyBussVisitorDetailsList.length
+      this.formInline.sanyBussVisitor.vistorNum = detailListLength+1
+      var detailListObj =
+        {visitorName: '', // 访客姓名
+          phone: '', // 手机号码
+          visitorId: '', // 访客身份证号
+          imgUrl: '' ,// 照片路径
+          carId: ''} // 车牌号
+      this.formInline.sanyBussVisitorDetailsList.splice(detailListLength,0,detailListObj)
+      this.formInline.sanyBussVisitorDetailsList.length<=1 ? this.deleteDisabled = true : this.deleteDisabled = false
+    },
+    blurVisitorNum(){
+      this.formInline.sanyBussVisitor.vistorNum = this.formInline.sanyBussVisitorDetailsList.length
     },
     //输入车辆数,必须小于人数
      handleInputCarNum(){
@@ -395,19 +423,19 @@ export default {
       });
       // 新增完之后清空
       this.formInline.sanyBussVisitor = {
-        vistorNum: '', // 来访人数量
+        vistorNum: 1, // 来访人数量
         isCar: '0', // 是否驾车
         carNum: '', // 驾车数量
         reason: '', // 拜访原因
         planBeginTime: '', // 拜访开始时间
-        planEndTime: '', // 拜访结束时间
+        // planEndTime: '', // 拜访结束时间
+        visitingTime: '', // 拜访时间
       }
-      //
-    /*  this.formInline = {
-        planBeginTime: '', // 拜访开始时间
-        planEndTime: '', // 拜访结束时间
-      }*/
-      this.formInline.sanyBussVisitorDetailsList = []
+      this.formInline.sanyBussVisitorDetailsList = [{visitorName: '', // 访客姓名
+        phone: '', // 手机号码
+        visitorId: '', // 访客身份证号
+        imgUrl: '' ,// 照片路径
+        carId: ''}]
       this.formInline.sanyBussVisitorCarList = []
       this.dialogVisibles = false
       this.$emit('confirmadddialog', this.dialogVisibles)
@@ -415,10 +443,44 @@ export default {
     // 取消
     handleDialogCancle() {
       this.dialogVisibles = false
+      // 新增完之后清空
+      this.formInline.sanyBussVisitor = {
+        vistorNum: 1, // 来访人数量
+        isCar: '0', // 是否驾车
+        carNum: '', // 驾车数量
+        reason: '', // 拜访原因
+        planBeginTime: '', // 拜访开始时间
+        // planEndTime: '', // 拜访结束时间
+        visitingTime: '', // 拜访时间
+      }
+      this.formInline.sanyBussVisitorDetailsList = [{visitorName: '', // 访客姓名
+        phone: '', // 手机号码
+        visitorId: '', // 访客身份证号
+        imgUrl: '' ,// 照片路径
+        carId: ''}]
+      this.formInline.sanyBussVisitorCarList = []
+      this.dialogVisibles = false
       this.$emit('cancleadddialog', this.dialogVisibles)
     },
     // 弹窗关闭的回调
     handleDialogClose() {
+      this.dialogVisibles = false
+      // 新增完之后清空
+      this.formInline.sanyBussVisitor = {
+        vistorNum: 1, // 来访人数量
+        isCar: '0', // 是否驾车
+        carNum: '', // 驾车数量
+        reason: '', // 拜访原因
+        planBeginTime: '', // 拜访开始时间
+        // planEndTime: '', // 拜访结束时间
+        visitingTime: '', // 拜访时间
+      }
+      this.formInline.sanyBussVisitorDetailsList = [{visitorName: '', // 访客姓名
+        phone: '', // 手机号码
+        visitorId: '', // 访客身份证号
+        imgUrl: '' ,// 照片路径
+        carId: ''}]
+      this.formInline.sanyBussVisitorCarList = []
       this.dialogVisibles = false
       this.$emit('confirmadddialog', this.dialogVisibles)
     },
@@ -446,6 +508,17 @@ export default {
       val===''? this.regIsIDCard= true: this.regIsIDCard= false
       val===''? this.isShowIDCard= true: this.isShowIDCard= false
     },
+    //单独删除每一行，，
+    deleteSingleLine(item,index){
+      if(this.formInline.sanyBussVisitorDetailsList.length<=1){
+        this.deleteDisabled = true   //删除按钮不可点击
+        this.$message({message:'删除失败,默认保留一行'})
+        return
+      }
+      this.formInline.sanyBussVisitorDetailsList.splice(index,1)
+      this.formInline.sanyBussVisitor.vistorNum = this.formInline.sanyBussVisitorDetailsList.length
+      this.formInline.sanyBussVisitor.carNum = this.formInline.sanyBussVisitor.vistorNum
+    }
   }
 }
 </script>
@@ -534,4 +607,7 @@ export default {
     }
   }
 }
+
+
 </style>
+

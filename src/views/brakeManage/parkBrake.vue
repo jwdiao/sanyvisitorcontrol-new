@@ -33,27 +33,11 @@
           header-row-class-name="table-header" @selection-change="handleSelectionChange"
           style="width: 100%" height="650">
           <el-table-column type="selection" label="选择" width="80"></el-table-column>
-          <el-table-column
-            type="index"
-            label="序号"
-            width="80">
-          </el-table-column>
-          <el-table-column
-            prop="typeName"
-            label="闸机类型">
-          </el-table-column>
-          <el-table-column
-            prop="gateCode"
-            label="闸机编号">
-          </el-table-column>
-          <el-table-column
-            prop="gateName"
-            label="闸机名称">
-          </el-table-column>
-          <el-table-column
-            prop="parkName"
-            label="归属园区">
-          </el-table-column>
+          <el-table-column type="index" label="序号" width="80">   </el-table-column>
+          <el-table-column prop="typeName" label="闸机类型">   </el-table-column>
+          <el-table-column prop="gateCode" label="闸机编号"> </el-table-column>
+          <el-table-column prop="gateName" label="闸机名称"> </el-table-column>
+          <el-table-column prop="parkName" label="归属园区"> </el-table-column>
           <el-table-column label="操作">
             <template slot-scope="scope">
               <el-button size="small" @click="handleEditPark(scope.$index, scope.row)" type="text">编辑闸机</el-button>
@@ -68,13 +52,13 @@
                   :close-on-click-modal="false"
                   class="edit-form"
                   :before-close="editBrakeDialogClose">
-         <el-form :v-model="editBrakeForm" label-width="80px" ref="editForm"><!--:rules="editFormRules"-->
+         <el-form :v-model="editBrakeForm" label-width="80px" :model="editBrakeArr" ref="editFormItem" :rules="editRules"><!--:rules="editFormRules"-->
            <div class="parkServiceDialog" style="display: flex">
              <el-form-item label="闸机名称" prop="selectBrakeName">
-               <el-input v-model="selectBrakeName" auto-complete="off" clearable></el-input>
+               <el-input v-model="editBrakeArr.selectBrakeName" auto-complete="off" clearable></el-input>
              </el-form-item>
              <el-form-item label="闸机类型" prop="selectBrakeTypeName">
-               <el-select v-model="selectBrakeTypeName"disabled clearable placeholder="请选择闸机类型" @change="selectBrakeType">
+               <el-select v-model="selectBrakeTypeName" disabled clearable placeholder="请选择闸机类型" @change="selectBrakeType">
                  <el-option
                    v-for="item in editBrakeTypeOption"
                    :key="item.value"
@@ -108,16 +92,16 @@
                 :close-on-click-modal="false"
                 class="edit-form"
                 :before-close="handleClose">
-       <el-form  label-width="80px" >
+       <el-form  label-width="80px" ref="addBrakeItem" :model="addBrakeArr" :rules="addRules" >
          <div class="inputText" style="display: flex">
            <el-form-item label="闸机编号" v-show="false">
              <el-input  auto-complete="off" placeholder="请输入闸机编号" clearable></el-input>
            </el-form-item>
-           <el-form-item label="闸机名称">
-             <el-input v-model="brakeName"  auto-complete="off" placeholder="请输入闸机名称" clearable></el-input>
+           <el-form-item label="闸机名称" prop="brakeName">
+             <el-input v-model="addBrakeArr.brakeName"  auto-complete="off" placeholder="请输入闸机名称" clearable></el-input>
            </el-form-item>
-           <el-form-item label="闸机类型">
-             <el-select v-model="value1" clearable placeholder="请选择闸机类型" @change="selectBrakeType">
+           <el-form-item label="闸机类型" prop="brakeType">
+             <el-select v-model="addBrakeArr.brakeType" clearable placeholder="请选择闸机类型" @change="selectBrakeType">
                <el-option
                  v-for="item in brakeTypeOptions"
                  :key="item.value"
@@ -126,8 +110,8 @@
                </el-option>
              </el-select>
            </el-form-item>
-           <el-form-item label="归属园区" >
-             <el-select v-model="value2" placeholder="请输入归属园区" clearable @change="selectGuiShuParker">
+           <el-form-item label="归属园区" prop="brakeGuishuPark">
+             <el-select v-model="addBrakeArr.brakeGuishuPark" placeholder="请输入归属园区" clearable @change="selectGuiShuParker">
                <el-option
                  v-for="item in GuiShuParkerOptions"
                  :key="item.value"
@@ -175,6 +159,34 @@
           user: '',
           region: ''
         },
+        editBrakeArr:[
+          {
+            selectBrakeName:''
+          }
+        ],
+        addBrakeArr:[
+          {
+            brakeName:'',
+            brakeType:'',
+            brakeGuishuPark:'',
+          }
+        ],
+        editRules: {
+          selectBrakeName: [
+            {required: true, message: '请输入闸机名称', trigger: 'blur'},
+          ]
+        },
+        addRules: {
+          brakeName: [
+            {required: true, message: '请输入闸机名称', trigger: 'blur'},
+          ],
+          brakeType: [
+            {required: true, message: '请输入闸机类型', trigger: 'blur'}
+          ],
+          brakeGuishuPark: [
+            {required: true, message: '请输入归属园区', trigger: 'blur'}
+          ]
+        },
         tableDataBrake: [], //主列表展示
         addFormVisible:false,
         brakeTypeOptions:[],//闸机类型下拉选项
@@ -185,9 +197,7 @@
         value1:'',
         value2:'',
         value3:'',
-        brakeTypeName:'',//当前选择的闸机类型
         brakeTypeCode:'',//当前选择的闸机编号
-        GuiShuParkerName:'',//当前选择的归属园区
         GuiShuParkerCode:'',//当前选择的归属园区编号
         ParkerItemName:'',//查询归属园区
         brakeName:'', //闸机名称
@@ -197,7 +207,6 @@
         multipleSelection: [],  //多选框所选择的内容
         editBrakeDialogVisible:false,//编辑弹窗
         editBrakeForm:{},//编辑
-        selectBrakeName:'',//编辑闸机名称
         selectBrakeTypeName:'',//编辑闸机类型名称
         selectBrakeTypeCode:'',//编辑闸机类型编号
         editGuiShuParkerName:'',//编辑当前选择的归属园区
@@ -255,31 +264,36 @@
        描述：新增向后台发送请求
      * */
       async handleAddDataFn(){
-        const {brakeTypeName,GuiShuParkerName,brakeTypeCode,GuiShuParkerCode,brakeName} = this
-        if(brakeName && GuiShuParkerName && brakeTypeName){
-          const res = await reqAddParkBrake(brakeName,GuiShuParkerCode,GuiShuParkerName,brakeTypeCode,brakeTypeName)
-          if(res.data.code === 200){
-            // console.log('res:',res.data)
+        this.$refs.addBrakeItem.validate(async (valid) => {
+          if (!valid) return;
+
+          const {brakeTypeCode,GuiShuParkerCode} = this
+          const {brakeName,brakeType,brakeGuishuPark} = this.addBrakeArr
+          if(brakeName && brakeGuishuPark && brakeType){
+            const res = await reqAddParkBrake(brakeName,GuiShuParkerCode,brakeGuishuPark,brakeTypeCode,brakeType)
+            if(res.data.code === 200){
+              // console.log('res:',res.data)
+              this.$message({
+                type:'success',
+                message:'添加成功'
+              })
+              const {ParkerItemName,pageSize} = this
+              this.currentPage = 1
+              this.searchBrakeFun(ParkerItemName,this.currentPage,pageSize)
+              this.addBrakeArr.brakeName = ""
+              this.addBrakeArr.brakeType = ""
+              this.addBrakeArr.brakeGuishuPark = ""
+              this.addFormVisible = false
+            }
+          }else{
             this.$message({
-              type:'success',
-              message:'添加成功'
+              type:'error',
+              message:'请选择输入闸机名称，闸机类型和归属园区'
             })
-            const {ParkerItemName,pageSize} = this
-            this.currentPage = 1
-            this.searchBrakeFun(ParkerItemName,this.currentPage,pageSize)
-            this.brakeName = ""
-            // this.GuiShuParkerName = ""
-            // this.brakeTypeName = ""
-            this.addFormVisible = false
           }
-        }else{
-          this.$message({
-            type:'error',
-            message:'请选择输入闸机名称，闸机类型和归属园区'
-          })
-        }
 
 
+        });
       },
 
       /*函数：selectBrakeType
@@ -291,9 +305,8 @@
         obj = this.brakeTypeOptions.find((item)=>{
           return item.value === val;
         });
-        this.brakeTypeName = obj.label
+        this.addBrakeArr.brakeType = obj.label
         this.brakeTypeCode = obj.value
-        // console.log('选择闸机类型：',this.brakeTypeName)
       },
       /*函数：selectGuiShuParker
         参数：
@@ -316,9 +329,8 @@
         obj = this.GuiShuParkerOptions.find((item)=>{
           return item.value === val;
         });
-        this.GuiShuParkerName = obj.label
+        this.addBrakeArr.brakeGuishuPark = obj.label
         this.GuiShuParkerCode = obj.value
-        // console.log('选择归属园区：',this.GuiShuParkerName)
       },
       //异步请求获取下拉园区列表
       async getSelectItem(username){
@@ -413,7 +425,7 @@
       handleEditPark(index,row){
         this.editBrakeDialogVisible = true
         this.editBrakeForm = Object.assign({}, row);
-        this.selectBrakeName = row.gateName
+        this.editBrakeArr.selectBrakeName = row.gateName
         this.selectBrakeTypeName = row.typeName
         this.editGuiShuParkerName = row.parkName
         this.gataID = row.id
@@ -423,10 +435,15 @@
         //编辑提交
       editBrakeDialogAddFn(val){
 
-        this.editBrakeDialogVisible = false
-        //向后台发送编辑请求
-        const {selectBrakeName,gataID} = this
-        this.editBrakeGate(gataID,selectBrakeName)
+        if(this.editBrakeArr.selectBrakeName === ''){
+          return
+        }
+          this.editBrakeDialogVisible = false
+          //向后台发送编辑请求
+          const {gataID} = this
+          const {selectBrakeName} = this.editBrakeArr
+
+          this.editBrakeGate(gataID,this.editBrakeArr.selectBrakeName)
 
       },
         //编辑提交与后台的交互

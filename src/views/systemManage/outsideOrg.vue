@@ -197,13 +197,13 @@ export default {
         }
         const resOrgText = await reqselectSanyBasicShrOrgByOrgText(this.formInline.orgText)
         if (resOrgText && resOrgText.status && resOrgText.data.code === 200) {
-          if (resOrgText.data.data === '重复了') {
+       /*   if (resOrgText.data.data === '重复了') {
             this.$message({
               type: 'error',
               message: resOrgText.data.data
             })
             return;
-          }
+          }*/
         }
 
         let objData = {

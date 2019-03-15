@@ -18,16 +18,16 @@
 			</el-form-item>
 			</el-form>
 			 <div class="upload">
-			 	<el-upload 
-			 	class="upload-demo" 
-			 	ref="upload" 
+			 	<el-upload
+			 	class="upload-demo"
+			 	ref="upload"
 				:beforeUpload = "beforeAvatarUpload"
 			 	:on-preview="handlePictureCardPreview"
-			 	:on-remove="handleRemove" 
-			 	:on-change="handleChange" 
+			 	:on-remove="handleRemove"
+			 	:on-change="handleChange"
 			 	action="user/SanyBasicShrUser/fileUpload"
 				:file-list="fileList"
-			 	:auto-upload="false" 
+			 	:auto-upload="false"
 			 	list-type="picture-card"
 			 	name='file'
 			 	id="formBiao"
@@ -37,12 +37,12 @@
 				<el-button slot="trigger" size="small" type="primary" class="fileButton" v-show="isFileBtnShow">
 				      选择文件
 				</el-button>
-				
+
 			 	</el-upload>
 				<div style="text-align: center;margin:25px;">
-					<el-button 
-					style="margin-left: 10px;" 
-					size="small" 
+					<el-button
+					style="margin-left: 10px;"
+					size="small"
 					type="success"
 					v-show="uploadShow"
 					@click="submitUpload">
@@ -55,11 +55,11 @@
 				<el-dialog :visible.sync = "dialogVisible">
 					  <img :src="dialogImageUrl" alt="" width="100%">
 				</el-dialog>
-				
+
 			 </div>
-			 
+
 		</div>
-		
+
 	</div>
 </template>
 
@@ -85,19 +85,21 @@
 		},
 		/* watch:{
 			userMessage(val){
-				
+
 			}
 		},
 		computed:{
 			userMessage(){
 				return this.$store.state.loginDataArr
-			},	
+			},
 		}, */
 		mounted(){
 			/*判断是否有照片*/
-			this.userMessage = {userNumber:sessionStorage.userNumber,userName:sessionStorage.username,imgUrlUpload:sessionStorage.imgUrlUpload};
+			this.isQualified = sessionStorage.imgVerify==1?'合格':sessionStorage.imgVerify==0?'未上传':'不合格'
+			this.userMessage = {userNumber:sessionStorage.userNumber,userName:sessionStorage.username,
+			     imgUrlUpload:sessionStorage.imgUrlUpload,imgVerify:sessionStorage.imgVerify};
 			if(this.userMessage.imgUrlUpload){
-				this.pictureMessage = '您已有照片点击选择文件可重新上传(只能上传jpg/png文件，且不超过1M)'
+				this.pictureMessage = '您已有照片点击选择文件可重新上传(只能上传jpg/png文件，且不超过2M)'
 				this.lookPicShow = true;
 				this.dialogImageUrl = this.userMessage.imgUrlUpload
 				document.getElementsByClassName('el-upload--picture-card')[0].style.background = `url(${this.dialogImageUrl}) no-repeat`;
@@ -105,7 +107,7 @@
 			}else{
 				document.getElementsByClassName('el-upload--picture-card')[0].style.background = 'url(img/kby.400938f2.png) no-repeat;';
 			}
-			
+
 		},
 		methods: {
 			/*
@@ -131,15 +133,15 @@
 						  });
 						});
 					}else{
-					   //照片已下发判断是否合格	
+					   //照片已下发判断是否合格
 					  if(res.data.data.imgVerify==0){
-						  this.isQualified = '未上传' 
+						  this.isQualified = '未上传'
 					  }else if(res.data.data.imgVerify==1){
-						  this.isQualified = '照片合格' 
+						  this.isQualified = '照片合格'
 					  }else if(res.data.data.imgVerify==2){
 						  this.isQualified = '照片不合格'
 					  }
-					  
+
 					}
 				}
 			},
@@ -161,7 +163,7 @@
 					 this.dialogVisible = true;
 			},
 			/*
-			 点击照片时的钩子函数 
+			 点击照片时的钩子函数
 			*/
 			handlePreview(file) {
 				this.fileType = file.name;
@@ -178,10 +180,10 @@
 				this.isFileBtnShow = false;
 			},
 			beforeAvatarUpload(file){
-				   if(file.size/1024/1024>1){
+				   if(file.size/1024/1024>2){
 						 this.$message({
 						 	type: 'warning',
-						 	message: '文件大小不能超过1M,请重新上传'
+						 	message: '文件大小不能超过2M,请重新上传'
 						 });
 						 return false;
 					 }
@@ -200,7 +202,7 @@
 				  .then(_ => {
 						done();
 					})
-					.catch(_ => {}); 
+					.catch(_ => {});
 			},
 			/*
 			  上传文件携带form对象
@@ -216,19 +218,19 @@
 					this.fileList = [];
 					document.getElementsByClassName('el-upload--picture-card')[0].style.display= 'inline-block';
 					this.isFileBtnShow = true;
-					document.getElementsByClassName('el-upload--picture-card')[0].style.background = `url(${this.dialogImageUrl}) no-repeat`; 
+					document.getElementsByClassName('el-upload--picture-card')[0].style.background = `url(${this.dialogImageUrl}) no-repeat`;
 				    document.getElementsByClassName('el-upload--picture-card')[0].style.backgroundSize = '100% 100%'
 				    /* const res1 = await reqlowerHair(sessionStorage.userNumber);
 				    console.log(res1) */
 					this.getLowerHair()
-				  
+
 				}else{
 					this.$message({
 						type: 'warning',
 						message: '上传失败'
 					});
 				}
-			} 
+			}
 		}
 	}
 </script>
@@ -262,7 +264,7 @@
 				}
 			}
 		}
-		
+
     /deep/ .el-dialog__body{
 			text-align:center;
 			img{
@@ -284,7 +286,7 @@
 				overflow: hidden;
 			}
 			/deep/ .el-form-item.el-form-item--medium{
-				// float:left; 
+				// float:left;
 				.el-input--medium .el-input__inner{
 					width:240px;
 					height:35px;

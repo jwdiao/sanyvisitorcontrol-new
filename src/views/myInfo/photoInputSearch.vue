@@ -137,7 +137,7 @@
 			};
 		},
 		mounted(){
-			 this.tree1();
+			 this.tree1(sessionStorage.userNumber);
 			 this.selectByNameAndCode();
 		},
 		methods: {
@@ -145,7 +145,7 @@
 			  flag不是1的树状菜单被禁用
 			*/
 			disabledFn(data,node){
-				if(data.flag!=1){
+				if(data.flag<10000){
 					return true;
 				}else{
 					return false;
@@ -155,7 +155,7 @@
 			   树状菜单每一行点击事件
 			*/
 			handleNodeClick(data) {
-
+                  console.log(data)
 			},
 			onSubmit(){
 				this.orgId = this.$refs.tree.getCheckedNodes().map(function(item){
@@ -177,6 +177,7 @@
 				this.dialogImageUrl = row.imgUrlUpload?row.imgUrlUpload:row.imgUrl
 			},
 			async selectByNameAndCode(){
+				
 				const res = await http.post('/user/SanyBasicShrUser/selectByNameAndCode',{
 					query:{userName:this.formInline.user,
 					       isImgUrl:this.formInline.isImgUrl,
@@ -201,23 +202,13 @@
 
 				}
 			},
-			async tree1(){
-
-
-				const res = await http.get('/user/SanyBasicShrUser/treeHasPrivillegePerson',{
-					orgId:'50020020'
-				})
-
+			async tree1(userNo){
+				const res = await http.post('/user/SanyBasicShrUser/treeHasPrivillegePersonBack',{userNo})
 				if(res && res.data.code === 200){
-
 					this.treeData = JSON.parse(res.data.data)
 					console.log(JSON.parse(res.data.data));
-
 					//this.treeData = JSON.parse(res.data.data).nodes;
 					//console.log(JSON.parse(res.data.data).nodes);
-
-				
-
 				}
 			}
 

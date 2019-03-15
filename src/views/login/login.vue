@@ -27,7 +27,10 @@
 
 <script>
 import { LoginRequest } from '../../api/loginApi'
+// import {regRoleCodeIsMengang} from '../../api'
 import { mapActions } from 'vuex'
+
+
 export default {
   name: 'Login',
   data () {
@@ -74,12 +77,14 @@ export default {
           type: 'success',
           message: '登陆成功!'
         });
+				console.log(data);
         let user = {
           username: data.userName,
           token: data.token,
           roleCode: data.roleCode ,// 角色区分（"1":员工，"2":门岗，"3":管理）
 					userNumber:data.userNo,//工号
-					imgUrlUpload:data.imgUrlUpload//登陆者图片路径
+					imgUrlUpload:data.imgUrlUpload,//登陆者图片路径
+					imgVerify:data.imgVerify//照片是否合格
         }
         // 登陆成功，把信息记录到sessionstorage存储中
         this.loginAction(user)
@@ -92,6 +97,7 @@ export default {
         })
       }
     },
+
     handleForgetPwd () {
       this.$router.push('/resetpwd')
     }

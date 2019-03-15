@@ -181,7 +181,7 @@
 			onSubmit(){
 				const that = this;
 				let flag = 1;
-				document.querySelectorAll('.el-checkbox__original').forEach(function(ele,index){
+				Array.from(document.querySelectorAll('.el-checkbox__original')).forEach(function(ele,index){
 					   if(ele.checked){
 							flag = 2
 						 } 	
@@ -253,7 +253,7 @@
 			  左侧用户角色 员工、门岗、管理、系统管理员
 			*/
 			async selectRolue(){
-				const res = await http.get('/user/SanyBasicShrUser/selectRolesNoPage');
+				const res = await http.post('/user/SanyBasicShrUser/selectRolesNoPage');
 				if(res.data && res.data.code===200){
 					console.log(res.data.data)
 					//将数据映射到树形菜单

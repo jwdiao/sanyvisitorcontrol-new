@@ -20,14 +20,14 @@ export const getVisitorAllByVisitorNameRequest = async (pageNum,pageSize,visitor
 
 /**
  * 新增申请接口
- * 
+ *
   {
     sanyBussVisitor: { // 拜访主表数据
       planBeginTime: '', // 拜访计划开始时间,
       planEndTime: '', // 拜访计划结束时间
       vistorNum: '', // 来访人数量,
       isCar: '', // 是否驾车（1.是，0.否）
-      carNum: '', // 来访车数量,  
+      carNum: '', // 来访车数量,
       reason: '', // 拜访原因
     },
     sanyBussVisitorDetailsList: {//拜访人员信息（存在多条，以集合的方式传递）
@@ -48,7 +48,7 @@ export const addApplyRequest = async (addApplyParam) => $http.post(`${BASE_URL}/
 
 /**
  * 上传照片接口
- * 
+ *
  */
 export const fileUploadRequest = (formData) =>  $http.postFileData(`${BASE_URL}/user/SanyBasicShrUser/fileUploadForVisitors`,formData);
 
@@ -96,7 +96,7 @@ export const manualEndRequest = async (visitorId) => $http.post(`${BASE_URL}/vis
 // =============================visitHistoryRecord.vue页面接口======================================
 /**
  * 拜访历史记录查询的接口
- * 
+ *
  * pageNum 页数
  * pageSize 数据条数
  * startTime 开始日期
@@ -113,7 +113,7 @@ export const getVisitorHistoryRequest = async (pageNum,pageSize,startTime,endTim
 })
 /**
  * 查看信息的接口
- * 
+ *
  * visitorId：行id
  *  */
 export const getVisitorDetailsRequest = async (visitorId) => $http.post(`${BASE_URL}/visitorcontrol/SanyBussVisitor/getVisitorDetails`, {visitorId: visitorId})
@@ -123,7 +123,7 @@ export const getVisitorDetailsRequest = async (visitorId) => $http.post(`${BASE_
 // =============================tempVisitInput.vue页面接口======================================
 /**
  * 模糊查询被拜访人
- * 
+ *
  *  */
-export const getNamesByLikeRequest = async (queryStr) => $http.post(`${BASE_URL}/visitorcontrol/SanyBussVisitor/getNamesByLike`, { queryStr: queryStr})
+export const getNamesByLikeRequest = async (queryStr,queryNo) => $http.post(`${BASE_URL}/visitorcontrol/SanyBussVisitor/getNamesByLike`, {queryStr,queryNo})
 

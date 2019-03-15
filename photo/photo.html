@@ -8,21 +8,41 @@
   <style type="text/css" >
   .photo_camera{
     float:left;
+    border: 1px solid #ccc;
+    margin-left: 45px;
   }
   .photo_text{
     float:left;padding:200px 20px 0;font-size:16px;
   }
   .photo_img{
-    float:left;width:450px;height:350px;
+    float:left;width:450px;height:350px; border: 1px solid #c0c4cc;
   }
   .photo_img img {width: 100%;}
+    .takePhotoSubmit{
+      display: flex;width: 1000px;justify-content: space-around;
+      margin-left: 20px;
+    }
+  .takePhotoSubmit>div{
+    width: 200px;
+    text-align: center;margin-top: 30px;
+    height: 40px;line-height: 40px; border-radius: 5px;background: #5a8cff;
+  }
+  .takePhotoSubmit>div>a{
+    width: 200px;display: inline-block;
+    text-align: center;
+    height: 40px;line-height: 40px;text-decoration:none;
+    color: #fff;
+  }
   </style>
 </head>
 <body>
   <div style="overflow:hidden;">
+    <div style="width: 945px;height:30px;line-height:30px;margin-left:45px;display: flex;justify-content: space-around;font-weight: bold;background: #909399" ><span>拍照区</span> <span>图片显示区</span></div>
     <div id="my_camera" class="photo_camera"></div>
-    <a href="javascript:void(take_snapshot())" class="photo_text">拍照</a>
+    <a  class="photo_text"></a>
+    <!--<a href="javascript:void(take_snapshot())" class="photo_text">拍照</a>-->
     <div id="results" class="photo_img"></div>
+    <div class="takePhotoSubmit"><div><a href="javascript:void(take_snapshot())">点击拍照</a></div></div>
   </div>
 
   <script src="./webcam.min.js"></script>
@@ -47,11 +67,15 @@
             // parent.window.document.getElementById('photoUrl').value = data_uri
             // parent.window.photoUrl = data_uri
             TakePhotoUrl = data_uri
+          var mustTakePhotoBoolean = true
         } );
     }
 
     function getTakePhotoUrl () {
       return TakePhotoUrl
+    }
+    function TakePhotoBoolean () {
+      return  mustTakePhotoBoolean
     }
 
     /* document.getElementById('close').onclick = function() {

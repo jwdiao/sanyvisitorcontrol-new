@@ -149,7 +149,7 @@
 			获取树形菜单组织结构
 			*/
 			async tree(){
-				const res = await http.get('/user/SanyBasicShrUser/treeFast')
+				const res = await http.post('/user/SanyBasicShrUser/treeFast')
 				if(res && res.data.code===200){
 				this.treeData = JSON.parse(res.data.data)
 				}

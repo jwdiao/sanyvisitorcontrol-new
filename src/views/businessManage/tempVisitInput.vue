@@ -1,5 +1,5 @@
 <template>
-   <div class="">
+   <div class="" @click="handleAllChange">
    <!-- <p class="common-breadcrumb">临时拜访录入</p> -->
     <el-form
       :inline="true"
@@ -13,10 +13,10 @@
       >
         <el-form-item label="被拜访人">
           <el-input
-            @keyup.native="querySearch"
+            @keyup.native="querySearch" @blur="blurVisitor"
             v-model="formInline.sanyBussVisitor.employerName">
           </el-input>
-          <div class="tempVisitInput_employerName" v-show="employerNameSelectShow">
+          <div class="tempVisitInput_employerName"  id="userNameClick" ref="userNameClick" v-show="employerNameSelectShow" >
             <el-scrollbar style="height:100%">
               <ul v-show="restaurantsArr.length>0">
                 <li style="cursor: pointer;" v-for="(item,index) in restaurantsArr" :key="index" @click="handleSelect(item)">
@@ -27,30 +27,39 @@
             </el-scrollbar>
           </div>
         </el-form-item>
-        <el-form-item label="开始时间" prop="planBeginTime">
+        <el-form-item label="到访日期" prop="planBeginTime">
           <el-date-picker
             v-model="formInline.sanyBussVisitor.planBeginTime"
-            type="datetime"
-            format="yyyy-MM-dd HH:mm:ss"
-            value-format="yyyy-MM-dd HH:mm:ss"
+            type="date"
+            format="yyyy-MM-dd"
+            value-format="yyyy-MM-dd"
             :default-value="new Date()"
             :picker-options="pickerOptionsStart"
-            placeholder="选择日期时间">
+            placeholder="选择到访日期 ">
           </el-date-picker>
         </el-form-item>
-        <el-form-item label="结束时间" prop="planEndTime">
+        <!--<el-form-item label="结束时间" prop="planEndTime">
           <el-date-picker
             v-model="formInline.sanyBussVisitor.planEndTime"
             type="datetime"
             format="yyyy-MM-dd HH:mm:ss"
             value-format="yyyy-MM-dd HH:mm:ss"
-            :default-value="new Date()"
             :picker-options="pickerOptionsEnd"
             placeholder="选择日期时间">
           </el-date-picker>
+        </el-form-item>-->
+        <el-form-item label="拜访时间" prop="visitingTime">
+          <el-select v-model="formInline.sanyBussVisitor.visitingTime" placeholder="请选择">
+            <el-option
+              v-for="item in visitingTimeOptions"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value">
+            </el-option>
+          </el-select>
         </el-form-item>
         <el-form-item label="来访人数量">
-          <el-input-number :controls="true" v-model="formInline.sanyBussVisitor.vistorNum" @change="handleInputPersonNum" :min="1"></el-input-number>
+          <el-input-number :controls="false" disabled v-model="formInline.sanyBussVisitor.vistorNum" @change="handleInputPersonNum" :min="formInline.sanyBussVisitor.vistorNum" @blur="blurVisitorNum()"></el-input-number>
         </el-form-item>
         <el-form-item label="是否驾车">
           <el-select v-model="formInline.sanyBussVisitor.isCar" placeholder="请选择">
@@ -74,6 +83,14 @@
             v-model="formInline.sanyBussVisitor.reason">
           </el-input>
         </el-form-item>
+        <div>
+          <el-form-item>
+            <el-button type="primary" @click="handleInputPersonNum" >新增</el-button> &nbsp;&nbsp;
+            <el-tooltip content="点击新增，增加来访人员列表数量" placement="top">
+              <img src="../../../src/assets/images/imageSize.png" style="vertical-align: middle" alt="">
+            </el-tooltip>
+          </el-form-item>
+        </div>
     </el-form>
     <!-- 来访人表格 start -->
     <!-- v-if="formInline.sanyBussVisitorDetailsList.length>0" -->
@@ -90,6 +107,7 @@
             <th>车牌号</th>
             <th>拍照</th>
             <th>查看图片</th>
+            <th>操作</th>
           </tr>
         </thead>
         <tbody>
@@ -118,7 +136,7 @@
                 <el-button
                   v-show="!item.imgUrl"
                   size="mini" type="primary"
-                  @click="handlePhotoUpload(index)">开始拍照</el-button>
+                  @click="handlePhotoUploadStart(index)">开始拍照</el-button>
                 </div>
                 <div>
                   <el-button
@@ -134,6 +152,9 @@
                 type="text"
                 @click="handleLookImg(index)">查看图片</el-button>
             </td>
+            <td>
+              <el-button type="danger" size="mini" :disabled="deleteDisabled" @click="deleteSingleLine(item,index)">删除</el-button>
+            </td>
           </tr>
         </tbody>
       </table>
@@ -145,12 +166,16 @@
         title="提示"
         :visible.sync="dialogVisible"
         width="1100px"
+        height="600px"
         :close-on-click-modal="false"
         :before-close="handleClose">
-        <div>
+        <div class="fatheramalltitle">
           <input type="hidden" value="" id="photoUrl" />
-          <iframe width="100%" height="400" frameborder="0" src="http://10.19.8.22:8081/sanyvisitorcontrol/photo/photo.html" id="myframe" name="myframe" />
+          <iframe width="100%" height="470" frameborder="0" src="http://10.19.8.22:8081/sanyvisitorcontrol/photo/photo.html" id="myframe" name="myframe" />
            <!--<iframe width="100%" height="400" frameborder="0" src="http://localhost/sanyvisitorcontrol/photo/photo.html" id="myframe" name="myframe" />-->
+          <el-tooltip content="必须点击拍照后再确定，否则将保存默认图片显示区内图片" placement="top" class="small-title">
+            <img src="../../../src/assets/images/imageSize.png" style="vertical-align: middle" alt="">
+          </el-tooltip>
         </div>
         <span slot="footer" class="dialog-footer">
           <el-button @click="dialogVisible = false">取 消</el-button>
@@ -159,7 +184,6 @@
       </el-dialog>
     </div>
     <!-- 拍照上传 end -->
-
     <!-- 车辆 start -->
    <!-- <div class="tempVisitInput_table tempVisitInput_carTable" v-if="formInline.sanyBussVisitorCarList.length>0">
       <table>
@@ -209,8 +233,9 @@
     name: "tempVisitInput",
     data() {
       return {
+        deleteDisabled:false,//删除按钮是否可以点击
         restaurantsArr: [], // 被拜访人下拉数组
-        employerNameSelectShow: false, // 北方人下拉数组是否显示
+        employerNameSelectShow: false, // 拜访人下拉数组是否显示
         isDriveCarOptions: [{ // 是否驾车下拉
           label: '是',
           value: '1',
@@ -218,16 +243,23 @@
           label: '否',
           value: '0',
         }],
+        visitingTimeOptions:[{
+          label: '上午',
+          value: '01',
+        },{label: '下午',
+          value: '02',},
+          {label: '全天',
+          value: '03',}],
         pickerOptionsStart: { // 拜访开始时间
           disabledDate(time) {
             return time.getTime() < Date.now()- 3600*1000*24;
           }
         },
-        pickerOptionsEnd:{ // 拜访结束时间
+       /* pickerOptionsEnd:{ // 拜访结束时间
           disabledDate:(time) =>{
-            return time.getTime() < Date.now()- 3600*1000*24 || time.getTime() < new Date(this.formInline.sanyBussVisitor.planBeginTime).getTime()  - 3600*1000*24;
+            return  time.getTime() < new Date(this.formInline.sanyBussVisitor.planBeginTime).getTime();
           }
-        },
+        },*/
         regIsNull:false,//动态添加Class
         regIsIDCard:false,//动态添加Class
         regIsName:false,//动态添加Class
@@ -238,16 +270,17 @@
           planBeginTime: [
             { required: true, message: '请选择开始时间', trigger: 'blur' },
           ],
-          planEndTime: [
-            { required: true, message: '请选择结束时间', trigger: 'blur' }
-          ]
+          // planEndTime: [
+          //   { required: true, message: '请选择结束时间', trigger: 'blur' }
+          // ]
 
         },
         formInline: {
           sanyBussVisitor: {
             planBeginTime: '', // 拜访开始时间
-            planEndTime: '', // 拜访结束时间
-            vistorNum: '', // 来访人数量
+            // planEndTime: '', // 拜访结束时间
+            visitingTime:'',//拜访时间     0311修改
+            vistorNum: 1, // 来访人数量
             isCar: '0', // 是否驾车
             carNum: '', // 驾车数量
             reason: '', // 拜访原因
@@ -273,13 +306,14 @@
     },
     methods: {
       // 获取被拜访人列表 start
-      async getNamesByLikeData ( queryStr) {
-        if (!queryStr) return;
-        const res = await getNamesByLikeRequest(queryStr)
+      async getNamesByLikeData (queryStr,queryNo) {
+
+        const res = await getNamesByLikeRequest(queryStr,queryNo)
         if (res && res.data.code === 200) {
           var restaurants = res.data.data
           // debugger;
           this.restaurantsArr = restaurants
+          console.log('restaurants',restaurants)
           // this.restaurantsArr = queryStr ? restaurants.filter(this.createFilter(queryStr)) : restaurants;
           this.employerNameSelectShow = true
         }
@@ -288,7 +322,16 @@
       querySearch(queryString) {
         // debugger;
         const employerName = this.formInline.sanyBussVisitor.employerName
-        this.getNamesByLikeData( employerName )
+        if (!employerName) return;
+        //只有纯数字才生效
+        var regNum = /^[0-9]\d*$|^0$/
+        if(regNum.test(employerName) == true){//数字字段
+          var queryStr = ''
+          this.getNamesByLikeData(queryStr,employerName)
+        }else{                               //非数字字段
+          var queryNo = ''
+          this.getNamesByLikeData( employerName,queryNo )
+        }
       },
       /* createFilter(queryString) {
         return (restaurant) => {
@@ -301,12 +344,32 @@
         this.formInline.sanyBussVisitor.employerCode = item.userNo
         this.employerNameSelectShow = false;
       },
+      //点击被拜访人时下拉框消失
+      handleAllChange(e){
+        var userNameClick = this.$refs.userNameClick
+        // var userNameClick = document.getElementById('userNameClick')
+        if(userNameClick){
+          if(!userNameClick.contains(e.target)){
+            this.employerNameSelectShow = false;
+          }
+        }
+      },
       // 获取被拜访人列表 end
       // 输入来访人数,动态增加来访人员表格
       handleInputPersonNum() {
-        let vistorNum = this.formInline.sanyBussVisitor.vistorNum
-        this.formInline.sanyBussVisitorDetailsList = []
-        for (var i = 0; i< vistorNum; i++) {
+        // let vistorNum = this.formInline.sanyBussVisitor.vistorNum
+        // this.formInline.sanyBussVisitorDetailsList = []
+       var detailListLength = this.formInline.sanyBussVisitorDetailsList.length
+        this.formInline.sanyBussVisitor.vistorNum = detailListLength+1
+        var detailListObj =
+          {visitorName: '', // 访客姓名
+            phone: '', // 手机号码
+            visitorId: '', // 访客身份证号
+            imgUrl: '' ,// 照片路径
+            carId: ''} // 车牌号
+          this.formInline.sanyBussVisitorDetailsList.splice(detailListLength,0,detailListObj)
+          this.formInline.sanyBussVisitorDetailsList.length<=1 ? this.deleteDisabled = true : this.deleteDisabled = false
+        /*for (var i = 0; i< vistorNum; i++) {
           this.formInline.sanyBussVisitorDetailsList.push(
             {
               visitorName: '', // 访客姓名
@@ -316,9 +379,21 @@
               carId: '' // 车牌号
             }
           )
-        }
+        }*/
       },
-      // 点击拍照按钮，打开拍照弹窗
+      blurVisitorNum(){
+        this.formInline.sanyBussVisitor.vistorNum = this.formInline.sanyBussVisitorDetailsList.length
+      },
+      // 点击开始拍照按钮，打开拍照弹窗
+      handlePhotoUploadStart(index) {
+        this.dialogVisible = true;
+        this.currentUploadIndex = index
+        myframe.window.Webcam.attach('#my_camera');
+        //点击开始拍照时不回显图片
+         var urls = myframe.window.getTakePhotoUrl()
+        urls = ''
+      },
+      // 点击重新拍照按钮，打开拍照弹窗
       handlePhotoUpload(index) {
         this.dialogVisible = true;
         this.currentUploadIndex = index
@@ -340,6 +415,7 @@
             });
           }
         }
+
         // this.formInline.sanyBussVisitorDetailsList[this.currentUploadIndex].imgUrl = url
         myframe.window.Webcam.reset()
       },
@@ -384,28 +460,53 @@
       },
       // 保存
       handleSave() {
-        this.$refs.tempVisitInputID.validate(async (valid) => {
-            if (!valid) return;
-          const {sanyBussVisitorDetailsList} = this.formInline
-          for (var i = 0; i <  sanyBussVisitorDetailsList.length; i++) {
-            if(sanyBussVisitorDetailsList[i].visitorName === ''){
-              this.regIsName= true
-              this.isShowUserName= true
-            }else if(sanyBussVisitorDetailsList[i].phone === ''){
-              this.regIsNull= true
-              this.isShowPhone= true
-            }else if(sanyBussVisitorDetailsList[i].visitorId === ''){
-              this.regIsIDCard= true
-              this.isShowIDCard= true
-            }
-            if(sanyBussVisitorDetailsList[i].visitorName === '' ||sanyBussVisitorDetailsList[i].visitorId === ''||sanyBussVisitorDetailsList[i].phone === ''){
-              return
-            }
+        const {employerName} = this.formInline.sanyBussVisitor
+        this.restaurantsArr.forEach((item,index)=>{
+          console.log('employerName',employerName)
+          console.log('item.name',item.name)
+          console.log('item.userNo',item.userNo)
+          if(item.name === employerName || item.userNo === employerName){
+
+            this.$refs.tempVisitInputID.validate(async (valid) => {
+              if (!valid) return;
+              const {sanyBussVisitorDetailsList} = this.formInline
+              for (var i = 0; i <  sanyBussVisitorDetailsList.length; i++) {
+                if(sanyBussVisitorDetailsList[i].visitorName === ''){
+                  this.regIsName= true
+                  this.isShowUserName= true
+                }else if(sanyBussVisitorDetailsList[i].phone === ''){
+                  this.regIsNull= true
+                  this.isShowPhone= true
+                }else if(sanyBussVisitorDetailsList[i].visitorId === ''){
+                  this.regIsIDCard= true
+                  this.isShowIDCard= true
+                }
+                if(sanyBussVisitorDetailsList[i].visitorName === '' ||sanyBussVisitorDetailsList[i].visitorId === ''||sanyBussVisitorDetailsList[i].phone === ''){
+                  return
+                }
+              }
+              //时间校验
+              var startTime = new Date(this.formInline.sanyBussVisitor.planBeginTime).getTime()
+              // var endTime = new Date(this.formInline.sanyBussVisitor.planEndTime).getTime()
+              /*  if(startTime>endTime){
+                  this.$message({
+                    type:'error',
+                    message:'结束时间不得小于开始时间，请重新输入'
+                  })
+                  return
+                }*/
+              // source = 2表示从临时拜访录入[门岗]页面过来的添加信息
+              this.formInline.source = 2
+              this.addApplyRequestData(this.formInline)
+            })
+
+          }else{
+            this.$message({message:'保存失败，输入的拜访人信息未找到'})
           }
-          // source = 2表示从临时拜访录入[门岗]页面过来的添加信息
-          this.formInline.source = 2
-          this.addApplyRequestData(this.formInline)
+
         })
+
+
 
       },
       // 新增请求数据接口
@@ -426,7 +527,8 @@
         // 上传完之后清空
         this.formInline.sanyBussVisitor = {
           planBeginTime: '', // 拜访开始时间
-          planEndTime: '', // 拜访结束时间
+          // planEndTime: '', // 拜访结束时间
+          visitingTime:'',//拜访时间
           vistorNum: '', // 来访人数量
           isCar: '', // 是否驾车
           carNum: '', // 驾车数量
@@ -461,6 +563,23 @@
         val===''? this.isShowIDCard= true: this.isShowIDCard= false
       },
       //前台验证-------end----------------
+      //单独删除每一行，，
+      deleteSingleLine(item,index){
+        if(this.formInline.sanyBussVisitorDetailsList.length<=1){
+          this.deleteDisabled = true   //删除按钮不可点击
+          this.$message({message:'删除失败,默认保留一行'})
+          return
+        }
+        this.formInline.sanyBussVisitorDetailsList.splice(index,1)
+        this.formInline.sanyBussVisitor.vistorNum = this.formInline.sanyBussVisitorDetailsList.length
+        this.formInline.sanyBussVisitor.carNum = this.formInline.sanyBussVisitor.vistorNum
+        console.log('删除行index:',index)
+        console.log('删除行:',this.formInline.sanyBussVisitorDetailsList)
+      },
+      //拜访人弹窗不缩回问题
+      blurVisitor(){
+        // this.employerNameSelectShow = false
+      },
     }
   }
 </script>
@@ -502,7 +621,7 @@
         border-bottom: 1px solid #ebeef5;
       }
       td,th{
-        padding: 12px 10px;
+        padding: 14px 10px;
 
       }
     }
@@ -543,4 +662,16 @@
     border-radius: 5px;
   }
 }
+ /ddep/.el-button--text {
+   display: none;
+ }
+ .fatheramalltitle{
+   position: relative;
+ }
+.small-title{
+  position: absolute;
+  top: 435px;
+  left:650px;
+}
+
 </style>

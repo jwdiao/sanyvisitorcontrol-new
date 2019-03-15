@@ -29,10 +29,10 @@
                 @selection-change="handleSelectionChange"
                 :data="tableData">
         <el-table-column type="index" label="序号" width="50"></el-table-column>
-        <el-table-column prop="planBeginTime" label="拜访开始时间" width="180">  </el-table-column>
-        <el-table-column prop="planEndTime" label="拜访结束时间"  width="180">  </el-table-column>
-       <!-- <el-table-column prop="beginTime" label="实际开始时间" width="160">  </el-table-column>
-        <el-table-column prop="endTime" label="实际结束时间"  width="160">  </el-table-column>-->
+        <el-table-column prop="planBeginTime" label="到访日期" width="180">  </el-table-column>
+        <el-table-column prop="visitingTime" label="拜访时间"  width="180">  </el-table-column>
+        <el-table-column prop="beginTime" label="实际开始时间" width="160">  </el-table-column>
+        <el-table-column prop="endTime" label="实际结束时间"  width="160">  </el-table-column>
         <el-table-column prop="vistorNum" label="来访人员数" width="130">  </el-table-column>
         <el-table-column prop="isCar" label="是否驾车" width="120"> </el-table-column>
         <el-table-column prop="carNum" label="驾车数量" width="120"> </el-table-column>
@@ -57,26 +57,28 @@
                  :before-close="handleClose">
         <el-form :v-model="editForm" label-width="80px" ref="editForm"><!--:v-model="editForm"-->
           <div class="endVisitSearchDialog" style="display: flex;">
-            <el-form-item label="计划开始时间" prop="planBeginTime">
+            <el-form-item label="到访日期" prop="planBeginTime">
               <el-input  v-model="editForm.planBeginTime" :disabled="true" auto-complete="off"></el-input>
             </el-form-item>
-            <el-form-item label="计划结束时间" prop="planEndTime">
-              <el-input v-model="editForm.planEndTime" :disabled="true" auto-complete="off"></el-input>
+            <el-form-item label="拜访时间" prop="visitingTime">
+              <el-input v-model="editForm.visitingTime" :disabled="true" auto-complete="off"></el-input>
             </el-form-item>
             <el-form-item label="来访人员数量" prop="vistorNum">
               <el-input v-model="editForm.vistorNum" :disabled="true" auto-complete="off"></el-input>
             </el-form-item>
           </div>
           <div class="endVisitSearchDialog" style="display: flex;">
-          <!--  <el-form-item label="实际开始时间" prop="beginTime">
+            <el-form-item label="实际开始时间" prop="beginTime">
               <el-input  v-model="editForm.beginTime" :disabled="true" auto-complete="off"></el-input>
             </el-form-item>
             <el-form-item label="实际结束时间" prop="endTime">
               <el-input v-model="editForm.endTime" :disabled="true" auto-complete="off"></el-input>
-            </el-form-item>-->
+            </el-form-item>
             <el-form-item label="是否驾车" prop="isCar">
               <el-input v-model="editForm.isCar" :disabled="true" auto-complete="off"></el-input>
             </el-form-item>
+          </div>
+          <div class="endVisitSearchDialog" style="display: flex;">
             <el-form-item label="驾车数量" prop="carNum">
               <el-input  v-model="editForm.carNum" :disabled="true" auto-complete="off"></el-input>
             </el-form-item>
@@ -98,8 +100,8 @@
               <el-table-column prop="phone" label="电话号码"  width="120">  </el-table-column>
               <el-table-column prop="visitorId" label="身份证号" >  </el-table-column>
               <el-table-column prop="carNo" label="车牌号码">  </el-table-column>
-             <!-- <el-table-column prop="beginTime" label="进入时间"  >  </el-table-column>
-              <el-table-column prop="endTime" label="离开时间" >  </el-table-column>-->
+              <el-table-column prop="beginTime" label="实际开始时间"  >  </el-table-column>
+              <el-table-column prop="endTime" label="实际结束时间" >  </el-table-column>
               <el-table-column prop="pictureName" label="图片名称" width="100">
                 <template slot-scope="scope">
                   <el-button size="mini" type="text" v-show="scope.row.imgUrl"
@@ -219,6 +221,13 @@
               this.tableData[i].visitorStatus= '访问中'
             }else if(this.tableData[i].visitorStatus === '03'){
               this.tableData[i].visitorStatus= '访问结束'
+            }
+            if(this.tableData[i].visitingTime === '01'){
+              this.tableData[i].visitingTime= '上午'
+            }else if(this.tableData[i].visitingTime === '02'){
+              this.tableData[i].visitingTime= '下午'
+            }else if(this.tableData[i].visitingTime === '03'){
+              this.tableData[i].visitingTime= '全天'
             }
             if(this.tableData[i].recordType === '01'){
               this.tableData[i].recordType= '被访人录入'

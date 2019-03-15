@@ -1,6 +1,7 @@
 <template>
   <div class="">
    <!-- <p class="common-breadcrumb">预约访客查询</p> -->
+    <!--搜索栏-->
     <el-form
       :inline="true"
       :model="bookVisitArr"
@@ -16,19 +17,20 @@
       <el-form-item>
         <el-button type="primary" @click="onSubmit">查询</el-button>
       </el-form-item>
-      <el-form-item>
+      <!--<el-form-item>
         <el-button type="primary" @click="subPhotoBtn">下发照片</el-button>
-      </el-form-item>
+      </el-form-item>-->
     </el-form>
+    <!--主列表-->
     <div class="common-table">
       <el-table header-row-class-name="table-header" stripe  border  style="width: 100%"
                 ref="multipleTable" tooltip-effect="dark"
                 @selection-change="handleSelectionChange"
         :data="visitTableListData">
-        <el-table-column type="selection" label="选择" width="50"></el-table-column>
+        <!--<el-table-column type="selection" label="选择" width="50"></el-table-column>-->
         <el-table-column type="index" label="序号" width="50"></el-table-column>
-        <el-table-column prop="planBeginTime" label="拜访开始时间" width="160">  </el-table-column>
-        <el-table-column prop="planEndTime" label="拜访结束时间"  width="160">  </el-table-column>
+        <el-table-column prop="planBeginTime" label="到访日期" width="160">  </el-table-column>
+        <el-table-column prop="visitingTime" label="拜访时间"  width="160">  </el-table-column>
         <el-table-column prop="vistorNum" label="来访人员数" width="95">  </el-table-column>
         <el-table-column prop="isCar" label="是否驾车" width="80"> </el-table-column>
         <el-table-column prop="carNum" label="驾车数量" width="80"> </el-table-column>
@@ -38,7 +40,7 @@
         <!--<el-table-column prop="recordType" label="录入类型"> </el-table-column>-->
         <el-table-column prop="employerCode" label="操作人工号"> </el-table-column>  <!---->
         <el-table-column prop="employerName" label="操作人姓名"> </el-table-column>  <!---->
-        <el-table-column prop="downStatus" label="下发状态"> </el-table-column>  <!--s-->
+        <el-table-column prop="isSub" label="下发状态"> </el-table-column>  <!--s-->
 
        <!-- <el-table-column prop="checkSubmit" label="审核确认" width="140">
           <template slot-scope="scope">
@@ -56,9 +58,15 @@
                        @click="checkBookVisitInformation(scope.$index, scope.row)">信息维护</el-button>
           </template>
         </el-table-column>
+        <el-table-column prop="che" label="操作">
+          <template slot-scope="scope">
+            <el-button size="mini" type="text" v-show="scope.row.isSub!=='已下发'"
+                       @click="subPhotoBtn(scope.$index, scope.row)">下发照片</el-button>
+          </template>
+        </el-table-column>
       </el-table>
     </div>
-
+      <!--信息维护-->
     <div class="bookVisitSearch">
       <el-dialog title="预约访客信息"
                  :visible.sync="bookVisitorInfomation"
@@ -67,11 +75,11 @@
                  :before-close="handleClose">
         <el-form :v-model="editForm" label-width="80px" ref="editForm"><!--:v-model="editForm"-->
           <div class="bookVisitSearchDialog" style="display: flex;">
-            <el-form-item label="计划开始时间" prop="planBeginTime">
+            <el-form-item label="到访日期" prop="planBeginTime">
               <el-input :disabled="true"  v-model="editForm.planBeginTime" auto-complete="off"></el-input>
             </el-form-item>
-            <el-form-item label="计划结束时间" prop="planEndTime">
-              <el-input :disabled="true" v-model="editForm.planEndTime" auto-complete="off"></el-input>
+            <el-form-item label="拜访时间" prop="visitingTime">
+              <el-input :disabled="true" v-model="editForm.visitingTime" auto-complete="off"></el-input>
             </el-form-item>
             <el-form-item label="来访人员数量" prop="vistorNum">
               <el-input :disabled="true" v-model="editForm.vistorNum" auto-complete="off"></el-input>
@@ -101,7 +109,7 @@
               <el-table-column prop="phone" label="电话号码"  width="120">  </el-table-column>
               <el-table-column prop="visitorId" label="身份证号" >  </el-table-column>
               <el-table-column prop="carNo" label="车牌号码">  </el-table-column>
-              <el-table-column prop="down" label="下发状态">  </el-table-column>
+              <el-table-column prop="isSub" label="下发状态">  </el-table-column>
 
               <el-table-column label="上传" >
                 <template slot-scope="scope">
@@ -115,9 +123,9 @@
                     :http-request="UploadImage"
                   >
                     <el-button size="mini" type="primary"
-                               v-show="scope.row.isSub==='未下发'"
+                               v-show="scope.row.isSub!=='已下'"
                                @click="handleRepeatUploadPhoto(scope.$index, scope.row)">重新上传 </el-button>&nbsp;
-                    <el-tooltip  v-show="scope.row.isSub==='未下发'" content="人脸图片命名一定和工卡号保持一致；人脸清晰；大小不超过2M" placement="top">
+                    <el-tooltip  v-show="scope.row.isSub!=='已下发'" content="只能上传jpg/png文件，且大小不超过2M" placement="top">
                       <img src="./images/imageSize.png" style="vertical-align: middle" alt="">
                     </el-tooltip>
                   </el-upload>
@@ -128,12 +136,10 @@
               <el-table-column prop="endTime" label="离开时间" >  </el-table-column>-->
               <el-table-column prop="pictureName" label="图片名称" width="100">
                 <template slot-scope="scope">
-                  <el-button size="mini" type="text" v-show="scope.row.imgUrl"
+                  <el-button size="mini" type="text" v-show="scope.row.imgUrl || checkImgUrl"
                              @click="checkPicture(scope.$index, scope.row)">查看图片
                   </el-button>
-                  <el-button size="mini" type="text" :disabled="true" v-show="!scope.row.imgUrl"
-                             @click="checkPicture(scope.$index, scope.row)">查看图片
-                  </el-button>
+
                 </template>
               </el-table-column>
             </el-table>
@@ -153,6 +159,7 @@
         </div>
       </el-dialog>
     </div>
+    <!--查看图片-->
     <div class="checkPictureInformation">
       <el-dialog title="图片信息"
                  :visible.sync="checkPictureInformationBookVisible"
@@ -181,17 +188,19 @@
 </template>
 
 <script>
-  import {reqRightForm,reqCheckDetailList} from '../../../api'
+  import {reqRightForm,reqCheckDetailList,reqSubPhotoes,reqRUploadImage} from '../../../api'
   import {confirmVisitRequest,invalidVisitRequest,fileUploadRequest} from '../../../api/businessManageApi'
   export default {
     name: "Template",
     data() {
       return {
+        reImageId:'',//重新上传id
         totalNumber:0, //分页总数
         currentPage:1,  //当前页
         pageSize:20,  // 每页显示多少条
         source:'2',//有效访问（预约为2，我的访客为1）
         checkImgUrl:'',//查看图片地址
+        checkImgUrlData:'',//查看图片地址(临时储存)
         bookVisitArr: {
           user: '',
           num: ''
@@ -251,6 +260,22 @@
               this.visitTableListData[i].submitStatus= '审核通过'
             }else if(this.visitTableListData[i].submitStatus === '03'){
               this.visitTableListData[i].submitStatus= '已驳回'
+            }
+            if(this.visitTableListData[i].visitingTime === '01'){
+              this.visitTableListData[i].visitingTime= '上午'
+            }else if(this.visitTableListData[i].visitingTime === '02'){
+              this.visitTableListData[i].visitingTime= '下午'
+            }else if(this.visitTableListData[i].visitingTime === '03'){
+              this.visitTableListData[i].visitingTime= '全天'
+            }
+            if (this.visitTableListData[i].isSub === '1') {
+              this.visitTableListData[i].isSub = '已下发'
+            } else if (this.visitTableListData[i].isSub === '2') {
+              this.visitTableListData[i].isSub = '未下发'
+            } else if(this.visitTableListData[i].isSub === '3'){
+              this.visitTableListData[i].isSub = '已下发照片不合规'
+            }else if(this.visitTableListData[i].isSub === '4'){
+              this.visitTableListData[i].isSub = '照片部分合规'
             }
           }
         }
@@ -340,7 +365,11 @@
             this.bookVisitorTableData = res.data.data.sanyBussVisitorDetailsList
             this.bookVisitorCarTableData = res.data.data.sanyBussVisitorCarList
           }
+        this.bookVisitorTableData.forEach(item=>{
+          item.isSub === '1' ? item.isSub = '已下发' : '未下发'
+        })
       },
+
       handleSelectionChange(val){
         this.multipleTable = val
       },
@@ -352,7 +381,7 @@
       },
       checkPicture(index,row){
         this.checkPictureInformationBookVisible = true
-        this.checkImgUrl = row.imgUrl
+        this.checkImgUrl = this.checkImgUrlData
       },
       handleClosePictures(){
         this.checkPictureInformationBookVisible = false
@@ -373,34 +402,15 @@
         this.getBookVisitorInforFun(currentPage,pageSize,{visitedName:user,visitedNo:num})
       },
       //下发照片按钮
-      subPhotoBtn(){
-        if(this.multipleTable.length === 0){
-          this.$message({
-            type:'error',
-            message:'请选择要下发照片对象'
-          })
-          return
-        }
+      subPhotoBtn(index,row){
         this.$confirm('确定下发?', '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
-          const {multipleTable} = this
-          for (var i = 0; i < multipleTable.length; i++) {
             //向后台发送请求
-            var idArrItem= multipleTable[i].id
-            //  this.deleteDataFn(idArrItem)
-
-            //根据返回值出现相应的提示符
-
-
-          }
-          setTimeout(()=>{
-            //删除后渲染页面
-            //  this.searchBrakeFun(ParkerItemName,currentPage,pageSize)
-
-          },300)
+            var idArrItem= row.id
+              this.subSendImage(idArrItem)
         }).catch(() => {
           this.$message({
             type: 'info',
@@ -408,10 +418,31 @@
           });
         });
       },
+      //下发照片后台请求
+      async subSendImage(visitorId){
+        const res = await reqSubPhotoes(visitorId)
+        if(res&&res.data&&res.data.code===200){
+          //根据返回值出现相应的提示符
+          this.$message({
+            type:'success',
+            message:res.data.data
+          })
+          //重新渲染页面
+          const {currentPage,pageSize} = this
+          this.getBookVisitorInforFun(currentPage,pageSize,{visitedName:'',visitedNo:''})
+        }else{
+          this.$message({
+            type:'error',
+            message:res.data.data
+          })
+        }
+      },
+
       //重新上传照片
       handleRepeatUploadPhoto(index,row){
         this.currentUploadIndex = index
-        console.log('重新上传照片:',row)
+        this.reImageId = row.id
+
       },
       /*getUpload (index) {
         return `uploadPerson${index}`
@@ -431,12 +462,14 @@
         var uploadObj = `uploadPerson${this.currentUploadIndex}`
         var formData = new FormData(document.getElementById(`${uploadObj}`));
         formData.append('file', param.file)
-        const res = await fileUploadRequest(formData)
-        if(res&&res.status===200){
-          this.$message('上传成功')
-          let {code,data,msg} = res.data;
-          this.formInline.sanyBussVisitorDetailsList[this.currentUploadIndex].imgUrl = data
-          this.checkImgUrl = data
+        const res = await reqRUploadImage(formData,this.reImageId)
+        if(res&&res.data.code===200){
+          this.$message({
+            type:'success',
+            message:'上传成功'
+          })
+          this.checkImgUrlData = res.data.data
+          console.log('重新上传照片0000000000000000000:',this.checkImgUrl)
         }
       },
     }

@@ -32,6 +32,7 @@
       <el-dialog title="园区信息"
                  :visible.sync="addFormVisible"
                  :close-on-click-modal="false"
+								 @close="closeDialog"
                  class="edit-form"
                  :before-close="handleClose">
         <el-form  label-width="80px" ref="editForm"><!--:v-model="editForm"-->
@@ -48,16 +49,18 @@
 						<!--accordion v-else 	:default-expanded-keys="[1]"
 							:default-checked-keys="[1]"-->
            <!-- <span v-if="dataArr.length===0">正在请求数据中，请等待……</span>
-						
+
 						-->
-            <el-tree 
+            <el-tree
               :data="dataArr"
 							show-checkbox
-              :props="defaultProps" 
+              :props="defaultProps"
 							:default-expanded-keys="expandedArr"
+							:check-strictly = "strictFlag"
 							ref="tree"
 							node-key="flag"
-              @check-change="handleCheckChange"><!--@node-click="handleNodeClick"-->
+              @check-change="handleCheckChange"
+							@check="checkClick"><!--@node-click="handleNodeClick"-->
             </el-tree>
           </el-form-item>
         </el-form>
@@ -68,24 +71,24 @@
       </el-dialog>
     </div>
     <!--分页-->
-    <!--<div class="marginTop10 text-right">
+    <div class="marginTop10 text-right">
       <el-pagination
         background
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
         :current-page="currentPage"
-        :page-sizes="[100, 200, 300, 400]"
-        :page-size="100"
+        :page-sizes="[20, 30, 50, 100]"
+        :page-size="pageSize"
         layout="total, sizes, prev, pager, next, jumper"
-        :total="400">
+        :total="total">
       </el-pagination>
-    </div>-->
+    </div>
   </div>
 </template>
 
 <script>
   import http from '../../../api/http'
-  import {reqGivePower,reqParkServiceList,reqAddDepartment} from '../../../api'
+  import {reqGivePower,reqParkServiceLists,reqAddDepartment} from '../../../api'
   export default {
     name: "Template",
     data() {
@@ -101,7 +104,10 @@
         multipleTable:[],
         empowermentTableData: [],
         currentPage: 1,
+        pageSize: 20,
+        total: 0,
         dataArr:[],//tree结构
+				strictFlag:true,
         defaultProps:{
           children:'nodes',
           label:'orgText'
@@ -110,42 +116,63 @@
     },
     mounted(){
       ///初始化查询列表
-      this.onSubmit()
+      const {organizatioName,currentPage,pageSize} = this
+      this.searchList(organizatioName,currentPage,pageSize)
       // var orgId = '50020020'
       //this.getEmpowerTree()
-			
+
     },
     methods: {
      // 点击查询，返回的值
-     async onSubmit() {
-        const {organizatioName} = this
-         const res = await reqParkServiceList(organizatioName)
-         if(res.data.code === 200){
-          this.empowermentTableData = res.data.data
-         }
+      onSubmit() {
+        const {organizatioName,currentPage,pageSize} = this
+        this.searchList(organizatioName,currentPage,pageSize)
       },
+      //查询主列表
+      async searchList(organizatioName,pageNum,pageSize){
+        const res = await reqParkServiceLists(organizatioName,pageNum,pageSize)
+        if(res.data.code === 200){
+          this.empowermentTableData = res.data.data.list
+          this.total = res.data.data.total
+        }
+      },
+
+
       //初始渲染请求树
      async getEmpowerTree(){
        const res = await reqAddDepartment(this.editForm.parkCode)
        if(res.data.code === 200){
-         this.dataArr = JSON.parse(res.data.data)
+         this.dataArr = JSON.parse(res.data.data);
+				 this.strictFlag = true;
+				 const treeData = this;
+				 setTimeout(function(){
+					  treeData.strictFlag = false;
+				 },100)
 				 console.log(this.dataArr)
 					const arr = [];
 					for(var i = 10000;i<20000;i++){
 						  arr.push(i)
 					}
 					this.$refs.tree.setCheckedKeys(arr);
-					this.expandedArr = arr; 						 
+					this.expandedArr = arr;
+					
        }
       },
 			//点击授权
       handleAccredit(index, row) {
         // console.log(index, row);
+				//this.strictFlag = true;
+				//this.dataArr = [];
+				
         this.addFormVisible = true
         this.editForm = Object.assign({},row)
+				console.log(this.editForm.parkCode)
 				this.getEmpowerTree()
-				
+        
       },
+			closeDialog(){
+			   this.strictFlag = true;
+			},
       handleClose(){
         this.addFormVisible = false
       },
@@ -157,7 +184,11 @@
       *描述：
       * */
       handleGivePowerFn(){
-       this.orgArrs = this.$refs.tree.getCheckedNodes()
+       //this.orgArrs = this.$refs.tree.getCheckedNodes();
+			 var arr1 = this.$refs.tree.getCheckedNodes();
+			 var arr2 = this.$refs.tree.getHalfCheckedNodes();
+			 this.orgArrs = arr1.concat(arr2)
+			 //this.orgHalfArrs = this.$refs.tree.getHalfCheckedNodes();
        if(this.orgArrs.length === 0){
          this.$message({
            type:'error',
@@ -165,8 +196,8 @@
          })
          return
        }
-      let orgNewArr = []
-        this.orgArrs.forEach((item,index)=>{
+        let orgNewArr = []
+        this.orgArrs.forEach((item,index)=>{[]
           var orgList
           orgList = item.orgId
           orgNewArr.push(orgList)
@@ -195,21 +226,24 @@
        * 参数：
        * 描述：树状结构选中触发逻辑
        */
+			checkClick(){
+				console.log('点击了')
+			},
       handleCheckChange(data,checked,indeterminate){
-           // this.orgArrs = JSON.stringify(this.$refs.tree.getCheckedNodes())
-         /* this.newOrgCodeArr = this.$refs.tree.getCheckedNodes()
-        var orgCodeObj = {}
-        for (var i = 0; i < this.newOrgCodeArr.length; i++) {
-          orgCodeObj.orgId = this.newOrgCodeArr[i].orgId
-          this.orgArrs.push(orgCodeObj)
-        }*/
+				 
       },
       handleSelectionChange(val){
         this.multipleSelection = val;
       },
-      handleSizeChange(){},
+      handleSizeChange(val){
+        const {organizatioName,currentPage} = this
+        this.pageSize = val
+        this.searchList(organizatioName,currentPage,this.pageSize)
+      },
       handleCurrentChange(val) {
-        console.log(`当前页: ${val}`);
+        const {organizatioName,pageSize} = this
+        this.currentPage = val
+        this.searchList(organizatioName,this.currentPage,pageSize)
       },
     }
   }

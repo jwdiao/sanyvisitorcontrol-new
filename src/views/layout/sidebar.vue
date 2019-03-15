@@ -110,7 +110,7 @@ export default {
       <el-menu-item index="index" class="indexMenu"><i class="fontFamily hhtx-shouye-"></i>首页</el-menu-item>
       <el-submenu index="1" v-if="roleCode==='1' || roleCode==='3' || roleCode==='4'">
         <template slot="title"><i class="fontFamily hhtx-gerenzhongxin"></i>我的信息</template>
-        <el-menu-item v-if="roleCode==='1' || roleCode==='4' || roleCode==='3'" index="myPhotoInput">我的照片录入</el-menu-item><!--全部员工和管理-->
+        <el-menu-item v-if="roleCode==='1' || roleCode==='2' || roleCode==='4' || roleCode==='3'" index="myPhotoInput">我的照片录入</el-menu-item><!--全部员工和管理,门岗-->
       </el-submenu>
       <el-submenu index="2">
         <template slot="title"><i class="fontFamily hhtx-yewuguanli-"></i>访客管理</template>
@@ -124,8 +124,8 @@ export default {
       <el-submenu index="3" v-if="roleCode==='2' || roleCode==='4'">
         <!--hhtx-icon-test-->
         <template slot="title"><i class="fontFamily hhtx-yuanquguanli-"></i>园区管理</template>
-        <el-menu-item v-if="roleCode==='4'" index="externalStaffManage">园区员工管理</el-menu-item> <!--系统管理员-->
-        <el-menu-item v-if="roleCode==='4'" index="parkCarManage">园区车辆管理</el-menu-item> <!--parkCarManage系统管理员-->
+        <el-menu-item v-if="roleCode==='2'||roleCode==='4'" index="externalStaffManage">园区员工管理</el-menu-item> <!--门岗,系统管理员-->
+        <el-menu-item v-if="roleCode==='2'||roleCode==='4'" index="parkCarManage">园区车辆管理</el-menu-item> <!--parkCarManage门岗,系统管理员-->
 
 
       </el-submenu>
