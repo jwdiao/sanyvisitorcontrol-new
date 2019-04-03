@@ -13,29 +13,32 @@
         <el-button type="primary" @click="handleSearchByName">查询</el-button>
         <el-button type="primary" @click="handleAddVisitor">新增访客</el-button>
         <!--<el-button type="primary" @click="handleDownSubPhoto">下发照片</el-button>-->
-        <el-button type="primary" @click="handleSendMessages">发送短信</el-button>
+        <!--<el-button type="primary" @click="handleSendMessages">发送短信</el-button>-->
       </el-form-item>
+      <div v-show="false">
+        <canvas  style="width:300px;height:300px" id="canvas" ref="canvas"></canvas>
+      </div>
     </el-form>
     <!--主列表-->
     <div class="common-table">
       <el-table header-row-class-name="table-header"  border  style="width: 100%" @selection-change="handleSelectionChange"
         :data="tableData">
 
-        <el-table-column type="selection" label="选择" width="50"></el-table-column>
+        <!--<el-table-column type="selection" label="选择" width="50"></el-table-column>-->
         <el-table-column type="index" label="序号" width="50" align="left" header-align="left"></el-table-column>
-        <el-table-column prop="planBeginTime" label="到访日期" width="160" align="left" header-align="left">  </el-table-column>
-        <el-table-column prop="visitingTime" label="拜访时间"  width="160" align="left" header-align="left">  </el-table-column>
-        <el-table-column prop="vistorNum" label="访客人数" width="100" align="left" header-align="left">  </el-table-column>
-        <el-table-column prop="isCar" label="是否驾车" width="80" align="left"> </el-table-column>
-        <el-table-column prop="carNum" label="驾车数量" width="80" align="left" header-align="left"> </el-table-column>
-        <el-table-column prop="visitorStatus" label="访问状态" width="80" align="left"> </el-table-column>
-        <el-table-column prop="submitStatus" label="单据状态" width="80" align="left"> </el-table-column>
+        <el-table-column prop="planBeginTime" label="到访日期" width="200" align="left" header-align="left">  </el-table-column>
+        <el-table-column prop="visitingTime" label="拜访时间"  align="left" header-align="left">  </el-table-column>
+        <el-table-column prop="vistorNum" label="访客人数"  align="left" header-align="left">  </el-table-column>
+        <el-table-column prop="isCar" label="是否驾车"  align="left"> </el-table-column>
+        <el-table-column prop="carNum" label="驾车数量"  align="left" header-align="left"> </el-table-column>
+        <el-table-column prop="visitorStatus" label="访问状态"  align="left"> </el-table-column>
+        <el-table-column prop="submitStatus" label="单据状态"  align="left"> </el-table-column>
         <!--<el-table-column prop="auditingType" label="审核类型" width="110" align="center"> </el-table-column>-->
        <!-- <el-table-column prop="recordType" label="录入类型" width="95" align="center"> </el-table-column>-->
-        <el-table-column prop="operatorNumAndName" label="操作人" align="left" header-align="left"> </el-table-column>
-        <el-table-column prop="reviewNumAndName" label="审核人" align="left" header-align="left"> </el-table-column>
-        <el-table-column prop="reviewTime" label="审核时间" width="160" align="left" header-align="left"> </el-table-column>
-        <el-table-column prop="downStatus" label="下发状态" align="left" header-align="left"> </el-table-column>
+        <el-table-column prop="userName" label="操作人" align="left" header-align="left"> </el-table-column>
+        <!--<el-table-column prop="reviewNumAndName" label="审核人" align="left" header-align="left"> </el-table-column>-->
+        <!--<el-table-column prop="reviewTime" label="审核时间" width="160" align="left" header-align="left"> </el-table-column>-->
+        <el-table-column prop="downStatus" label="登记状态" align="left" header-align="left"> </el-table-column>
         <el-table-column label="信息维护" width="90" align="left" header-align="left">
           <template slot-scope="scope">
             <el-button size="mini" type="text"
@@ -51,11 +54,11 @@
                        v-show="scope.row.submitStatus==='编辑中'"
                        @click="handleInvalidVisit(scope.$index, scope.row)">无效访问</el-button>-->
             <el-button size="mini" type="text"
-                        v-show="scope.row.submitStatus==='审核通过' && scope.row.downStatus==='已下发'"
+                        v-show="scope.row.submitStatus==='审核通过' && scope.row.downStatus==='未登记'"
                        @click="handleInvalid(scope.$index, scope.row)">作废 </el-button>
-            <el-button size="mini" type="text"
+            <!--<el-button size="mini" type="text"
                         v-show="scope.row.submitStatus!=='审核通过' && scope.row.downStatus!=='已下发'"
-                       @click="handleDownSubPhoto(scope.$index, scope.row)" style="margin-left: 0px">下发照片 </el-button>
+                       @click="handleDownSubPhoto(scope.$index, scope.row)" style="margin-left: 0px">下发照片 </el-button>-->
             <el-button size="mini" type="text"
                         v-show="scope.row.submitStatus==='审核通过' && scope.row.visitorStatus==='访问中'"
                        @click="handleEnd(scope.$index, scope.row)">手动结束 </el-button>
@@ -129,7 +132,7 @@
             <el-table-column prop="carNo" label="车牌号码"></el-table-column>
            <!-- <el-table-column prop="beginTime" label="进入时间"  >  </el-table-column>
             <el-table-column prop="endTime" label="离开时间" >  </el-table-column>-->
-            <el-table-column prop="isSub" label="下发状态" width="100" >  </el-table-column>
+            <el-table-column prop="isSub" label="登记状态" width="100" >  </el-table-column>
             <el-table-column label="上传" >
 
               <template slot-scope="scope">
@@ -168,7 +171,7 @@
           </el-table>
         </div><br/>
         <span slot="footer" class="dialog-footer">
-      <el-button v-show="isShowDownSubBtn" type="primary" @click="handleImageDownSub(editForm)">确 定</el-button>
+      <!--<el-button v-show="isShowDownSubBtn" type="primary" @click="handleImageDownSub(editForm)">确 定</el-button>-->
     </span>
         <!--<div class="common-table">
           <el-table header-row-class-name="table-header"  border
@@ -205,15 +208,18 @@
     cancelRequest,
     manualEndRequest,
     getVisitorDetailsRequest,
-    fileUploadRequest
+    fileUploadRequest,
+
   } from '../../../api/businessManageApi'
 import {
-  reqSendMessages,reqSubPhotoes,reqRUploadImage
+  reqSendMessages,reqSubPhotoes,reqRUploadImage,reqSendMessageSingle,
 }from '../../../api'
 
   // import {date}from '../../../util/dateFormat'
   import {date}from '../../../util/dateFormatEasy'
   import AddVisitorDialog from './addVisitorDialog'
+  import QRCode from 'qrcode'
+
   import { mapState } from 'vuex';
   export default {
     name: "Template",
@@ -263,6 +269,7 @@ import {
         const res = await getVisitorAllByVisitorNameRequest(pageNum, pageSize, visitorNameQuery);
         if (!res || !res.data || !res.data.code === '200') return;
         const {list, total} = res.data.data
+        var qrCodeList = res.data.data.list
         this.totalNum = total
         this.tableData = list.map((item) => {
           var visitorStatus = item.visitorStatus // 访问状态
@@ -297,16 +304,23 @@ import {
           } else if (recordType === '03') {
             recordType = '门岗录入'
           }
-          var downStatus = item.isSub // 下发状态
+          var downStatus = item.isSub // 登记状态
           if (downStatus === '1') {
-            downStatus = '已下发'
+            downStatus = '已登记'
           } else if (downStatus === '2') {
-            downStatus = '未下发'
-          } else if(downStatus === '3'){
+            downStatus = '未登记'
+          }
+          var isCar = item.isCar // 是否驾车
+          if (isCar === '1') {
+            isCar = '是'
+          } else if (isCar === '0') {
+            isCar = '否'
+          }
+         /* else if(downStatus === '3'){
             downStatus = '已下发照片不合规'
           }else if(downStatus === '4'){
             downStatus = '照片部分合规'
-          }
+          }*/
           var visitingTime = item.visitingTime
           console.log('item.visitingtime:',visitingTime)
           if(visitingTime === '01'){
@@ -325,13 +339,14 @@ import {
           } else {
             reviewNumAndName = auditingName
           }
-          this.qrCode = item.qrCode
+          // this.qrCode = item.qrCode
+          this.documentNo = item.documentNo
           return {
             id: item.id, // id
             planBeginTime:item.planBeginTime, // 拜访开始时间/*date(item.planBeginTime)*/
             // planEndTime: item.planEndTime, // 拜访结束时间
             vistorNum: item.vistorNum, // 来访人员数
-            isCar: item.isCar, // 是否驾车（1.是，0.否）
+            isCar: isCar, // 是否驾车（1.是，0.否）
             carNum: item.carNum, // 来访车数量
             visitorStatus: visitorStatus, // 访问状态（01:待访问02：访问中03：访问结束'）
             submitStatus: submitStatus, // 审核状态（01:待审核（申请中）02：审核通过）
@@ -342,12 +357,15 @@ import {
             operatorNumAndName: item.operaterCode, // 操作人工号/姓名
             reviewNumAndName: reviewNumAndName, // 审核人工号/姓名
             reviewTime: item.auditingTime, // 审核时间
-            downStatus: downStatus, // 下发状态
+            downStatus: downStatus, // 登记状态
             qrCode:item.qrCode,  //二维码地址
             phone:item.phone, // 手机号
+            documentNo:item.documentNo,//预约码
+            userName:item.userName,
           }
 
         })
+
 
       },
       // 每页多少条改变回调
@@ -373,8 +391,9 @@ import {
       handleLookInfo(index, row) {
         console.log('row:', row);
         this.visitorInfomation = true
+        this.qrCode = row.qrCode
         //是否显示信息维护确定按钮
-        row.downStatus === '已下发' ?  this.isShowDownSubBtn = false : this.isShowDownSubBtn = true
+        row.downStatus === '已登记' ?  this.isShowDownSubBtn = false : this.isShowDownSubBtn = true
         // 查看信息接口
         this.getVisitorDetailsData(row.id)
       },
@@ -401,9 +420,9 @@ import {
         this.editForm.sanyBussVisitorDetailsList.map(item=>{
           // var isSub = item.isSub // 下发状态
           if (item.isSub === '1') {
-            item.isSub = '已下发'
+            item.isSub = '已登记'
           } else if (item.isSub === '2') {
-            item.isSub = '未下发'
+            item.isSub = '未登记'
           }
           // console.log('isSub:',item.isSub)
           // console.log('sanyBussVisitorDetailsList:',this.editForm.sanyBussVisitorDetailsList)
@@ -560,14 +579,41 @@ import {
       }).then(() => {
         const {multipleSelection} = this
         var messageDto =[]
+        var messageDtoqrCodeArr =[]
+        console.log('multipleSelection:',multipleSelection)
         for (var i = 0; i < multipleSelection.length; i++) {
           var ItemObj = {}
           ItemObj.uid = multipleSelection[i].id
-          ItemObj.param = multipleSelection[i].qrCode
+          // ItemObj.qrCode = `twodimension/${multipleSelection[i].qrCode}`
+          // ItemObj.qrCode = `sanyvisitorcontrol/sanyvisitormanage/#/twodimension/${i}`
+          ItemObj.qrCode = multipleSelection[i].qrCode
+          ItemObj.verifCode = multipleSelection[i].documentNo
           messageDto.push(ItemObj)
+          messageDtoqrCodeArr.push(multipleSelection[i].qrCode)
           //向后台发送短信请求
         }
         this.sendMessageAsync(messageDto)
+      /*    //二维码
+        var qrCodeArr = []
+        messageDtoqrCodeArr.forEach((item,index) =>{
+          var qrcodeItem = item
+          console.log('qrcode:',qrcodeItem)
+          //根据返回值qrcode生成二维码
+          let canvasID = this.$refs.canvas
+          QRCode.toCanvas(canvasID, qrcodeItem, function (error) {
+            if (error) console.error(error)
+          })
+          var imgSrc = canvasID.toDataURL("image/png");
+          qrCodeArr.push(imgSrc)
+          console.log('生成二维码地址：',qrCodeArr)
+          // this.$store.commit('getQrCodeImg',qrCodeArr)
+          this.$route.params.id = index
+        })
+         localStorage.setItem('getQrCodeImg',JSON.stringify(qrCodeArr))*/
+
+        // localStorage.setItem('getQrCodeImg',JSON.stringify(messageDtoqrCodeArr))
+        // this.$store.commit('getQrCodeImg',messageDtoqrCodeArr)
+
       }).catch(() => {
         this.$message({
           type: 'info',
@@ -577,6 +623,7 @@ import {
     },
     //发送短信按钮---信息维护
       handleSendMessagesInformation(index,row){
+        console.log('row0000000:',row)
       this.$confirm('确定发送?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
@@ -585,9 +632,11 @@ import {
        var messageDto = []
         var ItemObj = {}
         ItemObj.uid = row.id
-        ItemObj.param = this.qrCode
+        ItemObj.qrCode = row.qrCode
+        ItemObj.verifCode = row.verifCode
         messageDto.push(ItemObj)
-        this.sendMessageAsync(messageDto)
+        this.sendMessageSingle(messageDto)
+        //
       }).catch(() => {
         this.$message({
           type: 'info',
@@ -595,14 +644,34 @@ import {
         });
       });
     },
+      //0328发送短信异步---信息维护中
+      async sendMessageSingle(messageDto){
+        const res = await reqSendMessageSingle(messageDto)
+        if(res&&res.data&&res.data.code===200){
+          this.$message({
+            type:'success',
+            message:'短信发送成功'
+          })
+          //刷新页面
+          this.getAllVisitorData(this.currentPage,this.pageSize,this.visitorName)
+        }else {
+          this.$message({
+            type:'error',
+            message:res.data.msg
+          })
+        }
+
+      },
       //发送短信异步请求
       async sendMessageAsync(messageDto){
         const res = await reqSendMessages(messageDto)
         if(res&&res.data&&res.data.code===200){
           this.$message({
             type:'success',
-            message:res.data.msg
+            message:'短信发送成功'
           })
+          //刷新页面
+          this.getAllVisitorData(this.currentPage,this.pageSize,this.visitorName)
         }else {
           this.$message({
             type:'error',

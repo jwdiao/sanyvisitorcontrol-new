@@ -18,18 +18,22 @@
         <el-button type="primary" @click="onSubmit">查询</el-button>
       </el-form-item>
       <!--<el-form-item>
+        <el-button type="primary" @click="recordingClick">登记</el-button>
+      </el-form-item>-->
+      <!--<el-form-item>
         <el-button type="primary" @click="subPhotoBtn">下发照片</el-button>
       </el-form-item>-->
     </el-form>
     <!--主列表-->
     <div class="common-table">
-      <el-table header-row-class-name="table-header" stripe  border  style="width: 100%"
+      <el-table header-row-class-name="table-header" stripe  border  style="width: 100%" height="650"
                 ref="multipleTable" tooltip-effect="dark"
                 @selection-change="handleSelectionChange"
         :data="visitTableListData">
         <!--<el-table-column type="selection" label="选择" width="50"></el-table-column>-->
         <el-table-column type="index" label="序号" width="50"></el-table-column>
         <el-table-column prop="planBeginTime" label="到访日期" width="160">  </el-table-column>
+        <el-table-column prop="employerName" label="被访人姓名"> </el-table-column>
         <el-table-column prop="visitingTime" label="拜访时间"  width="160">  </el-table-column>
         <el-table-column prop="vistorNum" label="来访人员数" width="95">  </el-table-column>
         <el-table-column prop="isCar" label="是否驾车" width="80"> </el-table-column>
@@ -38,9 +42,9 @@
         <el-table-column prop="submitStatus" label="审核状态"> </el-table-column>
         <!--<el-table-column prop="auditingType" label="审核类型"> </el-table-column>-->
         <!--<el-table-column prop="recordType" label="录入类型"> </el-table-column>-->
-        <el-table-column prop="employerCode" label="操作人工号"> </el-table-column>  <!---->
-        <el-table-column prop="employerName" label="操作人姓名"> </el-table-column>  <!---->
-        <el-table-column prop="isSub" label="下发状态"> </el-table-column>  <!--s-->
+        <el-table-column prop="operaterCode" label="操作人工号"> </el-table-column>  <!---->
+        <el-table-column prop="userName" label="操作人姓名"> </el-table-column>  <!---->
+        <el-table-column prop="isSub" label="登记状态"> </el-table-column>  <!--s-->
 
        <!-- <el-table-column prop="checkSubmit" label="审核确认" width="140">
           <template slot-scope="scope">
@@ -52,16 +56,17 @@
                        @click="handleInvalidVisit(scope.$index, scope.row)">无需审核</el-button>
           </template>
         </el-table-column>-->
-        <el-table-column prop="che" label="信息维护">
+        <el-table-column prop="che" label="信息查看">
           <template slot-scope="scope">
             <el-button size="mini" type="text"
-                       @click="checkBookVisitInformation(scope.$index, scope.row)">信息维护</el-button>
+                       @click="checkBookVisitInformation(scope.$index, scope.row)">信息查看</el-button>
           </template>
         </el-table-column>
         <el-table-column prop="che" label="操作">
           <template slot-scope="scope">
-            <el-button size="mini" type="text" v-show="scope.row.isSub!=='已下发'"
-                       @click="subPhotoBtn(scope.$index, scope.row)">下发照片</el-button>
+            <!--v-show="scope.row.submitStatus!=='审核通过'"-->
+            <el-button size="mini" type="text" :disabled="scope.row.isSub ==='已登记'"
+                       @click="subPhotoBtn(scope.$index, scope.row)">登记</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -109,9 +114,8 @@
               <el-table-column prop="phone" label="电话号码"  width="120">  </el-table-column>
               <el-table-column prop="visitorId" label="身份证号" >  </el-table-column>
               <el-table-column prop="carNo" label="车牌号码">  </el-table-column>
-              <el-table-column prop="isSub" label="下发状态">  </el-table-column>
-
-              <el-table-column label="上传" >
+              <el-table-column prop="isSub" label="登记状态">  </el-table-column>
+              <!--<el-table-column label="上传" >
                 <template slot-scope="scope">
                   <el-upload
                     class="upload-demo"
@@ -122,22 +126,30 @@
                     :before-upload="onBeforeUploadImage"
                     :http-request="UploadImage"
                   >
+                    &lt;!&ndash;v-show="scope.row.isSub!=='已登记'"&ndash;&gt;
                     <el-button size="mini" type="primary"
-                               v-show="scope.row.isSub!=='已下'"
+                               v-show="scope.row.isSub!=='已登记'"
                                @click="handleRepeatUploadPhoto(scope.$index, scope.row)">重新上传 </el-button>&nbsp;
-                    <el-tooltip  v-show="scope.row.isSub!=='已下发'" content="只能上传jpg/png文件，且大小不超过2M" placement="top">
+                    <el-tooltip  v-show="scope.row.isSub!=='已登记'" content="只能上传jpg/png文件，且大小不超过2M" placement="top">
                       <img src="./images/imageSize.png" style="vertical-align: middle" alt="">
                     </el-tooltip>
                   </el-upload>
                 </template>
-              </el-table-column>
-
+              </el-table-column>-->
               <!--<el-table-column prop="beginTime" label="进入时间"  >  </el-table-column>
               <el-table-column prop="endTime" label="离开时间" >  </el-table-column>-->
               <el-table-column prop="pictureName" label="图片名称" width="100">
                 <template slot-scope="scope">
                   <el-button size="mini" type="text" v-show="scope.row.imgUrl || checkImgUrl"
                              @click="checkPicture(scope.$index, scope.row)">查看图片
+                  </el-button>
+
+                </template>
+              </el-table-column>
+              <el-table-column prop="pictureName" label="操作" width="100">
+                <template slot-scope="scope">
+                  <el-button size="mini" type="text"
+                             @click="sendMessage(scope.$index, scope.row)">发送短信
                   </el-button>
 
                 </template>
@@ -159,7 +171,7 @@
         </div>
       </el-dialog>
     </div>
-    <!--查看图片-->
+    <!--查看图片信息-->
     <div class="checkPictureInformation">
       <el-dialog title="图片信息"
                  :visible.sync="checkPictureInformationBookVisible"
@@ -188,7 +200,7 @@
 </template>
 
 <script>
-  import {reqRightForm,reqCheckDetailList,reqSubPhotoes,reqRUploadImage} from '../../../api'
+  import {reqRightForm,reqCheckDetailList,reqSubPhotoes,reqRUploadImage,regNormalRegister,reqSendMessageSingle} from '../../../api'
   import {confirmVisitRequest,invalidVisitRequest,fileUploadRequest} from '../../../api/businessManageApi'
   export default {
     name: "Template",
@@ -269,14 +281,15 @@
               this.visitTableListData[i].visitingTime= '全天'
             }
             if (this.visitTableListData[i].isSub === '1') {
-              this.visitTableListData[i].isSub = '已下发'
+              this.visitTableListData[i].isSub = '已登记'
             } else if (this.visitTableListData[i].isSub === '2') {
-              this.visitTableListData[i].isSub = '未下发'
-            } else if(this.visitTableListData[i].isSub === '3'){
+              this.visitTableListData[i].isSub = '未登记'
+            }
+            /*else if(this.visitTableListData[i].isSub === '3'){
               this.visitTableListData[i].isSub = '已下发照片不合规'
             }else if(this.visitTableListData[i].isSub === '4'){
               this.visitTableListData[i].isSub = '照片部分合规'
-            }
+            }*/
           }
         }
       },
@@ -290,7 +303,10 @@
         currentPage = 1
         this.getBookVisitorInforFun(currentPage,pageSize,{visitedName:user,visitedNo:num})
       },
+      //点击登记按钮逻辑
+      recordingClick(){
 
+      },
       /*确定访问*/
        handleRealVisit(index, row) {
          console.log('row:',row)
@@ -357,6 +373,7 @@
       描述：点击查看详情，去请求列表,可以在照片未下发的情况下,重新上传照片
     * */
       async checkBookVisitInformation(index,row){
+        console.log('row:',row)
         this.bookVisitorInfomation = true
         this.editForm = Object.assign({},row)
         const rowID = row.id
@@ -366,7 +383,7 @@
             this.bookVisitorCarTableData = res.data.data.sanyBussVisitorCarList
           }
         this.bookVisitorTableData.forEach(item=>{
-          item.isSub === '1' ? item.isSub = '已下发' : '未下发'
+          item.isSub === '1' ? item.isSub = '已登记' : item.isSub = '未登记'
         })
       },
 
@@ -380,9 +397,53 @@
         this.bookVisitorInfomation = false
       },
       checkPicture(index,row){
+        console.log('查看图片：',row)
         this.checkPictureInformationBookVisible = true
-        this.checkImgUrl = this.checkImgUrlData
+        // this.checkImgUrl = this.checkImgUrlData
+        this.checkImgUrl = row.imgUrl
       },
+      //发送短信
+      sendMessage(index,row){
+        console.log('row0000000:',row)
+        this.$confirm('确定发送?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          var messageDto = []
+          var ItemObj = {}
+          ItemObj.uid = row.id
+          ItemObj.qrCode = row.qrCode
+          ItemObj.verifCode = row.verifCode
+          messageDto.push(ItemObj)
+          this.sendMessageSingle(messageDto)
+
+        }).catch(() => {
+          this.$message({
+            type: 'info',
+            message: '已取消发送'
+          });
+        });
+      },
+      //发送短信异步请求
+      async sendMessageSingle(messageDto){
+        const res = await reqSendMessageSingle(messageDto)
+        if(res&&res.data&&res.data.code===200){
+          this.$message({
+            type:'success',
+            message:'短信发送成功'
+          })
+          //刷新页面
+          this.getAllVisitorData(this.currentPage,this.pageSize,this.visitorName)
+        }else {
+          this.$message({
+            type:'error',
+            message:res.data.msg
+          })
+        }
+
+      },
+
       handleClosePictures(){
         this.checkPictureInformationBookVisible = false
       },
@@ -401,20 +462,21 @@
         currentPage = val
         this.getBookVisitorInforFun(currentPage,pageSize,{visitedName:user,visitedNo:num})
       },
-      //下发照片按钮
+      //登记按钮
       subPhotoBtn(index,row){
-        this.$confirm('确定下发?', '提示', {
+        this.$confirm('确定登记?', '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
-            //向后台发送请求
-            var idArrItem= row.id
-              this.subSendImage(idArrItem)
+          //向后台发送请求
+          var idArrItem= row.id
+          //this.subSendImage(idArrItem)
+          this.getRegister(idArrItem)
         }).catch(() => {
           this.$message({
             type: 'info',
-            message: '已取消下发照片'
+            message: '已取消登记'
           });
         });
       },
@@ -437,7 +499,18 @@
           })
         }
       },
-
+      //登记后台请求
+      async getRegister(visitorId){
+        const res = await regNormalRegister(visitorId)
+        if(res&&res.data.code===200){
+          this.$message({type:'success',message:res.data.data})
+          //刷新列表
+          const {currentPage,pageSize} = this
+          this.getBookVisitorInforFun(currentPage,pageSize,{visitedName:'',visitedNo:''})
+        }else{
+          this.$message({type:'error',message:res.data.msg})
+        }
+      },
       //重新上传照片
       handleRepeatUploadPhoto(index,row){
         this.currentUploadIndex = index
@@ -468,7 +541,8 @@
             type:'success',
             message:'上传成功'
           })
-          this.checkImgUrlData = res.data.data
+          // this.checkImgUrlData = res.data.data
+          this.checkImgUrl = res.data.data
           console.log('重新上传照片0000000000000000000:',this.checkImgUrl)
         }
       },

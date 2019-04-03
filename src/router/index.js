@@ -21,7 +21,8 @@ const router = new Router({
       component: () => import('../views/login/resetpwd.vue')
     },
 		{
-		  path: '/twodimension',
+		  path: '/twodimension/:id',
+		  // path: '/twodimension',
 		  name: 'twodimension',
 		  component: () => import('../views/twoDimension/index.vue')
 		},
@@ -62,31 +63,31 @@ const router = new Router({
         {
           path: '/myVisitor',
           name: 'myVisitor',
-          component: () => import('../views/businessManage/myVisitor/myVisitor.vue') ,// 我的访客信息（全部员工）
+          component: () => import('../views/visitorManage/myVisitor/myVisitor.vue') ,// 我的访客信息（全部员工）
 					meta: ['访客管理', '我的访客信息']
         },
         {
           path: '/visitHistoryRecord',
           name: 'visitHistoryRecord',
-          component: () => import('../views/businessManage/visitHistoryRecord.vue') ,// 拜访历史记录（全部员工）
+          component: () => import('../views/visitorManage/visitHistoryRecord.vue') ,// 拜访历史记录（全部员工）
 					meta: ['访客管理', '拜访历史记录']
         },
         {
           path: '/tempVisitInput',
           name: 'tempVisitInput',
-          component: () => import('../views/businessManage/tempVisitInput.vue') ,// 临时拜访录入（门岗）
+          component: () => import('../views/visitorManage/tempVisitInput.vue') ,// 临时拜访录入（门岗）
 					meta: ['访客管理', '临时拜访录入']
         },
         {
           path: '/bookVisitSearch',
           name: 'BookVisitSearch',
-          component: () => import('../views/businessManage/bookVisitSearch/bookVisitSearch.vue') ,// 预约访客查询（门岗）
+          component: () => import('../views/visitorManage/bookVisitSearch/bookVisitSearch.vue') ,// 预约访客查询（门岗）
 					meta: ['访客管理', '预约访客查询']
         },
         {
           path: '/endVisitSearch',
           name: 'EndVisitSearch',
-          component: () => import('../views/businessManage/endVisitSearch/endVisitSearch.vue') ,// 结束拜访查询（门岗）
+          component: () => import('../views/visitorManage/endVisitSearch/endVisitSearch.vue') ,// 结束拜访查询（门岗）
 					meta: ['访客管理', '结束拜访查询']
         },
         // ===========================访客管理模块 end========================
@@ -94,31 +95,31 @@ const router = new Router({
         {
           path: '/parkService',
           name: 'ParkService',
-          component:() => import('../views/parkManage/parkService/parkService.vue') ,// 园区维护管理（系统管理页）
+          component:() => import('../views/basicManage/parkService/parkService.vue') ,// 园区维护管理（系统管理页）
           meta: ['基础管理', '园区维护管理']
         },
         {
           path: '/empowerment',
           name: 'Empowerment',
-          component: () => import('../views/parkManage/empowerment/empowerment.vue') ,// 园区组织授权(系统管理页)
+          component: () => import('../views/basicManage/empowerment/empowerment.vue') ,// 园区组织授权(系统管理页)
           meta: ['基础管理', '园区组织授权']
         },
         {
           path: '/externalStaffAccount',
           name: 'ExternalStaffAccount',
-          component:() => import('../views/parkManage/externalStaffAccount/index.vue') ,// 员工账号管理（门岗）
+          component:() => import('../views/basicManage/externalStaffAccount/index.vue') ,// 员工账号管理（门岗）
           meta: ['基础管理', '员工账号管理']
         },
         {
           path: '/outsideOrg',
           name: 'outsideOrg',
-          component: () => import('../views/systemManage/outsideOrg.vue'),// 外部组织机构
+          component: () => import('../views/basicManage/outsideOrg.vue'),// 外部组织机构
           meta: ['基础管理', '园区组织机构']
         },
         {
           path: '/parkBrake',
           name: 'ParkBrake',
-          component: () => import('../views/brakeManage/parkBrake.vue') ,// 园区闸机（系统管理页）
+          component: () => import('../views/basicManage/parkBrake.vue') ,// 园区闸机（系统管理页）
           meta: ['基础管理', '园区闸机']
         },
 
@@ -127,7 +128,7 @@ const router = new Router({
         {
           path: '/photoInputSearch',
           name: 'photoInputSearch',
-          component: () => import('../views/myInfo/photoInputSearch.vue'),//照片录入查询（管理）
+          component: () => import('../views/systemManage/photoInputSearch.vue'),//照片录入查询（管理）
           meta: ['系统管理', '照片录入查询']
         },
 				{
@@ -158,7 +159,7 @@ const router = new Router({
         {
           path: '/parkPorter',
           name: 'ParkPorter',
-          component: () => import('../views/parkManage/parkPorter/parkPorter.vue') ,// 园区门卫（系统管理页）
+          component: () => import('../views/systemManage/parkPorter/parkPorter.vue') ,// 园区门卫（系统管理页）
           meta: ['系统管理', '园区门卫']
         },
         // ===========================系统管理模块 end========================
@@ -183,7 +184,7 @@ const router = new Router({
 })
 
 router.beforeEach((to,from,next)=>{
-  if(to.path === '/login'|| to.path === '/resetpwd'){
+  if(to.path === '/login'|| to.path === '/resetpwd' || to.name === 'twodimension'){
     next()
   }else{
     if(sessionStorage.username){

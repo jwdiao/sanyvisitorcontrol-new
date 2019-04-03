@@ -194,7 +194,7 @@
         if (!res || !res.data || res.data.code !== 200) {
           this.$message({
             type: 'success',
-            message: res.data.msg
+            message: "请重新登录！"//res.data.msg,该信息后期从后端获取2019.4.2yangbao
           });
           return;
         }

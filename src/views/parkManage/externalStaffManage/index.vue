@@ -8,12 +8,11 @@
           <el-tree
             :data="dataTree"
             :props="defaultProps"
-            node-key="flag"
+            node-key="id"
             ref="tree"
-            :default-expanded-keys="[1]"
+            :default-expanded-keys="[defaultData]"
             highlight-current
             show-checkbox
-
             @node-click="handleNodeClick">
 					</el-tree>
         </div>
@@ -36,7 +35,8 @@
                   <el-option label="已录入" value="1"></el-option>
                 </el-select>
               </el-form-item>
-              <el-form-item label="是否满足要求">
+            <!--0325将是否满足要求更改为是否授权-->
+              <el-form-item label="是否授权">
                 <el-select class="dataPhoto" v-model="formInline.meetDemand" placeholder="请选择">
                   <el-option label="全部" value=""></el-option>
                   <el-option label="是" value="1"></el-option>
@@ -81,6 +81,9 @@
               <el-form-item>
                 <el-button type="danger" style="background: #ff404a;" @click="deleteContentItemSubmit">删除</el-button>
               </el-form-item>
+              <el-form-item>
+                <el-button type="primary" @click="batchAuthoriaztion">批量授权</el-button>
+              </el-form-item>
           </el-form>
           <div class="common-table">
             <el-table stripe height="590px"
@@ -106,28 +109,29 @@
                 label="电话号码">
               </el-table-column>
               <el-table-column
-                prop="idCard" width="170"
+                prop="idCard" width="200"
                 label="身份证号">
               </el-table-column>
-              <el-table-column prop="isFa" label="下发状态">
+              <!--0325将下发状态更改为是否授权-->
+              <el-table-column prop="isFa" label="是否授权">
                 <template slot-scope="scope">
-                  <el-text v-show="scope.row.isSub==='1'" size="mini" type="text">已下发</el-text>
-                  <el-text v-show="scope.row.isSub==='2'" size="mini" type="text">未下发</el-text>
+                  <div v-show="scope.row.isSub==='1'" size="mini" type="text">已授权</div>
+                  <div v-show="scope.row.isSub==='2'" size="mini" type="text">未授权</div>
                 </template>
               </el-table-column>
-              <el-table-column label="照片合规性">
+             <!-- <el-table-column label="照片合规性">
                 <template slot-scope="scope">
-                  <el-text v-show="scope.row.imgVerify==='1'" size="mini" type="text">合规</el-text>
-                  <el-text v-show="scope.row.imgVerify==='2'" size="mini" type="text">不合规</el-text>
+                  <div v-show="scope.row.imgVerify==='1'" size="mini" type="text">合规</div>
+                  <div v-show="scope.row.imgVerify==='2'" size="mini" type="text">不合规</div>
                 </template>
-              </el-table-column>
+              </el-table-column>-->
               <el-table-column label="照片上传">
                 <template slot-scope="scope">
                   <el-button v-if="scope.row.imgVerify!=='0'"
                     size="mini"
                     type="text"
                     @click="handleLookPhoto(scope.$index, scope.row)">查看照片</el-button>
-                  <el-text v-else>未上传</el-text>
+                  <div v-else>未上传</div>
                 </template>
               </el-table-column>
               <!--<el-table-column label="身份证照片">
@@ -181,7 +185,7 @@
               <el-input v-model="outWorkerEditForm.userName" placeholder="请输入姓名"></el-input>
             </el-form-item>
             <el-form-item label="电话号码" prop="telephone">
-              <el-input v-model="outWorkerEditForm.telephone" placeholder="请输入电话号码" @change="changeTelephoto"></el-input>
+              <el-input v-model="outWorkerEditForm.telephone" placeholder="请输入电话号码" @change="editChangeTelephoto"></el-input>
             </el-form-item>
             <el-form-item label="身份证号" prop="idCard">
               <el-input v-model="outWorkerEditForm.idCard" placeholder="请输入身份证号" @change="editInputIDCard"></el-input>
@@ -204,7 +208,7 @@
             <el-input v-model="outWorkerEditForm.userNo" placeholder="请输入工号" :disabled="isShowAddListTree" @change="editInputUserNo"></el-input>
           </el-form-item>
             <el-form-item label="出生日期">
-              <el-date-picker
+              <el-date-picker disabled
                 v-model="editDateValue"
                 type="date" placeholder="请选择出生年月"
                 format="yyyy-MM-dd"
@@ -265,7 +269,7 @@
             </div>
           </el-form-item>
           <el-form-item style="width: 700px;" class="currentOrg"  label="当前归属组织">{{formDataAdd.orgText}}
-            <!--<el-text style="margin-left: -100px"></el-text>-->
+            <!--<div style="margin-left: -100px"></div>-->
           </el-form-item>
           <el-form-item label="归属组织" style="width: 500px;" prop="org">
             <el-tree
@@ -328,7 +332,7 @@
           </el-form-item>
           <el-form-item label="出生日期">
             <el-date-picker
-              v-model="selectDateValue"
+              v-model="selectDateValue" disabled
               type="date" placeholder="请选择出生年月"
               format="yyyy-MM-dd"
               value-format="yyyy-MM-dd"></el-date-picker>
@@ -380,6 +384,9 @@
                 size="small" type="primary" v-show="formDataAdd.photo==='拍照上传'"
                 @click="handlePhotoUpload()">点击拍照上传</el-button></div>
             </div>
+            <div style="position: absolute;top: 10px;left: 420px;z-index: 100" v-show="imageGoBackShow">
+              <img style="width: 400px;height: 225px;" :src="uploadImageUrlDiv" alt="">
+            </div>
           </el-form-item>
           <el-form-item style="width: 700px;" label="当前归属组织">{{formDataAdd.orgText}}</el-form-item>
           <el-form-item label="归属组织" style="width: 700px;" prop="org">
@@ -416,7 +423,8 @@
         :before-close="handleClose">
         <div class="fatheramalltitle">
           <input type="hidden" value="" id="photoUrl" />
-          <iframe width="100%" height="500" frameborder="0" src="http://10.19.8.22:8081/sanyvisitorcontrol/photo/photo.html" id="myframe" name="myframe" />
+          <!--<iframe width="100%" height="500" frameborder="0" src="http://10.19.8.22:8081/sanyvisitorcontrol/photo/photo.html" id="myframe" name="myframe" />-->
+          <iframe width="100%" height="500" frameborder="0" src="http://10.19.8.21:8181/sanyvisitorcontrol/photo/photo.html" id="myframe" name="myframe" />
           <!--<iframe width="100%" height="400" frameborder="0" src="http://localhost/sanyvisitorcontrol/photo/photo.html" id="myframe" name="myframe" />-->
           <el-tooltip content="必须点击拍照后再确定，否则将保存默认图片显示区内图片" placement="top" class="small-title">
             <img src="../../../../src/assets/images/imageSize.png" style="vertical-align: middle" alt="">
@@ -467,18 +475,23 @@ import {
   regExpUserNumber,
   regDeleteData,
   regRoleCodeIsMengang,
-  regOrgMengangTree
+  regOrgMengangTree,
+  regManyAuthoriaztion,
+  regIDCard,
+  regTelephone,
 }from '../../../api'
 import {checkPhone,checkIDCard} from '../../../util/regExp.js'
 export default {
   name: 'ExternalStaffManage',
     data() {
       return {
+        isRegexg:false,//验证信息
         EditFormUserNo:'',
         editFormUserTelephone:'',
         fileList:[],
         //新增弹窗start
         dataTree: [], //树
+        defaultData:0,//默认tree展开的id
         orgId:[],//选择左侧tree
         defaultProps: {
           children: 'nodes',
@@ -578,6 +591,7 @@ export default {
         selectDateValue:'',//新增弹窗选择出生年月日期
         org:'',//新增弹窗---选择tree
         uploadImageUrl:'',//新增弹窗---上传本地图片后返回的url
+        photoPicture:'',//点击新增确定，给后台传递的base64加密图片（上传图片时候后台返回的值）
         uploadImageUrlDiv:'',//编辑弹窗---上传本地图片后返回的url
         imageGoBackShow:true,//编辑时回写照片true:显示，，false：隐藏
         dialogImageUrl:"",//新增弹窗---拍照src
@@ -592,6 +606,7 @@ export default {
         dataTanchuangTree: [], //树---外部员工
         dataTanchuangInnerTree: [], //树---内部员工
         orgID:'', //编辑---选择组织ID
+        uploadphotoPicture:'',//编辑时的向后台传的base64
         defaultPropsTan: {
           children: 'nodes',
           label: 'orgText'
@@ -654,6 +669,7 @@ export default {
 
           console.log('resTree:',this.dataTree)
           }
+          this.defaultData = this.dataTree[0].id  //默认tree状结构展开
       },
       /*函数名：getSearchListFun
       参数：
@@ -705,11 +721,17 @@ export default {
        参数：
        描述：只有输入身份证后才可以选择拍照或上传图片
      * */
-      handleInputIDCard(){
+      async handleInputIDCard(){
         // this.formDataAdd.card !== ''?this.isUndisabeld = false:this.isUndisabeld = true
         checkIDCard(this.formDataAdd.card,this)  //前台验证
         if(this.formDataAdd.card.length >=14){
           this.getStartTime()
+        }
+        const res = await regIDCard(this.formDataAdd.card)
+        if(res&&res.data.code!==200){
+          this.$message({type:'error',message:res.data.msg})
+          this.formDataAdd.card = ''
+          return
         }
       },
       //主列表选择删除
@@ -736,7 +758,7 @@ export default {
           type: 'warning'
         }).then(() => {
           const {multipleSelectionDel} = this
-          console.log('multipleSelectionDel:',multipleSelectionDel)
+          // console.log('multipleSelectionDel:',multipleSelectionDel)
           var parkIdArr = []
           for (var i = 0; i < multipleSelectionDel.length; i++) {
             //向后台发送删除请求
@@ -748,13 +770,6 @@ export default {
             // parkIdArr.push(userObj)
             this.delItemData(userNo,userId)
           }
-          setTimeout(()=>{
-            //刷新主列表
-            const{enterPhoto,meetDemand,username} = this.formInline
-            const{currentPage,pageSize} = this
-            const {orgId} = this
-            this.getSearchListFun(enterPhoto,meetDemand,username,orgId,currentPage,pageSize)
-          },300)
         }).catch(() => {
           this.$message({
             type: 'info',
@@ -766,11 +781,61 @@ export default {
       async delItemData(userNo,id){
         const res = await regDeleteData(userNo,id)
         if(res&&res.data.code===200){
-
+          ///删除后刷新主列表
+          const{enterPhoto,meetDemand,username} = this.formInline
+          const{currentPage,pageSize} = this
+          const {orgId} = this
+          this.getSearchListFun(enterPhoto,meetDemand,username,orgId,currentPage,pageSize)
+        }
+      },
+      /**
+       * 方法名：batchAuthoriaztion
+       * 参数：
+       * 描述：点击批量授权按钮
+       */
+      batchAuthoriaztion(){
+        if(this.multipleSelectionDel.length === 0){
+          this.$message({
+            type:'error',
+            message:'请选择要授权的对象'
+          })
+          return
+        }
+        this.$confirm('确定授权?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          const {multipleSelectionDel} = this
+          console.log('multipleSelectionDel:',multipleSelectionDel)
+          var parkIdArr = []
+          for (var i = 0; i < multipleSelectionDel.length; i++) {
+            //向后台发送授权请求
+            var personId = multipleSelectionDel[i].personId
+            parkIdArr.push(personId)
+          }
+          this.getManyAuthoriaztion(parkIdArr)
+        }).catch(() => {
+          this.$message({
+            type: 'info',
+            message: '已取消授权'
+          });
+        });
+      },
+      //批量授权与后台请求
+      async getManyAuthoriaztion(personId){
+        const res = await regManyAuthoriaztion(personId)
+        if(res&&res.data.code===200){
+          this.$message({type:'success',message:'授权成功'})
+          ///刷新界面
+          const{enterPhoto,meetDemand,username} = this.formInline
+          const{currentPage,pageSize} = this
+          const {orgId} = this
+          this.getSearchListFun(enterPhoto,meetDemand,username,orgId,currentPage,pageSize)
         }
       },
       //编辑出生日期变化
-      editInputIDCard(){
+      async editInputIDCard(){
         checkIDCard(this.outWorkerEditForm.idCard,this)  //前台验证
         if(this.outWorkerEditForm.idCard.length >=14){
           const {idCard} = this.outWorkerEditForm
@@ -778,20 +843,28 @@ export default {
           let startMouth = idCard.substr(10,2)
           let startDay = idCard.substr(12,2)
           this.editDateValue = startYear +'-'+ startMouth +'-'+ startDay
+
+          const res = await regIDCard(this.outWorkerEditForm.idCard)
+          if(res&&res.data.code!==200){
+            this.$message({type:'error',message:res.data.msg})
+            this.outWorkerEditForm.idCard = ''
+            return
+          }
         }
       },
-      //输入手机号前台验证
-      changeTelephoto(){
-        checkPhone(this.formDataAdd.tel,this)
-        if( this.formDataAdd.personType==='外部员工'){
-          this.formDataAdd.userno = this.formDataAdd.tel
-          // this.regExpUserNumberFun(this.formDataAdd.tel)
-          this.addregExpUserNumberFun(this.formDataAdd.tel)
-        }
-        if( this.outWorkerEditForm.editPersonType==='外部员工'){
-          this.outWorkerEditForm.userNo = this.outWorkerEditForm.telephone
-          this.regExpUserNumberFun(this.outWorkerEditForm.telephone)
-        }
+      //编辑输入手机号前台验证
+      async editChangeTelephoto(){
+        checkPhone(this.outWorkerEditForm.telephone,this)
+          const res = await regTelephone(this.outWorkerEditForm.telephone)
+          if(res&&res.data.code!==200){
+            this.$message({type:'error',message:res.data.msg})
+            this.outWorkerEditForm.telephone = ''
+          }else{
+            if( this.outWorkerEditForm.editPersonType==='外部员工'){
+              this.outWorkerEditForm.userNo = this.outWorkerEditForm.telephone
+              this.regExpUserNumberFun(this.outWorkerEditForm.telephone)
+            }
+          }
       },
       //编辑--外部员工时验证工号是否重复
       changeUserNumber(){
@@ -970,6 +1043,7 @@ export default {
         this.selectGuishuParkCode = ''
         this.formDataAdd.orgText = ''
         this.$refs.uploadPerson0.clearFiles();
+        this.imageGoBackShow = false  //回显照片隐藏
 
       },
       //点击新增、编辑时，判断roleCode是不是门岗，如果是门岗，就调用以下的接口
@@ -979,6 +1053,21 @@ export default {
         if(res&&res.data.code===200){
           this.selectGuishuParkName = res.data.data.parkName
           this.selectGuishuParkCode = res.data.data.parkCode
+        }
+      },
+      //新增输入手机号前台验证
+      async changeTelephoto(){
+        checkPhone(this.formDataAdd.tel,this)
+        const res = await regTelephone(this.formDataAdd.tel)
+        if(res&&res.data.code!==200){
+          this.$message({type:'error',message:res.data.msg})
+          this.formDataAdd.tel = ''
+        }else{
+          if( this.formDataAdd.personType==='外部员工'){
+            this.formDataAdd.userno = this.formDataAdd.tel
+            // this.regExpUserNumberFun(this.formDataAdd.tel)
+            this.addregExpUserNumberFun(this.formDataAdd.tel)
+          }
         }
       },
       //新增---归属部门请求接口函数---外部员工
@@ -1052,7 +1141,8 @@ export default {
             type:'success',
             message:'上传成功'
           })
-          this.uploadImageUrl = res.data.data
+          this.uploadImageUrl = res.data.data.photoUrl
+          this.photoPicture = res.data.data.photoPicture
           this.imageGoBackShow = false  //回显照片隐藏
           console.log('上传图片后返回的路径data：',this.uploadImageUrl)
         }
@@ -1065,8 +1155,9 @@ export default {
             type:'success',
             message:'上传成功'
           })
-          this.uploadImageUrl = res.data.data
-          this.uploadImageUrlDiv = res.data.data
+          this.uploadImageUrl = res.data.data.photoUrl
+          this.uploadImageUrlDiv = res.data.data.photoUrl
+          this.photoPicture = res.data.data.photoPicture
           console.log('拍照返回的路径data：',this.uploadImageUrl)
           this.imageGoBackShow = true  //回显照片显示
         }
@@ -1115,13 +1206,13 @@ export default {
            })
             return
          }
-          const{selectDateValue,sexRadio,selectRoleName,selectRoleCode,selectGuishuParkName,selectGuishuParkCode,uploadImageUrl} = this
+          const{selectDateValue,sexRadio,selectRoleName,selectRoleCode,selectGuishuParkName,selectGuishuParkCode,uploadImageUrl,photoPicture} = this
             if(sexRadio === '男'){this.sexRadio = '1'
             }else if(sexRadio === '女'){this.sexRadio = '2'}
             if(personType === '内部员工'){this.personType = '01'
             }else if(personType === '外部员工'){this.personType = '02'}
-            this.addApplyRequestData(username,userno,tel,card,this.sexRadio,selectDateValue,org,uploadImageUrl,selectRoleCode,selectRoleName,selectGuishuParkCode,selectGuishuParkName,this.personType)
-            this.dialogVisibles = false
+            this.addApplyRequestData(username,userno,tel,card,this.sexRadio,selectDateValue,org,uploadImageUrl,selectRoleCode,selectRoleName,selectGuishuParkCode,selectGuishuParkName,this.personType,photoPicture)
+
         });
       },
       //新增请求---角色与归属园区选择对应的name，code
@@ -1141,7 +1232,6 @@ export default {
         this.selectGuishuParkName = obj.label
         this.selectGuishuParkCode = obj.value
       },
-
       //新增请求---根据选择员工类型渲染对应的归属部门
       selectPersonType(){
         if(this.formDataAdd.personType==='内部员工'){
@@ -1157,7 +1247,6 @@ export default {
           // console.log('外部员工')
         }
       },
-
       //新增请求---角色接口
       async getRoleList(){
         const res = await reqRolelist()
@@ -1187,16 +1276,17 @@ export default {
         }
       },
       // 新增请求数据接口
-      async addApplyRequestData(username,userno,telephone,idCard,userSex,brithday,org,imgUrlUpload,roleCode,roleName,parkCode,parkName,employerType) {
-        const res = await reqOuterManageAddList(username,userno,telephone,idCard,userSex,brithday,org,imgUrlUpload,roleCode,roleName,parkCode,parkName,employerType);
+      async addApplyRequestData(username,userno,telephone,idCard,userSex,brithday,org,imgUrlUpload,roleCode,roleName,parkCode,parkName,employerType,photoPicture) {
+        const res = await reqOuterManageAddList(username,userno,telephone,idCard,userSex,brithday,org,imgUrlUpload,roleCode,roleName,parkCode,parkName,employerType,photoPicture);
         // console.log('请求添加接口：',res)
         if (!res || res.data.code!==200) {
           this.$message({
             type: 'error',
-            message: res.data.data
+            message: res.data.msg
           });
           return;
         }
+        this.dialogVisibles = false
         this.$message({
           type: 'success',
           message: res.data.data
@@ -1223,49 +1313,21 @@ export default {
         this.uploadImageUrl = ''
         this.photoImageUrl = ''//把照片路径清空
         this.formDataAdd.orgText = ''
+        this.uploadImageUrlDiv = '' //回显照片清空
         this.$refs.uploadPerson0.clearFiles();
       },
       // 取消
       handleDialogCancle() {
         this.dialogVisibles = false
+        this.isRepeat = false
         this.$emit('cancleadddialog', this.dialogVisibles)
-        //清空文本框
-        this.formDataAdd.username = ''
-        this.formDataAdd.userno = ''
-        this.formDataAdd.tel = ''
-        this.formDataAdd.card = ''
-        this.formDataAdd.personType = ''
-        this.formDataAdd.org = ''
-        this.selectDateValue = ''
-        this.sexRadio = '1'
-        this.selectRoleName = ''
-        this.selectGuishuParkName = ''
-        this.uploadImageUrl = ''
-        this.selectRoleCode = ''
-        this.selectGuishuParkCode = ''
-        this.formDataAdd.orgText = ''
-        this.$refs.uploadPerson0.clearFiles();
       },
       // 弹窗关闭的回调
       handleDialogClose() {
         this.dialogVisibles = false
+        this.isRepeat = false
         this.$emit('confirmadddialog', this.dialogVisibles)
-        //清空文本框
-        this.formDataAdd.username = ''
-        this.formDataAdd.userno = ''
-        this.formDataAdd.tel = ''
-        this.formDataAdd.card = ''
-        this.formDataAdd.personType = ''
-        this.formDataAdd.org = ''
-        this.selectDateValue = ''
-        this.sexRadio = '1'
-        this.selectRoleName = ''
-        this.selectGuishuParkName = ''
-        this.uploadImageUrl = ''
-        this.selectRoleCode = ''
-        this.selectGuishuParkCode = ''
-        this.formDataAdd.orgText = ''
-        this.$refs.uploadPerson0.clearFiles();
+
       },
       //编辑内容---------------start------------------------------------------------------------------------------------------------>
       //编辑---根据选择员工类型渲染对应的归属部门
@@ -1331,6 +1393,7 @@ export default {
         //点击编辑按钮
       handleEditOuterWorkerManage(index, row){
 
+
         this.editOuterWorkerManageList = true
         if(this.roleCode==='2'){
           //禁止选择所属园区--根据返回值回显
@@ -1360,6 +1423,7 @@ export default {
         this.editParkCode = row.parkCode
         this.outWorkerEditForm.editId = row.id
         this.uploadImageUrlDiv = row.imgUrlUpload
+        this.uploadphotoPicture = row.photoPicture
         this.orgID = row.org
         this.formDataAdd.orgText = row.sanyBasicShrOrg.orgText
         // this.outWorkerEditForm.editPersonType = row.employerType //02外  01内
@@ -1371,13 +1435,12 @@ export default {
           this.outWorkerEditForm.editPersonType = '外部员工'
         }
          this.editSexRadio = row.userSex   //1男  2女
-
+        this.$refs.uploadPerson0.clearFiles()
 
 
       },
         // 提交编辑信息
       editOuterWorkerManageDialogAddFn(val){
-// debugger
         //验证工号是否重复
         if(this.isRepeat){
           this.$message({
@@ -1386,13 +1449,20 @@ export default {
           })
           return
         }
+       /* if(this.isRegexg){
+          this.$message({
+            type:'error',
+            message:'保存失败，手机号或身份号输入格式不正确'
+          })
+          return
+        }*/
         this.$refs.workerManageList.validate(async (valid) => {
           if (!valid) return;
           this.editOuterWorkerManageList = false
           console.log('val:',val)
           //编辑与后台交互--》根据需要参数在val中找
           const{userName,telephone,idCard,editId,userNo}= this.outWorkerEditForm
-          const {editDateValue,editRoleName,editRoleCode,editParkName,editParkCode,orgID,editSexRadio} = this
+          let {editDateValue,editRoleName,editRoleCode,editParkName,editParkCode,orgID,editSexRadio,photoPicture} = this
           console.log('提交uploadImageUrl:',this.uploadImageUrl)
           if(this.uploadImageUrl==='' && this.imageGoBackShow === true){
              this.uploadImageUrl=this.uploadImageUrlDiv
@@ -1403,12 +1473,16 @@ export default {
           }else if(this.outWorkerEditForm.editPersonType === '内部员工'){
              this.editPersonTypeToHoutai = '01'
           }
-          this.getEditWorkerManage(editId,userName,telephone,idCard,editRoleCode,editRoleName,editParkCode,editParkName,editDateValue,this.uploadImageUrl,orgID,userNo,this.editPersonTypeToHoutai,editSexRadio)
+          //如果编辑时不换图片，则默认取上一个图片
+          if(photoPicture===''){
+            photoPicture = this.uploadphotoPicture
+          }
+          this.getEditWorkerManage(editId,userName,telephone,idCard,editRoleCode,editRoleName,editParkCode,editParkName,editDateValue,this.uploadImageUrl,orgID,userNo,this.editPersonTypeToHoutai,editSexRadio,photoPicture)
         })
       },
         //提交编辑与后台交互
-        async getEditWorkerManage(id,username,telephone,idCard,roleCode,roleName,parkCode,parkName,brithday,imgUrlUpload,org,userNo,employerType,userSex){
-           const res = await reqEditWorkerManage(id,username,telephone,idCard,roleCode,roleName,parkCode,parkName,brithday,imgUrlUpload,org,userNo,employerType,userSex)
+        async getEditWorkerManage(id,username,telephone,idCard,roleCode,roleName,parkCode,parkName,brithday,imgUrlUpload,org,userNo,employerType,userSex,photoPicture){
+           const res = await reqEditWorkerManage(id,username,telephone,idCard,roleCode,roleName,parkCode,parkName,brithday,imgUrlUpload,org,userNo,employerType,userSex,photoPicture)
             if(res&&res.data&&res.data.code===200){
              this.$message({
                type:'success',
@@ -1498,7 +1572,7 @@ export default {
       },
       //下载模板
       uploadTemplate(){
-        let url = `${BASE_URL}/userMessage/export`
+        let url = `${BASE_URL}/user/SanyBasicShrUser/exportParkEmployer`
         url = encodeURI(encodeURI(url));
         location.href = url
       },

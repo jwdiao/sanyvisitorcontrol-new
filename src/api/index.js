@@ -54,7 +54,6 @@ export const reqinsertSanyBasicShrOrg = (params) => http.post(`${BASE_URL}/user/
 export const reqselectSanyBasicShrOrgByOrgText = (orgText) => http.post(`${BASE_URL}/user/SanyBasicShrUser/selectSanyBasicShrOrgByOrgText`,{
   orgText: orgText
 })
-
 //系统管理模块---外部组织机构页面（删除）
 export const reqdeleteSanyBasicShrOrg = (orgId) => http.post(`${BASE_URL}/user/SanyBasicShrUser/deleteSanyBasicShrOrg`,{
   orgId: orgId
@@ -62,13 +61,13 @@ export const reqdeleteSanyBasicShrOrg = (orgId) => http.post(`${BASE_URL}/user/S
 //园区模块---外部员工管理/外部员工账号---外部组织权限树
 export const reqOuterTrees = () => http.post(`${BASE_URL}/user/SanyBasicShrUser/outTreeHasPrivillege`)
 //园区模块---外部员工管理---查询的接口
-export const reqSearchList = (isImgUrl,imgVerify,userName,orgIds,pageNum,pageSize) => http.post(`${BASE_URL}/user/SanyBasicShrUser/selectEmployerRoleResponseDtoByCondition`,{query:{isImgUrl: isImgUrl,imgVerify:imgVerify,userName:userName,orgIds:orgIds},pageNum:pageNum,pageSize:pageSize})
+export const reqSearchList = (isImgUrl,isSub,userName,orgIds,pageNum,pageSize) => http.post(`${BASE_URL}/user/SanyBasicShrUser/selectEmployerRoleResponseDtoByCondition`,{query:{isImgUrl: isImgUrl,isSub:isSub,userName:userName,orgIds:orgIds},pageNum:pageNum,pageSize:pageSize})
 //园区模块---外部员工管理---数据导入
 export const reqUploadData = (formData) => http.post(`${BASE_URL}/user/SanyBasicShrUser/importExecel`,formData)
 //园区模块---外部员工管理---照片导入
 export const reqUploadImagesFile = (formData) => http.post(`${BASE_URL}/user/SanyBasicShrUser/uploadByZip`,formData)
 //园区模块---外部员工管理---新增
-export const reqOuterManageAddList = (username,userno,telephone,idCard,userSex,brithday,org,imgUrlUpload,roleCode,roleName,parkCode,parkName,employerType) => http.post(`${BASE_URL}/user/SanyBasicShrUser/insertSanyBasicShrEmployer`,{userName:username,userNo:userno,telephone,idCard,userSex,brithday,org,imgUrlUpload,roleCode,roleName,parkCode,parkName,employerType})
+export const reqOuterManageAddList = (username,userno,telephone,idCard,userSex,brithday,org,imgUrlUpload,roleCode,roleName,parkCode,parkName,employerType,photoPicture) => http.post(`${BASE_URL}/user/SanyBasicShrUser/insertSanyBasicShrEmployer`,{userName:username,userNo:userno,telephone,idCard,userSex,brithday,org,imgUrlUpload,roleCode,roleName,parkCode,parkName,employerType,photoPicture})
 //园区模块---外部员工管理---新增--归属部门下拉选项
 export const reqAddDepartment = (parkCode) => http.post(`${BASE_URL}/user/SanyBasicShrUser/outTreeHasPrivillegeBack`,{parkCode})
 //园区模块---外部员工管理---新增--角色
@@ -92,7 +91,7 @@ export const addParkCodeCheck = (parkCode) =>http.post(`${BASE_URL}/visitorcontr
 //基础管理---园区组织机构---编辑
 export const reqEditParkOrg = (id,orgText) =>http.post(`${BASE_URL}/user/SanyBasicShrUser/modifySanyBasicShrOrg`,{id:id,orgText:orgText})
 //运营管理---园区员工管理---编辑
-export const reqEditWorkerManage = (id,username,telephone,idCard,roleCode,roleName,parkCode,parkName,brithday,imgUrlUpload,org,userNo,employerType,userSex) =>http.post(`${BASE_URL}/user/SanyBasicShrUser/modifySanyBasicShrEmployer`,{id,userName:username,telephone,idCard,roleCode,roleName,parkCode,parkName,brithday,imgUrlUpload,org,userNo,employerType,userSex})
+export const reqEditWorkerManage = (id,username,telephone,idCard,roleCode,roleName,parkCode,parkName,brithday,imgUrlUpload,org,userNo,employerType,userSex,photoPicture) =>http.post(`${BASE_URL}/user/SanyBasicShrUser/modifySanyBasicShrEmployer`,{id,userName:username,telephone,idCard,roleCode,roleName,parkCode,parkName,brithday,imgUrlUpload,org,userNo,employerType,userSex,photoPicture})
 //访客管理---我的访客信息---发送短信
 export const reqSendMessages = (messageDto) =>http.post(`${BASE_URL}/visitorcontrol/SanyBussVisitor/sendOneMessage`,{messageDto})
 
@@ -125,9 +124,28 @@ export const regRoleCodeIsMengang = () => http.post(`${BASE_URL}/visitorcontrol/
 export const regOrgMengangTree = () => http.post(`${BASE_URL}/user/SanyBasicShrUser/treeFastOutHasOrgId`);
 // 园区管理---园区车辆管理---新增、编辑---员工工号模糊查询--接口
 export const regExpCarManageUserName = (queryString) => http.post(`${BASE_URL}/user/SanyBasicShrUser/getNamesByLike`,{queryString});
-
-
-
+//0325优化更新
+//忘记密码--手机号验证--接口
+export const regTelIsExist = (telephone) => http.post(`${BASE_URL}/user/SanyBasicShrUser/forgetPassword`,{telephone});
+//忘记密码--发送验证码--接口
+export const regSendExpregNumber = (telephone) => http.post(`${BASE_URL}/user/SanyBasicShrUser/sendMessageByTelephone`,{telephone});
+//忘记密码--确定设置新密码--接口
+export const regSubmitNewPwd = (password,code,telephone) => http.post(`${BASE_URL}/user/SanyBasicShrUser/setNewPassword`,{password,code,telephone});
+//园区管理---园区员工管理---批量授权--接口
+export const regManyAuthoriaztion = (personIds) => http.post(`${BASE_URL}/user/SanyBasicShrUser/givePowerTo`,{personIds});
+//访客管理---预约访客查询---登记--接口
+export const regNormalRegister = (visitorId) => http.post(`${BASE_URL}/visitorcontrol/SanyBussVisitor/getNormalRegister`,{visitorId});
+//0327
+//园区管理---园区员工管理---新增--身份证号码验证--接口
+export const regIDCard = (idCard) => http.post(`${BASE_URL}/user/SanyBasicShrUser/selectEmployerByCardId`,{idCard});
+//园区管理---园区员工管理---新增--手机号码验证--接口
+export const regTelephone = (telephone) => http.post(`${BASE_URL}/user/SanyBasicShrUser/selectEmployerByTelephone`,{telephone});
+//0328我的访客信息---信息维护---发送短信--接口
+export const reqSendMessageSingle = (messageDto) =>http.post(`${BASE_URL}/visitorcontrol/SanyBussVisitor/sendOneMessageSingle`,{messageDto})
+//0330我的访客信息---新增访客---点击确定后添加成功后调用发送短信--接口
+export const reqAddVisitorSuccessReq = (messageDto) =>http.post(`${BASE_URL}/visitorcontrol/SanyBussVisitor/sendOneMessageManyVisitors`,{messageDto})
+//0330我的访客信息---新增访客---验证身份证号/临时拜访录入--接口
+export const reqrRegIDCard = (idCard) =>http.post(`${BASE_URL}/visitorcontrol/SanyBussVisitor/selectVisitorsByIdCard`,{idCard})
 
 
 

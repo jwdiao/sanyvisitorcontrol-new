@@ -108,14 +108,14 @@ export default {
       text-color="#fff"
       class="fillcontain">
       <el-menu-item index="index" class="indexMenu"><i class="fontFamily hhtx-shouye-"></i>首页</el-menu-item>
-      <el-submenu index="1" v-if="roleCode==='1' || roleCode==='3' || roleCode==='4'">
+      <el-submenu index="1" v-if="roleCode==='1' ||roleCode==='2'||roleCode==='3' || roleCode==='4'"><!--员工-->
         <template slot="title"><i class="fontFamily hhtx-gerenzhongxin"></i>我的信息</template>
         <el-menu-item v-if="roleCode==='1' || roleCode==='2' || roleCode==='4' || roleCode==='3'" index="myPhotoInput">我的照片录入</el-menu-item><!--全部员工和管理,门岗-->
       </el-submenu>
-      <el-submenu index="2">
+      <el-submenu index="2" v-if="roleCode==='1' ||roleCode==='2' || roleCode==='4'">
         <template slot="title"><i class="fontFamily hhtx-yewuguanli-"></i>访客管理</template>
-        <el-menu-item v-if="roleCode==='1' || roleCode==='4'" index="myVisitor">我的访客信息</el-menu-item><!--全部员工-->
-        <el-menu-item v-if="roleCode==='1' || roleCode==='4'" index="visitHistoryRecord">拜访历史记录</el-menu-item><!--全部员工-->
+        <el-menu-item v-if="roleCode==='1' ||roleCode==='4'" index="myVisitor">我的访客信息</el-menu-item><!--全部员工-->
+        <el-menu-item v-if="roleCode==='1' ||roleCode==='4'" index="visitHistoryRecord">拜访历史记录</el-menu-item><!--全部员工-->
         <el-menu-item v-if="roleCode==='2' || roleCode==='4'" index="tempVisitInput">临时拜访录入</el-menu-item><!--门岗-->
         <el-menu-item v-if="roleCode==='2' || roleCode==='4'" index="bookVisitSearch">预约访客查询</el-menu-item><!--门岗-->
         <el-menu-item v-if="roleCode==='2' || roleCode==='4'" index="endVisitSearch">结束拜访查询</el-menu-item><!--门岗-->
@@ -140,7 +140,7 @@ export default {
       </el-submenu>
 
 
-      <el-submenu index="systemManage" v-if="roleCode==='4'">
+      <el-submenu index="systemManage" v-if="roleCode==='3' || roleCode==='4'">
         <template slot="title"><i class="fontFamily hhtx-xitongpeizhi"></i>系统管理</template>
         <el-menu-item v-if="roleCode==='3' || roleCode==='4'" index="photoInputSearch">照片录入查询</el-menu-item><!--管理-->
         <el-menu-item v-if="roleCode==='4'" index="userManage">用户管理</el-menu-item><!--系统管理员-->

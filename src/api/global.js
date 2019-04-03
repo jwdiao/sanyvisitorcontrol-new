@@ -4,7 +4,7 @@
  * 2, tempVisitInput.vue文件有一处
  */
 
-const BASE_URL = 'http://10.19.8.22:8100' // 线上地址
+  const BASE_URL = 'http://10.19.8.22:8100' // 线上地址
 // const BASE_URL = 'http://10.19.7.69:8083' // 测试地址
 // const BASE_URL = 'http://10.88.195.89:8083' // 高杰
 // const BASE_URL = 'http://10.88.195.81:8100' // 于群

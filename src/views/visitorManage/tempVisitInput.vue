@@ -35,6 +35,7 @@
             value-format="yyyy-MM-dd"
             :default-value="new Date()"
             :picker-options="pickerOptionsStart"
+            @change="selectDateValueControl"
             placeholder="选择到访日期 ">
           </el-date-picker>
         </el-form-item>
@@ -49,11 +50,12 @@
           </el-date-picker>
         </el-form-item>-->
         <el-form-item label="拜访时间" prop="visitingTime">
-          <el-select v-model="formInline.sanyBussVisitor.visitingTime" placeholder="请选择">
+          <el-select v-model="formInline.sanyBussVisitor.visitingTime" :disabled="isSelected" placeholder="请选择">
             <el-option
               v-for="item in visitingTimeOptions"
               :key="item.value"
               :label="item.label"
+              :disabled="item.disabled"
               :value="item.value">
             </el-option>
           </el-select>
@@ -71,9 +73,9 @@
             </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="驾车数量" v-show="formInline.sanyBussVisitor.isCar==='1'">
+        <!--<el-form-item label="驾车数量" v-show="formInline.sanyBussVisitor.isCar==='1'">
           <el-input-number :controls="true" v-model="formInline.sanyBussVisitor.carNum" @change="handleInputCarNum" :min="1"></el-input-number>
-        </el-form-item>
+        </el-form-item>-->
         <el-form-item label="拜访原因">
           <el-input
             style="width:1285px;"
@@ -102,9 +104,11 @@
           <tr>
             <th>序号</th>
             <th>拜访人姓名</th>
+            <th>性别</th>
             <th>电话号码</th>
             <th>身份证号</th>
             <th>车牌号</th>
+            <!--<th>二维码次数</th>-->
             <th>拍照</th>
             <th>查看图片</th>
             <th>操作</th>
@@ -114,23 +118,38 @@
           <tr v-for="(item, index) in formInline.sanyBussVisitorDetailsList" :key="index">
             <td v-text="index+1">1</td>
             <td style="position: relative">
-              <el-input v-model="item.visitorName" :class="{regIsNull:regIsName}" placeholder="请输入姓名" @blur="blurUserName(item.visitorName)"  @change="inputChangeName(item.visitorName)"></el-input>
+              <!--regIsName-->
+              <el-input v-model="item.visitorName" :class="{regIsNull:item.visitorName===''?true:false}" placeholder="请输入姓名" @blur="blurUserName(item.visitorName)"  @change="inputChangeName(item.visitorName)"></el-input>
               <span style="position:absolute;top: 22px;left: 0px;color: #f56c6c;">*</span>
-              <div v-show="isShowUserName" style="color: #F56C6C;text-align: left;position: absolute;top: 50px;left: 8px;" >请输入姓名</div>
+              <!--isShowUserName-->
+              <div v-if="isShowUserName" v-show="item.visitorName===''?true:false" style="color: #F56C6C;text-align: left;position: absolute;top:60px;left: 8px;" >请输入姓名</div>
+            </td>
+            <td style="position: relative;left: 20px;">
+              <el-radio v-model="item.gender" label='1'>男</el-radio>
+              <el-radio v-model="item.gender" label='2'>女</el-radio>
+              <span style="position:absolute;top: 22px;left: 0px;color: #f56c6c;">*</span>
+              <div v-if="isShowGender"  v-show="item.gender===''?true:false" style="color: #F56C6C;text-align: left;position: absolute;top:60px;left: 8px;" >请选择性别</div>
             </td>
             <td style="position: relative">
-              <el-input v-model="item.phone" :class="{regIsNull:regIsNull}" placeholder="请输入电话" @blur="blurPhone(item.phone)"  @change="regTel(item.phone)"></el-input>
+              <!--regIsNull-->
+              <el-input v-model="item.phone" :class="{regIsNull:item.phone===''?true:false}" placeholder="请输入电话" @blur="blurPhone(item.phone)"  @change="regTel(item.phone)"></el-input>
               <span style="position:absolute;top: 22px;left: 0px;color: #f56c6c;">*</span>
-              <div v-show="isShowPhone" style="color: #F56C6C;text-align: left;position: absolute;top: 50px;left: 8px;" >请输入电话</div>
+              <!--isShowPhone-->
+              <div v-if="isShowPhone" v-show="item.phone===''?true:false" style="color: #F56C6C;text-align: left;position: absolute;top: 60px;left: 8px;" >请输入电话</div>
             </td>
             <td style="position: relative">
-              <el-input v-model="item.visitorId" :class="{regIsNull:regIsIDCard}" placeholder="请输入身份证号" @blur="blurIdCard(item.visitorId)" @change="regID(item.visitorId)"></el-input>
+              <!--regIsIDCard-->
+              <el-input v-model="item.visitorId" :class="{regIsNull:item.visitorId===''?true:false}" placeholder="请输入身份证号" @keyup.native="isRepeatCardID" @blur="blurIdCard(item.visitorId)" @change="regID(item.visitorId,index)"></el-input>
               <span style="position:absolute;top: 22px;left: 0px;color: #f56c6c;">*</span>
-              <div v-show="isShowIDCard" style="color: #F56C6C;text-align: left;position: absolute;top: 50px;left: 8px;" >请输入身份证号</div>
+              <!--isShowIDCard-->
+              <div v-if="isShowIDCard" v-show="item.visitorId===''?true:false" style="color: #F56C6C;text-align: left;position: absolute;top: 60px;left: 8px;" >请输入身份证号</div>
             </td>
             <td>
-              <el-input v-model="item.carId" placeholder="请输入车牌号"></el-input>
+              <el-input v-model="item.carNo" :disabled="formInline.sanyBussVisitor.isCar === '0' ? true : false" placeholder="请输入车牌号"></el-input>
             </td>
+           <!-- <td>
+              <el-input v-model="item.countCard" placeholder="二维码次数"></el-input>
+            </td>-->
             <td>
               <div>
                 <el-button
@@ -163,7 +182,7 @@
     <!-- 拍照上传 start -->
     <div class="tempVisitInput_camera">
       <el-dialog
-        title="提示"
+        title="临时拜访录入"
         :visible.sync="dialogVisible"
         width="1100px"
         height="600px"
@@ -171,7 +190,8 @@
         :before-close="handleClose">
         <div class="fatheramalltitle">
           <input type="hidden" value="" id="photoUrl" />
-          <iframe width="100%" height="470" frameborder="0" src="http://10.19.8.22:8081/sanyvisitorcontrol/photo/photo.html" id="myframe" name="myframe" />
+          <!--<iframe width="100%" height="470" frameborder="0" src="http://10.19.8.22:8081/sanyvisitorcontrol/photo/photo.html" id="myframe" name="myframe" />-->
+          <iframe width="100%" height="470" frameborder="0" src="http://10.19.8.21:8181/sanyvisitorcontrol/photo/photo.html" id="myframe" name="myframe" />
            <!--<iframe width="100%" height="400" frameborder="0" src="http://localhost/sanyvisitorcontrol/photo/photo.html" id="myframe" name="myframe" />-->
           <el-tooltip content="必须点击拍照后再确定，否则将保存默认图片显示区内图片" placement="top" class="small-title">
             <img src="../../../src/assets/images/imageSize.png" style="vertical-align: middle" alt="">
@@ -227,6 +247,7 @@
   getNamesByLikeRequest,
   fileUploadForOutEmployersPhotoRequest
 } from '../../api/businessManageApi'
+ import {reqAddVisitorSuccessReq,reqrRegIDCard} from '../../api'
  import {checkPhone,checkIDCard} from '../../util/regExp'
 // import http from '../../../../sanyreport/src/api/http';
   export default {
@@ -250,6 +271,7 @@
           value: '02',},
           {label: '全天',
           value: '03',}],
+        isSelected:false,//选择当天12点后，只能有下午
         pickerOptionsStart: { // 拜访开始时间
           disabledDate(time) {
             return time.getTime() < Date.now()- 3600*1000*24;
@@ -266,6 +288,7 @@
         isShowUserName:false,////是否显示提示姓名
         isShowPhone:false,////是否显示提示手机号
         isShowIDCard:false,////是否显示提示身份证
+        isShowGender:false,//是否显示性别
         rules: {
           planBeginTime: [
             { required: true, message: '请选择开始时间', trigger: 'blur' },
@@ -279,7 +302,7 @@
           sanyBussVisitor: {
             planBeginTime: '', // 拜访开始时间
             // planEndTime: '', // 拜访结束时间
-            visitingTime:'',//拜访时间     0311修改
+            visitingTime:'03',//拜访时间     0311修改
             vistorNum: 1, // 来访人数量
             isCar: '0', // 是否驾车
             carNum: '', // 驾车数量
@@ -288,10 +311,12 @@
           sanyBussVisitorDetailsList: [
             {
               visitorName: '', // 访客姓名
+              gender:'1',///性别
               phone: '', // 手机号码
               visitorId: '', // 访客身份证号
               imgUrl: '' ,// 照片路径
-              carId: '' // 车牌号
+              carNo: '', // 车牌号
+              countCard:'',//二维码次数
             }
           ], // 来访人对象
           sanyBussVisitorCarList: [], // 车辆信息
@@ -299,7 +324,7 @@
         dialogVisible: false, // 拍照上传弹窗
         dialogVisibleImg: false, // 查看照片
         currentUploadIndex: 0,
-        lookCurrentImgUrl: 0
+        lookCurrentImgUrl: ''
       }
     },
     mounted() {
@@ -357,29 +382,20 @@
       // 获取被拜访人列表 end
       // 输入来访人数,动态增加来访人员表格
       handleInputPersonNum() {
-        // let vistorNum = this.formInline.sanyBussVisitor.vistorNum
+        let vistorNum = this.formInline.sanyBussVisitor.vistorNum
         // this.formInline.sanyBussVisitorDetailsList = []
        var detailListLength = this.formInline.sanyBussVisitorDetailsList.length
         this.formInline.sanyBussVisitor.vistorNum = detailListLength+1
         var detailListObj =
           {visitorName: '', // 访客姓名
             phone: '', // 手机号码
+            gender:'1',//性别
             visitorId: '', // 访客身份证号
             imgUrl: '' ,// 照片路径
-            carId: ''} // 车牌号
+            carNo: ''} // 车牌号
           this.formInline.sanyBussVisitorDetailsList.splice(detailListLength,0,detailListObj)
           this.formInline.sanyBussVisitorDetailsList.length<=1 ? this.deleteDisabled = true : this.deleteDisabled = false
-        /*for (var i = 0; i< vistorNum; i++) {
-          this.formInline.sanyBussVisitorDetailsList.push(
-            {
-              visitorName: '', // 访客姓名
-              phone: '', // 手机号码
-              visitorId: '', // 访客身份证号
-              imgUrl: '' ,// 照片路径
-              carId: '' // 车牌号
-            }
-          )
-        }*/
+
       },
       blurVisitorNum(){
         this.formInline.sanyBussVisitor.vistorNum = this.formInline.sanyBussVisitorDetailsList.length
@@ -388,6 +404,7 @@
       handlePhotoUploadStart(index) {
         this.dialogVisible = true;
         this.currentUploadIndex = index
+        debugger
         myframe.window.Webcam.attach('#my_camera');
         //点击开始拍照时不回显图片
          var urls = myframe.window.getTakePhotoUrl()
@@ -403,11 +420,13 @@
       async handleConfirmCamera () {
         this.dialogVisible = false;
         const url = myframe.window.getTakePhotoUrl()
-        // console.log('获取的拍照图片路径是：',url)
+        console.log('获取的拍照图片路径是：',url)
         if (url) {
           const resPhoto = await fileUploadForOutEmployersPhotoRequest(url)
           if (resPhoto && resPhoto.data.code===200) {
-            this.formInline.sanyBussVisitorDetailsList[this.currentUploadIndex].imgUrl = resPhoto.data.data
+            this.formInline.sanyBussVisitorDetailsList[this.currentUploadIndex].imgUrl = resPhoto.data.data.photoUrl
+            console.log('resPhoto:',resPhoto.data)
+            console.log('sanyBussVisitorDetailsList[this.currentUploadIndex].imgUrl:',this.formInline.sanyBussVisitorDetailsList[this.currentUploadIndex].imgUrl)
           } else {
             this.$message({
               type: 'error',
@@ -424,6 +443,7 @@
         this.dialogVisibleImg = true;
         this.currentUploadIndex = index;
         this.lookCurrentImgUrl = this.formInline.sanyBussVisitorDetailsList[this.currentUploadIndex].imgUrl
+        console.log('lookCurrentImgUrl:',this.lookCurrentImgUrl)
       },
       // 输入车辆数,小于人员数
       handleInputCarNum() {
@@ -461,12 +481,55 @@
       // 保存
       handleSave() {
         const {employerName} = this.formInline.sanyBussVisitor
-        this.restaurantsArr.forEach((item,index)=>{
+        //0330修改includes，注释下面遍历方法
+        var restaurantNameArr = []
+        this.restaurantsArr.forEach(item=>{
+         var restaurantsNameItem = item.name
+          restaurantNameArr.push(restaurantsNameItem)
+        })
+        // console.log('restaurantNameArr:',restaurantNameArr)
+        if(restaurantNameArr.includes(employerName)){
+          this.$refs.tempVisitInputID.validate(async (valid) => {
+            if (!valid) return;
+            const {sanyBussVisitorDetailsList} = this.formInline
+            for (var i = 0; i <  sanyBussVisitorDetailsList.length; i++) {
+              console.log('sanyBussVisitorDetailsList:',sanyBussVisitorDetailsList[i].gender)
+              if(sanyBussVisitorDetailsList[i].visitorName === ''){
+                this.regIsName= true
+                this.isShowUserName= true
+                return
+              }else if(sanyBussVisitorDetailsList[i].gender === ''){
+                this.isShowGender = true
+                return
+              }else if(sanyBussVisitorDetailsList[i].phone === ''){
+                this.regIsNull= true
+                this.isShowPhone= true
+                return
+              }else if(sanyBussVisitorDetailsList[i].visitorId === ''){
+                this.regIsIDCard= true
+                this.isShowIDCard= true
+                return
+              }
+            }
+            if(this.formInline.sanyBussVisitor.visitingTime === '下午'){
+              this.formInline.sanyBussVisitor.visitingTime = '02'
+            }else if(this.formInline.sanyBussVisitor.visitingTime === '全天'){
+              this.formInline.sanyBussVisitor.visitingTime = '03'
+            }
+            //时间校验
+            var startTime = new Date(this.formInline.sanyBussVisitor.planBeginTime).getTime()
+            // source = 2表示从临时拜访录入[门岗]页面过来的添加信息
+            this.formInline.source = 2
+            this.addApplyRequestData(this.formInline)
+          })
+        }else{
+          this.$message({message:'保存失败，输入的拜访人信息未找到'})
+        }
+       /* this.restaurantsArr.forEach((item,index)=>{
           console.log('employerName',employerName)
           console.log('item.name',item.name)
           console.log('item.userNo',item.userNo)
           if(item.name === employerName || item.userNo === employerName){
-
             this.$refs.tempVisitInputID.validate(async (valid) => {
               if (!valid) return;
               const {sanyBussVisitorDetailsList} = this.formInline
@@ -481,34 +544,30 @@
                   this.regIsIDCard= true
                   this.isShowIDCard= true
                 }
-                if(sanyBussVisitorDetailsList[i].visitorName === '' ||sanyBussVisitorDetailsList[i].visitorId === ''||sanyBussVisitorDetailsList[i].phone === ''){
+                if(sanyBussVisitorDetailsList[i].visitorName === '' ||sanyBussVisitorDetailsList[i].visitorId === ''||sanyBussVisitorDetailsList[i].phone === ''||sanyBussVisitorDetailsList[i].gender === ''){
                   return
                 }
               }
               //时间校验
               var startTime = new Date(this.formInline.sanyBussVisitor.planBeginTime).getTime()
               // var endTime = new Date(this.formInline.sanyBussVisitor.planEndTime).getTime()
-              /*  if(startTime>endTime){
+              /!*  if(startTime>endTime){
                   this.$message({
                     type:'error',
                     message:'结束时间不得小于开始时间，请重新输入'
                   })
                   return
-                }*/
+                }*!/
               // source = 2表示从临时拜访录入[门岗]页面过来的添加信息
               this.formInline.source = 2
               this.addApplyRequestData(this.formInline)
             })
-
           }else{
             this.$message({message:'保存失败，输入的拜访人信息未找到'})
           }
-
-        })
-
-
-
+        })*/
       },
+
       // 新增请求数据接口
       async addApplyRequestData(param) {
         const res = await addApplyRequest(param);
@@ -522,8 +581,24 @@
         }
         this.$message({
           type: 'success',
-          message: res.data.data
+          message: '新增成功'
         });
+        //添加成功后调用发送短信的接口
+        console.log('res:',res.data.data)
+        let messageInfo = res.data.data.messageDto
+        let messageArr = []
+        messageInfo.forEach(item=>{
+          let messageObj = {}
+          messageObj.qrCode= item.qrCode
+          messageObj.telephone= item.telephone
+          messageObj.uid= item.uid
+          messageObj.verifCode= item.verifCode
+          messageArr.push(messageObj)
+        })
+        console.log('messageArr:',messageArr)
+        this.addVisitorSuccess(messageArr)
+
+
         // 上传完之后清空
         this.formInline.sanyBussVisitor = {
           planBeginTime: '', // 拜访开始时间
@@ -537,28 +612,67 @@
         this.formInline.sanyBussVisitorDetailsList = [] // 来访人员数组
         this.formInline.sanyBussVisitorCarList = [] // 来访车辆数组
       },
+      //保存成功后调用的函数
+      async addVisitorSuccess(messageArr){
+        const res = await reqAddVisitorSuccessReq(messageArr)
+        if(res&&res.data.code===200){
+          this.$message({type:'success',message:'成功'})
+        }
+      },
       //前台验证-------start---------
       regTel(val){
         checkPhone(val,this)
         console.log('tel:',val)
         val===''? this.regIsNull= true: this.regIsNull= false
       },
-      regID(val){
+      isRepeatCardID(){
+
+      },
+      async regID(val,index){
         checkIDCard(val,this)
+
+        //0401增加多个时不能有重复的cardID
+        let cardIdArr = []
+        this.formInline.sanyBussVisitorDetailsList.forEach(item=>{
+          cardIdArr.push(item.visitorId)
+        })
+        cardIdArr.splice(index,1)
+        let indexNum = cardIdArr.includes(val)
+        // console.log('indexNum:',indexNum)
+        // console.log('cardIdArr:',cardIdArr)
+        if(indexNum===true){
+          this.formInline.sanyBussVisitorDetailsList[index].visitorId = ''
+          this.$message({type:'error',message:'输入的身份证重复，请重新输入'})
+        }
+
+
+
+
+        const res = await reqrRegIDCard(val)
+        if(res&&res.data.code!==200){
+          this.$message({
+            type:'error',
+            message:res.data.msg
+          })
+          this.formInline.sanyBussVisitorDetailsList[index].visitorId = ''
+        }
         val===''? this.regIsIDCard= true: this.regIsIDCard= false
       },
       inputChangeName(visitorName){
         visitorName===''? this.regIsName= true: this.regIsName= false
       },
       blurUserName(val){
+        // val = val.replace(/\s*/g,"")
         val===''? this.regIsName= true: this.regIsName= false
         val===''? this.isShowUserName= true: this.isShowUserName= false
       },
       blurPhone(val){
+        // val = val.replace(/\s*/g,"")
         val===''? this.regIsNull= true: this.regIsNull= false
         val===''? this.isShowPhone= true: this.isShowPhone= false
       },
       blurIdCard(val){
+        // val = val.replace(/\s*/g,"")
         val===''? this.regIsIDCard= true: this.regIsIDCard= false
         val===''? this.isShowIDCard= true: this.isShowIDCard= false
       },
@@ -579,6 +693,22 @@
       //拜访人弹窗不缩回问题
       blurVisitor(){
         // this.employerNameSelectShow = false
+      },
+      //选择日期控制上午显示
+      selectDateValueControl(val){
+        let dateone = new Date(new Date(new Date().toDateString()).getTime()+12*60*60*1000).getTime() //当天12点
+        let datezear = new Date(new Date(new Date().toDateString()).getTime()+8*60*60*1000).getTime()    //当天8点
+        let selectTime = new Date(val).getTime()
+        let nowDate = Date.now()
+        if(nowDate>dateone){
+          if(selectTime === datezear){
+            this.formInline.sanyBussVisitor.visitingTime = '下午'
+            this.isSelected = true
+          }else{
+            this.formInline.sanyBussVisitor.visitingTime = '全天'
+            this.isSelected = false
+          }
+        }
       },
     }
   }
@@ -632,16 +762,22 @@
       width: 80px;
     }
     th:nth-child(2) {
-      width: 250px;
+      width: 150px;
     }
     th:nth-child(3) {
-      width: 250px;
+      width: 100px;
     }
     th:nth-child(4) {
-      width: 250px;
+      width: 200px;
     }
     th:nth-child(5) {
       width: 250px;
+    }
+    th:nth-child(6) {
+      width: 150px;
+    }
+    th:nth-child(7) {
+      width: 105px;
     }
   }
   &_carTable{
@@ -672,6 +808,11 @@
   position: absolute;
   top: 435px;
   left:650px;
+}
+/deep/ .el-radio{
+  display: flex;
+  margin-top: 10px;
+  margin-left: 0px;
 }
 
 </style>

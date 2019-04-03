@@ -5,7 +5,7 @@
   :close-on-click-modal="false"
   :visible.sync="dialogVisibles"
   @close="handleDialogClose"
-  width="1200px">
+  width="1350px">
     <div class="addVisitorDialog">
       <!-- 表单 -->
       <el-form :model="formInline.sanyBussVisitor" ref="editDateForm" :rules="rules"
@@ -22,6 +22,7 @@
               value-format="yyyy-MM-dd"
               :default-value="new Date()"
               :picker-options="pickerOptionsStart"
+              @change="selectDateValueControl"
               placeholder="选择到访日期">
             </el-date-picker>
           </el-form-item>
@@ -37,7 +38,7 @@
             </el-date-picker>
           </el-form-item>-->
         <el-form-item label="拜访时间" prop="visitingTime">
-          <el-select v-model="formInline.sanyBussVisitor.visitingTime" placeholder="请选择">
+          <el-select v-model="formInline.sanyBussVisitor.visitingTime" :disabled="isSelected" placeholder="请选择">
             <el-option
               v-for="item in visitingTimeOptions"
               :key="item.value"
@@ -50,7 +51,7 @@
             <el-input-number :controls="false" disabled v-model="formInline.sanyBussVisitor.vistorNum" @change="handleInputPersonNum" :min="formInline.sanyBussVisitor.vistorNum" @blur="blurVisitorNum()"></el-input-number>
           </el-form-item>
           <el-form-item label="是否驾车">
-            <el-select v-model="formInline.sanyBussVisitor.isCar" placeholder="请选择">
+            <el-select v-model="formInline.sanyBussVisitor.isCar"  placeholder="请选择">
               <el-option
                 v-for="item in isDriveCarOptions"
                 :key="item.value"
@@ -59,12 +60,12 @@
               </el-option>
             </el-select>
           </el-form-item>
-          <el-form-item label="驾车数量" v-show="formInline.sanyBussVisitor.isCar==='1'">
-            <el-input-number :controls="true" v-model="formInline.sanyBussVisitor.carNum" :min="1" @change="handleInputCarNum"></el-input-number><!--@change="handleInputCarNum"-->
-          </el-form-item>
+          <!--<el-form-item label="驾车数量" v-show="formInline.sanyBussVisitor.isCar==='1'">
+            <el-input-number :controls="true" v-model="formInline.sanyBussVisitor.carNum" :min="1" @change="handleInputCarNum"></el-input-number>&lt;!&ndash;@change="handleInputCarNum"&ndash;&gt;
+          </el-form-item>-->
           <el-form-item label="拜访原因">
             <el-input
-              style="width:930px;"
+              style="width:1080px;"
               type="textarea"
               :rows="4"
               placeholder="请输入原因"
@@ -90,9 +91,11 @@
           <tr>
             <th>序号</th>
             <th>拜访人姓名</th>
+            <th>性别</th>
             <th>电话号码</th>
             <th>身份证号</th>
             <th>车牌号</th>
+            <!--<th>二维码次数</th>-->
             <!--<th>下发状态</th>-->
             <th> 上传&nbsp;&nbsp;&nbsp;
 
@@ -106,23 +109,38 @@
 
               <td v-text="index+1">1</td>
               <td style="position: relative">
-                <el-input v-model="item.visitorName" :class="{regIsNull:regIsName}"  placeholder="请输入姓名" @blur="blurUserName(item.visitorName)" @change="inputChangeName(item.visitorName)"></el-input>
+                <!--regIsName-->
+                <el-input v-model="item.visitorName" :class="{regIsNull:item.visitorName===''?true:false}" @focus="focusUserName(item.visitorName,index)"  placeholder="请输入姓名" @blur="blurUserName(item.visitorName,index)" @change="inputChangeName(item.visitorName)"></el-input>
                 <span style="position:absolute;top: 22px;left: 0px;color: #f56c6c;">*</span>
-                <div v-show="isShowUserName" style="color: #F56C6C;text-align: left;position: absolute;top: 52px;left: 8px;" >请输入姓名</div>
+                <!--isShowUserName-->
+                <div v-if="isShowUserName" v-show="item.visitorName===''?true:false" style="color: #F56C6C;text-align: left;position: absolute;top: 60px;left: 8px;" >请输入姓名</div>
               </td>
               <td style="position: relative">
-                <el-input v-model="item.phone" :class="{regIsNull:regIsNull}" placeholder="请输入电话" @blur="blurPhone(item.phone)" @change="regTel(item.phone)"></el-input>
+                <el-radio v-model="item.gender" label='1'>男</el-radio>
+                <el-radio v-model="item.gender" label='2'>女</el-radio>
                 <span style="position:absolute;top: 22px;left: 0px;color: #f56c6c;">*</span>
-                <div v-show="isShowPhone" style="color: #F56C6C;text-align: left;position: absolute;top: 52px;left: 8px;" >请输入电话</div>
+                <div v-if="isShowGender" v-show="item.gender===''?true:false" style="color: #F56C6C;text-align: left;position: absolute;top: 60px;left: 8px;" >请选择性别</div>
               </td>
               <td style="position: relative">
-                <el-input v-model="item.visitorId" :class="{regIsNull:regIsIDCard}" placeholder="请输入身份证号" @blur="blurIdCard(item.visitorId)" @change="regID(item.visitorId)"></el-input>
+                <!--regIsNull-->
+                <el-input v-model="item.phone" :class="{regIsNull:item.phone===''?true:false}" placeholder="请输入电话" @blur="blurPhone(item.phone)" @change="regTel(item.phone)"></el-input>
                 <span style="position:absolute;top: 22px;left: 0px;color: #f56c6c;">*</span>
-                <div v-show="isShowIDCard" style="color: #F56C6C;text-align: left;position: absolute;top: 52px;left: 8px;" >请输入身份证号</div>
+                <!--isShowPhone-->
+                <div v-if="isShowPhone" v-show="item.phone===''? true : false" style="color: #F56C6C;text-align: left;position: absolute;top: 60px;left: 8px;" >请输入电话</div>
+              </td>
+              <td style="position: relative">
+                <!--regIsIDCard-->
+                <el-input v-model="item.visitorId" :class="{regIsNull:item.visitorId===''?true:false}" placeholder="请输入身份证号" @blur="blurIdCard(item.visitorId)" @change="regID(item.visitorId,index)"></el-input>
+                <span style="position:absolute;top: 22px;left: 0px;color: #f56c6c;">*</span>
+                <!--isShowIDCard-->
+                <div v-if="isShowIDCard" v-show="item.visitorId===''?true:false" style="color: #F56C6C;text-align: left;position: absolute;top: 60px;left: 8px;" >请输入身份证号</div>
               </td>
               <td>
-                <el-input v-model="item.carNo" placeholder="请输入车牌号"></el-input>
+                <el-input v-model="item.carNo" :disabled="formInline.sanyBussVisitor.isCar==='0'?true:false"  placeholder="请输入车牌号"></el-input>
               </td>
+              <!--<td>
+                <el-input v-model="item.countCard" placeholder="二维码次数"></el-input>
+              </td>-->
               <!--<td>-->
                 <!--<el-input v-model="item.downStatus" placeholder="下发状态"></el-input>-->
               <!--</td>-->
@@ -213,7 +231,7 @@ import {
   addApplyRequest,
   fileUploadRequest
 } from '../../../api/businessManageApi'
-
+import {reqAddVisitorSuccessReq,reqrRegIDCard} from '../../../api'
 import {checkPhone,checkIDCard} from "../../../util/regExp";
 
 export default {
@@ -226,6 +244,7 @@ export default {
   },
   data () {
     return {
+      isSelected:false,//0401选择当天时，只能选择下午
       deleteDisabled:false,//删除按钮是否可点击
       regIsNull:false,//动态添加Class
       regIsIDCard:false,//动态添加Class
@@ -233,6 +252,7 @@ export default {
       isShowUserName:false,////是否显示提示姓名
       isShowPhone:false,////是否显示提示手机号
       isShowIDCard:false,////是否显示提示身份证
+      isShowGender:false,////是否显示提示性别
       currentUploadIndex: 0, // 上传图片的index
       dialogVisibleImg: false, // 查看图片弹窗是否显示
       dialogVisibles: this.visible, // 弹窗显示
@@ -274,7 +294,7 @@ export default {
         sanyBussVisitor: {
           planBeginTime: '', // 拜访开始时间
           // planEndTime: '', // 拜访结束时间
-          visitingTime: '', // 拜访时间
+          visitingTime: '03', // 拜访时间
           vistorNum: 1, // 来访人数量
           isCar: '0', // 是否驾车
           carNum: '', // 驾车数量
@@ -283,10 +303,12 @@ export default {
         sanyBussVisitorDetailsList: [
           {
             visitorName: '', // 访客姓名
+            gender:'1',//性别 1男  2女
             phone: '', // 手机号码
             visitorId: '', // 访客身份证号
             imgUrl: '', // 照片路径
             carNo:'',//车牌号
+            countCard:'',//二维码次数
           }
         ], // 来访人对象
         sanyBussVisitorCarList: [], // 车辆信息
@@ -342,9 +364,10 @@ export default {
       var detailListObj =
         {visitorName: '', // 访客姓名
           phone: '', // 手机号码
+          gender:'1',//性别
           visitorId: '', // 访客身份证号
           imgUrl: '' ,// 照片路径
-          carId: ''} // 车牌号
+          carNo: ''} // 车牌号
       this.formInline.sanyBussVisitorDetailsList.splice(detailListLength,0,detailListObj)
       this.formInline.sanyBussVisitorDetailsList.length<=1 ? this.deleteDisabled = true : this.deleteDisabled = false
     },
@@ -384,19 +407,27 @@ export default {
         if (!valid) return;
           const {sanyBussVisitorDetailsList} = this.formInline
         for (var i = 0; i <  sanyBussVisitorDetailsList.length; i++) {
-            if(sanyBussVisitorDetailsList[i].visitorName === ''){
-              this.regIsName= true
-              this.isShowUserName= true
-            }else if(sanyBussVisitorDetailsList[i].phone === ''){
-              this.regIsNull= true
-              this.isShowPhone= true
-            }else if(sanyBussVisitorDetailsList[i].visitorId === ''){
-              this.regIsIDCard= true
-              this.isShowIDCard= true
-            }
-          if(sanyBussVisitorDetailsList[i].visitorName === '' ||sanyBussVisitorDetailsList[i].visitorId === ''||sanyBussVisitorDetailsList[i].phone === ''){
+          if(sanyBussVisitorDetailsList[i].visitorName === ''){
+            this.regIsName= true
+            this.isShowUserName= true
+            return
+          }else if(sanyBussVisitorDetailsList[i].gender === ''){
+            this.isShowGender= true
+            return
+          }else if(sanyBussVisitorDetailsList[i].phone === ''){
+            this.regIsNull= true
+            this.isShowPhone= true
+            return
+          }else if(sanyBussVisitorDetailsList[i].visitorId === ''){
+            this.regIsIDCard= true
+            this.isShowIDCard= true
             return
           }
+        }
+        if(this.formInline.sanyBussVisitor.visitingTime === '下午'){
+          this.formInline.sanyBussVisitor.visitingTime = '02'
+        }else if(this.formInline.sanyBussVisitor.visitingTime === '全天'){
+          this.formInline.sanyBussVisitor.visitingTime = '03'
         }
         this.dialogVisibles = false
         this.$emit('dialogvisible', this.dialogVisibles)
@@ -419,8 +450,22 @@ export default {
       }
       this.$message({
         type: 'success',
-        message: res.data.data
+        message: '新增成功'
       });
+      //添加成功后调用的接口
+      let messageInfo = res.data.data.messageDto
+      let messageArr = []
+      messageInfo.forEach(item=>{
+        let messageObj = {}
+        messageObj.qrCode= item.qrCode
+        messageObj.telephone= item.telephone
+        messageObj.uid= item.uid
+        messageObj.verifCode= item.verifCode
+        messageArr.push(messageObj)
+      })
+      console.log('messageArr:',messageArr)
+       this.addVisitorSuccess(messageArr)
+
       // 新增完之后清空
       this.formInline.sanyBussVisitor = {
         vistorNum: 1, // 来访人数量
@@ -429,16 +474,24 @@ export default {
         reason: '', // 拜访原因
         planBeginTime: '', // 拜访开始时间
         // planEndTime: '', // 拜访结束时间
-        visitingTime: '', // 拜访时间
+        visitingTime: '03', // 拜访时间
       }
       this.formInline.sanyBussVisitorDetailsList = [{visitorName: '', // 访客姓名
         phone: '', // 手机号码
         visitorId: '', // 访客身份证号
+        gender:'1',//性别
         imgUrl: '' ,// 照片路径
-        carId: ''}]
+        carNo: ''}]
       this.formInline.sanyBussVisitorCarList = []
       this.dialogVisibles = false
       this.$emit('confirmadddialog', this.dialogVisibles)
+    },
+    //添加成功后调用的函数
+    async addVisitorSuccess(messageArr){
+        const res = await reqAddVisitorSuccessReq(messageArr)
+        if(res&&res.data.code===200){
+          this.$message({type:'success',message:'成功'})
+        }
     },
     // 取消
     handleDialogCancle() {
@@ -451,13 +504,14 @@ export default {
         reason: '', // 拜访原因
         planBeginTime: '', // 拜访开始时间
         // planEndTime: '', // 拜访结束时间
-        visitingTime: '', // 拜访时间
+        visitingTime: '03', // 拜访时间
       }
       this.formInline.sanyBussVisitorDetailsList = [{visitorName: '', // 访客姓名
         phone: '', // 手机号码
         visitorId: '', // 访客身份证号
+        gender:'1',//性别
         imgUrl: '' ,// 照片路径
-        carId: ''}]
+        carNo: ''}]
       this.formInline.sanyBussVisitorCarList = []
       this.dialogVisibles = false
       this.$emit('cancleadddialog', this.dialogVisibles)
@@ -473,13 +527,15 @@ export default {
         reason: '', // 拜访原因
         planBeginTime: '', // 拜访开始时间
         // planEndTime: '', // 拜访结束时间
-        visitingTime: '', // 拜访时间
+        visitingTime: '03', // 拜访时间
       }
-      this.formInline.sanyBussVisitorDetailsList = [{visitorName: '', // 访客姓名
+      this.formInline.sanyBussVisitorDetailsList = [{
+        visitorName: '', // 访客姓名
         phone: '', // 手机号码
         visitorId: '', // 访客身份证号
+        gender:'1',//性别
         imgUrl: '' ,// 照片路径
-        carId: ''}]
+        carNo: ''}]
       this.formInline.sanyBussVisitorCarList = []
       this.dialogVisibles = false
       this.$emit('confirmadddialog', this.dialogVisibles)
@@ -489,14 +545,39 @@ export default {
       console.log('tel:',val)
       val===''? this.regIsNull= true: this.regIsNull= false
     },
-    regID(val){
+    async regID(val,index){
       checkIDCard(val,this)
+
+      //0401增加多个时不能有重复的cardID
+      let cardIdArr = []
+      this.formInline.sanyBussVisitorDetailsList.forEach(item=>{
+        cardIdArr.push(item.visitorId)
+      })
+      cardIdArr.splice(index,1)
+      let indexNum = cardIdArr.includes(val)
+      // console.log('indexNum:',indexNum)
+      // console.log('cardIdArr:',cardIdArr)
+      if(indexNum===true){
+        this.formInline.sanyBussVisitorDetailsList[index].visitorId = ''
+        this.$message({type:'error',message:'输入的身份证重复，请重新输入'})
+      }
+
+      const res = await reqrRegIDCard(val)
+      if(res&&res.data.code!==200){
+        this.$message({
+          type:'error',
+          message:res.data.msg
+        })
+        this.formInline.sanyBussVisitorDetailsList[index].visitorId = ''
+      }
       val===''? this.regIsIDCard= true: this.regIsIDCard= false
     },
     inputChangeName(visitorName){
        visitorName===''? this.regIsName= true: this.regIsName= false
     },
-    blurUserName(val){
+    blurUserName(val,index){
+      console.log('val:',val)
+      console.log('index:',index)
       val===''? this.regIsName= true: this.regIsName= false
       val===''? this.isShowUserName= true: this.isShowUserName= false
     },
@@ -508,6 +589,11 @@ export default {
       val===''? this.regIsIDCard= true: this.regIsIDCard= false
       val===''? this.isShowIDCard= true: this.isShowIDCard= false
     },
+    ///input聚焦
+    focusUserName(val,index){
+      // val = ''
+      console.log('val0000000000000:',val)
+    },
     //单独删除每一行，，
     deleteSingleLine(item,index){
       if(this.formInline.sanyBussVisitorDetailsList.length<=1){
@@ -518,7 +604,23 @@ export default {
       this.formInline.sanyBussVisitorDetailsList.splice(index,1)
       this.formInline.sanyBussVisitor.vistorNum = this.formInline.sanyBussVisitorDetailsList.length
       this.formInline.sanyBussVisitor.carNum = this.formInline.sanyBussVisitor.vistorNum
-    }
+    },
+    //选择日期控制上午显示
+    selectDateValueControl(val){
+      let dateone = new Date(new Date(new Date().toDateString()).getTime()+12*60*60*1000).getTime() //当天12点
+      let datezear = new Date(new Date(new Date().toDateString()).getTime()+8*60*60*1000).getTime()    //当天8点
+      let selectTime = new Date(val).getTime()
+      let nowDate = Date.now()
+      if(nowDate>dateone){
+        if(selectTime === datezear){
+          this.formInline.sanyBussVisitor.visitingTime = '下午'
+          this.isSelected = true
+        }else{
+          this.formInline.sanyBussVisitor.visitingTime = '全天'
+          this.isSelected = false
+        }
+      }
+    },
   }
 }
 </script>
@@ -530,10 +632,10 @@ export default {
       width: 100%;
     }
     /deep/ .el-select{
-      display:block;width:216px;
+      display:block;width:268px;
     }
     /deep/ .el-input{
-      width: 216px;
+      width: 268px;
     }
   }
   &_table{
@@ -552,7 +654,7 @@ export default {
         border-bottom: 1px solid #ebeef5;
       }
       td,th{
-        padding: 12px 10px;
+        padding: 15px 10px;
 
       }
     }
@@ -562,22 +664,25 @@ export default {
       text-align: center;
     }
     th:nth-child(1) {
-      width: 50px;
+      width: 30px;
     }
     th:nth-child(2) {
-      width: 150px;
+      width: 120px;
     }
     th:nth-child(3) {
-      width: 150px;
+      width: 80px;
     }
     th:nth-child(4) {
-      width: 200px;
+      width: 150px;
     }
     th:nth-child(5) {
-      width: 150px;
+      width: 200px;
     }
     th:nth-child(6) {
       width: 150px;
+    }
+    th:nth-child(7) {
+      width: 120px;
     }
   }
   &_carTable{
@@ -605,6 +710,11 @@ export default {
       border: 1px solid #F56C6C;
       border-radius: 5px;
     }
+  }
+  /deep/ .el-radio{
+    display: flex;
+    margin-top: 10px;
+    margin-left: 0px;
   }
 }
 

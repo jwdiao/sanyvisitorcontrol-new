@@ -55,7 +55,7 @@
               </el-table-column>
               <el-table-column
                 prop="account"
-                label="账号">
+                label="员工账号">
               </el-table-column>
               <el-table-column label="恢复原始密码[身份证后6位]">
                 <template slot-scope="scope">
@@ -104,6 +104,7 @@
         tableData: [],
 				orgIds:[],
 				resetUserName:'',
+				resetTel:'',
 				pageTotal:0,
 				orgs:'',
 				pageNum:1,
@@ -115,7 +116,7 @@
 			this.getSelectAllByUserName();
 			setTimeout(function(){
 				//console.log(document.querySelectorAll('.el-checkbox__original'))
-				
+
 			},1)
 
 		},
@@ -145,6 +146,7 @@
       },
       handleEdit(index, row) {
 				this.resetUserName = row.account;
+				this.resetTel = row.tel;
 				this.getResetLoginPwd();
       },
 			async getOutTreeHasPrivillege(){
@@ -155,18 +157,18 @@
 						document.querySelectorAll('.el-checkbox__original').forEach(function(ele,index){
 									  if(ele.disabled&&index>0){
 											ele.parentNode.parentNode.parentNode.style.display = 'none'
-										} 
+										}
 						})
 					},100) */
 					 /* setTimeout(()=>{
 						document.querySelectorAll('.el-tree-node__children').forEach(function(ele,index){
-										console.log(ele) 
+										console.log(ele)
 						})
 					},100) */
-					
-					
+
+
 				}else{
-					
+
 				}
 			},
 			async getSelectAllByUserName(){
@@ -197,7 +199,7 @@
 
 			},
 			async getResetLoginPwd(){
-				const res = await resetLoginPwd(this.resetUserName);
+				const res = await resetLoginPwd(this.resetTel);
 				if(res && res.data.code === 200){
 					 if(res.data.code === 200){
 					 		this.$message({

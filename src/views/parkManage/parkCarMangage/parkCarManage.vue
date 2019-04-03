@@ -681,7 +681,7 @@
       },
       //下载模板
       uploadTemplateParkCarManage(){
-        let url = `${BASE_URL}/userMessage/export`
+        let url = `${BASE_URL}/user/SanyBasicShrUser/exportParkCar`
         url = encodeURI(encodeURI(url));
         location.href = url
       },

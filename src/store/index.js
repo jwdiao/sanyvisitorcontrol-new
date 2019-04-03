@@ -13,6 +13,8 @@ const store = new Vuex.Store({
 			imgUrlUpload:'',//照片路径
     }, // 管理页信息
 
+    qrCodeImage:'',//二维码地址
+
         //登陆后返回的值
 
   },
@@ -25,7 +27,7 @@ const store = new Vuex.Store({
       sessionStorage.setItem('roleCode', state.adminObj.roleCode)
 		  sessionStorage.setItem('userNumber', state.adminObj.userNumber)
 			sessionStorage.setItem('imgUrlUpload', state.adminObj.imgUrlUpload)
-			 sessionStorage.setItem('imgVerify', state.adminObj.imgVerify) 
+			 sessionStorage.setItem('imgVerify', state.adminObj.imgVerify)
     },
     // 注销登陆
     logoutMuta (state) {
@@ -34,7 +36,11 @@ const store = new Vuex.Store({
       sessionStorage.removeItem('token');
       sessionStorage.removeItem('username');
       sessionStorage.removeItem('roleCode');
-    }
+    },
+    //state二维码
+    getQrCodeImg(state,data){
+      state.qrCodeImage = data
+    },
   },
   actions: {
     loginAction ({ commit }, item) {
@@ -42,7 +48,8 @@ const store = new Vuex.Store({
     },
 		logOutAction({commit}){
 			commit('logoutMuta')
-		}
+		},
+
   }
 })
 export default store

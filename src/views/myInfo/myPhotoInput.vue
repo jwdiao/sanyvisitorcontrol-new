@@ -13,9 +13,9 @@
 			<el-form-item label="工号">
 				<el-input v-model="userMessage.userNumber" placeholder="工号" :disabled="true"></el-input>
 			</el-form-item>
-			<el-form-item label="是否合格">
+			<!--<el-form-item label="是否合格">
 				<el-input v-model="isQualified"  :disabled="true"></el-input>
-			</el-form-item>
+			</el-form-item>-->
 			</el-form>
 			 <div class="upload">
 			 	<el-upload
@@ -222,7 +222,8 @@
 				    document.getElementsByClassName('el-upload--picture-card')[0].style.backgroundSize = '100% 100%'
 				    /* const res1 = await reqlowerHair(sessionStorage.userNumber);
 				    console.log(res1) */
-					this.getLowerHair()
+				    //20190327注销调用这个接口
+					// this.getLowerHair()
 
 				}else{
 					this.$message({

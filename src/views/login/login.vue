@@ -12,13 +12,13 @@
         </el-form-item>
         <el-form-item prop="password">
           <i></i>
-          <el-input type="password" v-model="loginData.password" placeholder="请输入密码" @keyup.enter.native="login()"></el-input>
+          <el-input type="password" v-model="loginData.password" placeholder="请输入密码" @keyup.native="isClickFun" @keyup.enter.native="login()"></el-input>
         </el-form-item>
-        <div class="login_forgetPwd">
+         <div class="login_forgetPwd">
           <span @click="handleForgetPwd">忘记密码</span>
         </div>
         <el-form-item>
-            <el-button type="primary" block class="submit_btn" @click="login()">登 &nbsp; 录</el-button>
+            <el-button type="primary" block class="submit_btn" @click="login()" :disabled="isClickLogin">登 &nbsp; 录</el-button>
         </el-form-item>
       </el-form>
     </section>
@@ -26,6 +26,7 @@
 </template>
 
 <script>
+import CryptoJS from 'crypto-js'
 import { LoginRequest } from '../../api/loginApi'
 // import {regRoleCodeIsMengang} from '../../api'
 import { mapActions } from 'vuex'
@@ -35,6 +36,7 @@ export default {
   name: 'Login',
   data () {
     return {
+      isClickLogin:true,//登录是否点击
       loginData: {
 				username: '',
 				password: ''
@@ -52,21 +54,58 @@ export default {
   created(){
 
   },
+  mounted(){
+    this.isClickFun()
+  },
   methods: {
     ...mapActions(['loginAction']),
-
+		//DES加密 Pkcs7填充方式
+		encryptByDES(message, key){
+			const keyHex = CryptoJS.enc.Utf8.parse(key);
+			const encrypted = CryptoJS.DES.encrypt(message, keyHex, {
+					mode: CryptoJS.mode.ECB,
+					padding: CryptoJS.pad.Pkcs7
+			});
+			return encrypted.toString();
+		},
+		//DES解密
+		decryptByDES(ciphertext, key){
+			const keyHex = CryptoJS.enc.Utf8.parse(key);
+			// direct decrypt ciphertext
+			const decrypted = CryptoJS.DES.decrypt({
+									ciphertext: CryptoJS.enc.Base64.parse(ciphertext)
+			}, keyHex, {
+									mode: CryptoJS.mode.ECB,
+									padding: CryptoJS.pad.Pkcs7
+			});
+			return decrypted.toString(CryptoJS.enc.Utf8);
+		},
     async login () {
 			this.$refs.loginForm.validate(async (valid) => {
 				if (!valid) return;
 				const {username, password} = this.loginData
-				let loginStatus = false;
+        let loginStatus = false;
+
+        /**
+         * 加密应用：
+         * const _key = username     const _password = password
+         * 加密：let xx = this.encryptByDES(_password,_key) // 输出：sHTd/9exYuk=
+         * 解密：let yy = this.decryptByDES(xx,_key) // 输出： 123456
+        */
+
 				const formData = {
 					loginAccount: username,
-					loginPwd: password
+          loginPwd: password
+          // loginPwd: this.encryptByDES(password,username) // 密码加密，后期放开
 				}
-				this.loginMethods(formData)
+          this.loginMethods(formData)
 			});
 		},
+    //
+    isClickFun(){
+      this.loginData.password.length>=6 ? this.isClickLogin = false : this.isClickLogin = true
+    },
+
 		async loginMethods (formData) {
       const res = await LoginRequest(formData);
       // debugger;
@@ -77,7 +116,7 @@ export default {
           type: 'success',
           message: '登陆成功!'
         });
-				console.log(data);
+				// console.log(data);
         let user = {
           username: data.userName,
           token: data.token,

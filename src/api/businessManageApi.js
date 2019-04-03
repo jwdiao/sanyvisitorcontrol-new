@@ -43,7 +43,7 @@ export const getVisitorAllByVisitorNameRequest = async (pageNum,pageSize,visitor
     ]
   }
 */
-export const addApplyRequest = async (addApplyParam) => $http.post(`${BASE_URL}/visitorcontrol/SanyBussVisitor/addApply`, addApplyParam)
+export const addApplyRequest = async (addApplyParam) => $http.post(`${BASE_URL}/visitorcontrol/SanyBussVisitor/addApplyAndSendHaiKang`, addApplyParam)
 
 
 /**
