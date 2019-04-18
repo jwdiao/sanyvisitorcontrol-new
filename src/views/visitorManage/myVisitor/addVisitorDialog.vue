@@ -51,7 +51,7 @@
             <el-input-number :controls="false" disabled v-model="formInline.sanyBussVisitor.vistorNum" @change="handleInputPersonNum" :min="formInline.sanyBussVisitor.vistorNum" @blur="blurVisitorNum()"></el-input-number>
           </el-form-item>
           <el-form-item label="是否驾车">
-            <el-select v-model="formInline.sanyBussVisitor.isCar"  placeholder="请选择">
+            <el-select v-model="formInline.sanyBussVisitor.isCar"  placeholder="请选择" @change="isCarNum">
               <el-option
                 v-for="item in isDriveCarOptions"
                 :key="item.value"
@@ -60,6 +60,16 @@
               </el-option>
             </el-select>
           </el-form-item>
+        <el-form-item label="访客类型">
+          <el-select v-model="isVip" placeholder="请选择" @change="isVipChange">
+            <el-option
+              v-for="item in isVipOptions"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value">
+            </el-option>
+          </el-select>
+        </el-form-item>
           <!--<el-form-item label="驾车数量" v-show="formInline.sanyBussVisitor.isCar==='1'">
             <el-input-number :controls="true" v-model="formInline.sanyBussVisitor.carNum" :min="1" @change="handleInputCarNum"></el-input-number>&lt;!&ndash;@change="handleInputCarNum"&ndash;&gt;
           </el-form-item>-->
@@ -110,7 +120,7 @@
               <td v-text="index+1">1</td>
               <td style="position: relative">
                 <!--regIsName-->
-                <el-input v-model="item.visitorName" :class="{regIsNull:item.visitorName===''?true:false}" @focus="focusUserName(item.visitorName,index)"  placeholder="请输入姓名" @blur="blurUserName(item.visitorName,index)" @change="inputChangeName(item.visitorName)"></el-input>
+                <el-input v-model="item.visitorName" :class="{regIsNull:item.visitorName===''　&& isShowUserName ?true:false}" @focus="focusUserName(item.visitorName,index)"  placeholder="请输入姓名" @blur="blurUserName(item.visitorName,index)" @change="inputChangeName(item.visitorName)"></el-input>
                 <span style="position:absolute;top: 22px;left: 0px;color: #f56c6c;">*</span>
                 <!--isShowUserName-->
                 <div v-if="isShowUserName" v-show="item.visitorName===''?true:false" style="color: #F56C6C;text-align: left;position: absolute;top: 60px;left: 8px;" >请输入姓名</div>
@@ -123,14 +133,14 @@
               </td>
               <td style="position: relative">
                 <!--regIsNull-->
-                <el-input v-model="item.phone" :class="{regIsNull:item.phone===''?true:false}" placeholder="请输入电话" @blur="blurPhone(item.phone)" @change="regTel(item.phone)"></el-input>
+                <el-input v-model="item.phone" :class="{regIsNull:item.phone==='' && isShowPhone ?true:false}" placeholder="请输入电话" @blur="blurPhone(item.phone)" @change="regTel(item.phone)"></el-input>
                 <span style="position:absolute;top: 22px;left: 0px;color: #f56c6c;">*</span>
                 <!--isShowPhone-->
                 <div v-if="isShowPhone" v-show="item.phone===''? true : false" style="color: #F56C6C;text-align: left;position: absolute;top: 60px;left: 8px;" >请输入电话</div>
               </td>
               <td style="position: relative">
                 <!--regIsIDCard-->
-                <el-input v-model="item.visitorId" :class="{regIsNull:item.visitorId===''?true:false}" placeholder="请输入身份证号" @blur="blurIdCard(item.visitorId)" @change="regID(item.visitorId,index)"></el-input>
+                <el-input v-model="item.visitorId" :class="{regIsNull:item.visitorId==='' && isShowIDCard?true:false}" placeholder="请输入身份证号" @blur="blurIdCard(item.visitorId)" @change="regID(item.visitorId,index)"></el-input>
                 <span style="position:absolute;top: 22px;left: 0px;color: #f56c6c;">*</span>
                 <!--isShowIDCard-->
                 <div v-if="isShowIDCard" v-show="item.visitorId===''?true:false" style="color: #F56C6C;text-align: left;position: absolute;top: 60px;left: 8px;" >请输入身份证号</div>
@@ -256,6 +266,8 @@ export default {
       currentUploadIndex: 0, // 上传图片的index
       dialogVisibleImg: false, // 查看图片弹窗是否显示
       dialogVisibles: this.visible, // 弹窗显示
+      isTelephonetrue:false,//验证手机号是否可以点击确定
+      isIDCardtrue:false,//验证身份证是否可以点击确定
       isCar: '0', // 是否驾车
       isDriveCarOptions: [{ // 是否驾车下拉
         value: '1',
@@ -263,6 +275,14 @@ export default {
       }, {
         value: '0',
         label: '否'
+      }],
+      isVip:'一般访客',
+      isVipOptions: [{ // 访客是否VIP
+        label: 'VIP',
+        value: '1',
+      }, {
+        label: '一般访客',
+        value: '0',
       }],
       visitingTimeOptions:[{
         label: '上午',
@@ -297,7 +317,8 @@ export default {
           visitingTime: '03', // 拜访时间
           vistorNum: 1, // 来访人数量
           isCar: '0', // 是否驾车
-          carNum: '', // 驾车数量
+          isVip:0,//是否VIP
+          carNum: 0, // 驾车数量
           reason: '', // 拜访原因
         },
         sanyBussVisitorDetailsList: [
@@ -374,17 +395,37 @@ export default {
     blurVisitorNum(){
       this.formInline.sanyBussVisitor.vistorNum = this.formInline.sanyBussVisitorDetailsList.length
     },
+    //是否VIP
+    isVipChange(val){
+      let obj = {};
+      obj = this.isVipOptions.find((item)=>{
+        return item.value === val;
+      });
+      this.isVip = obj.label
+      this.formInline.sanyBussVisitor.isVip =Number(obj.value)
+      console.log('this.formInline.sanyBussVisitor.isVip:',this.formInline.sanyBussVisitor.isVip)
+    },
+    //车辆数量   是：1 否：0
+    isCarNum(){
+      if(this.formInline.sanyBussVisitor.isCar === '0'){
+        this.formInline.sanyBussVisitor.carNum = 0
+      }else if(this.formInline.sanyBussVisitor.isCar === '1'){
+        this.formInline.sanyBussVisitor.carNum = 1
+      }
+      console.log(this.formInline.sanyBussVisitor.carNum)
+    },
+
     //输入车辆数,必须小于人数
      handleInputCarNum(){
       let {carNum,vistorNum} = this.formInline.sanyBussVisitor
-       if(carNum > vistorNum){
+       /*if(carNum > vistorNum){
          this.formInline.sanyBussVisitor.carNum = this.formInline.sanyBussVisitor.vistorNum-1
         this.$message({
           type:'error',
           message:'输入车辆必须小于人员数量'
         })
          return
-       }
+       }*/
      },
     // 输入车辆数,动态增加车辆表格
    /* handleInputCarNum() {
@@ -424,6 +465,15 @@ export default {
             return
           }
         }
+        if(this.isTelephonetrue){
+            this.$message({type:'error',message:'手机号码输入不正确'})
+            return
+        }
+        if(this.isIDCardtrue){
+            this.$message({type:'error',message:'身份证号码输入不正确'})
+            return
+        }
+
         if(this.formInline.sanyBussVisitor.visitingTime === '下午'){
           this.formInline.sanyBussVisitor.visitingTime = '02'
         }else if(this.formInline.sanyBussVisitor.visitingTime === '全天'){
@@ -448,10 +498,10 @@ export default {
         });
         return;
       }
-      this.$message({
+      /*this.$message({
         type: 'success',
         message: '新增成功'
-      });
+      });*/
       //添加成功后调用的接口
       let messageInfo = res.data.data.messageDto
       let messageArr = []
@@ -470,7 +520,7 @@ export default {
       this.formInline.sanyBussVisitor = {
         vistorNum: 1, // 来访人数量
         isCar: '0', // 是否驾车
-        carNum: '', // 驾车数量
+        carNum: 0, // 驾车数量
         reason: '', // 拜访原因
         planBeginTime: '', // 拜访开始时间
         // planEndTime: '', // 拜访结束时间
@@ -490,7 +540,7 @@ export default {
     async addVisitorSuccess(messageArr){
         const res = await reqAddVisitorSuccessReq(messageArr)
         if(res&&res.data.code===200){
-          this.$message({type:'success',message:'成功'})
+          // this.$message({type:'success',message:'成功'})
         }
     },
     // 取消
@@ -500,7 +550,7 @@ export default {
       this.formInline.sanyBussVisitor = {
         vistorNum: 1, // 来访人数量
         isCar: '0', // 是否驾车
-        carNum: '', // 驾车数量
+        carNum: 0, // 驾车数量
         reason: '', // 拜访原因
         planBeginTime: '', // 拜访开始时间
         // planEndTime: '', // 拜访结束时间
@@ -523,7 +573,7 @@ export default {
       this.formInline.sanyBussVisitor = {
         vistorNum: 1, // 来访人数量
         isCar: '0', // 是否驾车
-        carNum: '', // 驾车数量
+        carNum: 0, // 驾车数量
         reason: '', // 拜访原因
         planBeginTime: '', // 拜访开始时间
         // planEndTime: '', // 拜访结束时间
@@ -541,13 +591,12 @@ export default {
       this.$emit('confirmadddialog', this.dialogVisibles)
     },
     regTel(val){
-      checkPhone(val,this)
-      console.log('tel:',val)
+      this.isTelephonetrue = checkPhone(val,this)
+      console.log('isTelephone:',this.isTelephonetrue)
       val===''? this.regIsNull= true: this.regIsNull= false
     },
     async regID(val,index){
-      checkIDCard(val,this)
-
+      this.isIDCardtrue = checkIDCard(val,this)
       //0401增加多个时不能有重复的cardID
       let cardIdArr = []
       this.formInline.sanyBussVisitorDetailsList.forEach(item=>{
@@ -603,7 +652,7 @@ export default {
       }
       this.formInline.sanyBussVisitorDetailsList.splice(index,1)
       this.formInline.sanyBussVisitor.vistorNum = this.formInline.sanyBussVisitorDetailsList.length
-      this.formInline.sanyBussVisitor.carNum = this.formInline.sanyBussVisitor.vistorNum
+      // this.formInline.sanyBussVisitor.carNum = this.formInline.sanyBussVisitor.vistorNum
     },
     //选择日期控制上午显示
     selectDateValueControl(val){

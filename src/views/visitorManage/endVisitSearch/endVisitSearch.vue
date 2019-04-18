@@ -39,8 +39,8 @@
         <el-table-column prop="visitorStatus" label="访问状态"> </el-table-column>
         <!--<el-table-column prop="auditingType" label="审核通过类型"> </el-table-column>-->
         <!--<el-table-column prop="recordType" label="录入类型"> </el-table-column>-->
-        <el-table-column prop="operatorCode" label="操作人工号"> </el-table-column>
-        <el-table-column prop="operatorName" label="操作人姓名"> </el-table-column>
+        <el-table-column prop="operaterCode" label="操作人工号"> </el-table-column>
+        <el-table-column prop="operaterName" label="操作人姓名"> </el-table-column>
         <el-table-column prop="che" label="查看">
           <template slot-scope="scope">
             <el-button size="mini" type="text"
@@ -84,8 +84,8 @@
             </el-form-item>
           </div>
 
-          <div class="endVisitSearchDialog" style="display: flex;width: 93%">
-            <el-form-item label="拜访原因" prop="visitReason">
+          <div class="endVisitSearchDialog" style="display: flex;">
+            <el-form-item label="拜访原因" prop="visitReason" style="width: 94%;">
               <el-input class="visitReasonTextarea" disabled
                         type="textarea" :rows="2" placeholder="请输入拜访原因"
                         v-model="visitReason">
@@ -335,7 +335,7 @@
     width: 100px!important;
   }
    .visitReasonTextarea .el-textarea__inner{
-    width: 430%;
+    width: 100%;
   }
   .endVisitSearch .el-dialog__wrapper .el-dialog{
     margin-top: 11vh!important;

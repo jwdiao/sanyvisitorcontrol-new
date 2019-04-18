@@ -105,11 +105,11 @@ export const reqRUploadImage = (formData,id) => http.postFileData(`${BASE_URL}/v
 // 园区管理---园区车辆---查询
 export const reqSearchCarsList = (carNo,userName,userNo,pageNum,pageSize) => http.post(`${BASE_URL}/user/SanyBasicShrUser/selectBussParkCarByCondition`,{query:{carNo,userName,userNo},pageNum,pageSize});
 // 园区管理---园区车辆---新增
-export const reqAddCars = (userNo,userName,carType,carNo,remark) => http.post(`${BASE_URL}/user/SanyBasicShrUser/insertBussParkCar`,{userNo,userName,carType,carNo,remark});
+export const reqAddCars = (userNo,userName,carType,carNo,remark,ownerId,phoneNo) => http.post(`${BASE_URL}/user/SanyBasicShrUser/insertBussParkCar`,{userNo,userName,carType,carNo,remark,ownerId,phoneNo});
 // 园区管理---园区车辆---编辑
 export const reqEditCars = (id,carNo,carType,remark,userName,userNo) => http.post(`${BASE_URL}/user/SanyBasicShrUser/modifyBussParkCar`,{id,carNo,carType,remark,userName,userNo});
 // 园区管理---园区车辆---删除
-export const reqDeleteCars = (id) => http.post(`${BASE_URL}/user/SanyBasicShrUser/removeBussParkCar`,{id});
+export const reqDeleteCars = (id,carNo) => http.post(`${BASE_URL}/user/SanyBasicShrUser/removeBussParkCar`,{id,carNo});
 // 园区管理---园区车辆---数据导入
 export const reqUploadCarsFile = (formData) => http.postFileData(`${BASE_URL}/user/SanyBasicShrUser/importExcel`,formData);
 // 园区管理---园区员工管理---新增和编辑--验证员工工号（外部员工为手机号）
@@ -146,6 +146,10 @@ export const reqSendMessageSingle = (messageDto) =>http.post(`${BASE_URL}/visito
 export const reqAddVisitorSuccessReq = (messageDto) =>http.post(`${BASE_URL}/visitorcontrol/SanyBussVisitor/sendOneMessageManyVisitors`,{messageDto})
 //0330我的访客信息---新增访客---验证身份证号/临时拜访录入--接口
 export const reqrRegIDCard = (idCard) =>http.post(`${BASE_URL}/visitorcontrol/SanyBussVisitor/selectVisitorsByIdCard`,{idCard})
+//0415园区车辆管理---生效--接口
+export const reqParkCarManageTakeEffect = (id,plateNo) =>http.post(`${BASE_URL}/user/SanyBasicShrUser/carRecharge`,{id,plateNo})
+//0415园区车辆管理---新增、编辑车牌号验证--接口
+export const reqCarsNumberIsRepeat = (carNo) =>http.post(`${BASE_URL}/user/SanyBasicShrUser/selectBussParkCarByCarNo`,{carNo})
 
 
 

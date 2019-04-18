@@ -9,12 +9,15 @@ export const checkPhone = (tel,h) => {
         type:'error',
         message:'手机号码格式错误，请重新输入'
       })
+      return true
     }
+    return false
   }else {
     h.$message({
       type:'error',
       message:'请输入11位手机号码'
     })
+    return true
   }
 }
 // 验证身份证号
@@ -25,19 +28,22 @@ export function checkIDCard (IDNumber,h) {
         type:'error',
         message:'身份证号码格式错误，请重新输入'
       })
-    }
+      return true
+    }return false
   }else if(IDNumber.length === 18){
     if(!/(^\d{17}([0-9]|x|X)$)/.test(IDNumber)){
       h.$message({
         type:'error',
         message:'身份证号码格式错误，请重新输入'
       })
-    }
+      return true
+    }return false
   }else{
     h.$message({
       type:'error',
       message:'请输入15位或18位身份证号码'
     })
+    return true
   }
 }
 // 验证车牌号
@@ -50,19 +56,22 @@ export function checkCarCard (CarCardNum,h) {
         type:'error',
         message:'车牌号码格式错误，请重新输入'
       })
-    }
+      return true
+    }return false
   }else if(CarCardNum.length === 8){
     if(!(XNYumExpress.test(CarCardNum))){
       h.$message({
         type:'error',
         message:'车牌号码格式错误，请重新输入'
       })
-    }
+      return true
+    }return false
   }else{
     h.$message({
       type:'error',
       message:'请输入7位或8位车牌号码'
     })
+    return true
   }
 }
 

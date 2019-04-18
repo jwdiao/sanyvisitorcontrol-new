@@ -40,6 +40,9 @@
       <el-form-item>
         <el-button class="deleteBtn" type="danger" @click="deleteCarsSubmit" style="width: 100px;background: #ff404a;color: #fff;border: 1px solid #ff404a">删除</el-button>
       </el-form-item>
+      <el-form-item>
+        <el-button type="primary" @click="takeEffectCars" style="width: 100px;color: #fff;">批量生效</el-button>
+      </el-form-item>
     </el-form>
     <!--主列表-->
     <div class="common-table">
@@ -65,7 +68,7 @@
         </el-table-column>
         <el-table-column prop="carType" label="车辆类型">
           <template slot-scope="scope">
-            <span style="margin-left: 10px">{{ scope.row.carType === '2' ? '小车' : '大车' }}</span>
+            <span style="margin-left: 10px">{{ scope.row.carType }}</span>
           </template>
         </el-table-column>
 
@@ -86,7 +89,7 @@
         <el-form :v-model="editForm" label-width="80px" ref="editForm" :model="editForm" :rules="editCarsRules"><!--:rules="editFormRules"-->
           <div class="parkServiceDialog" style="display: flex">
             <el-form-item label="员工工号" prop="userNo" style="width:48%;">
-              <el-input v-model="editForm.userNo" auto-complete="off" clearable @keyup.native="editChangeUserNumFun" ></el-input>
+              <el-input v-model="editForm.userNo" auto-complete="off" disabled clearable @keyup.native="editChangeUserNumFun" ></el-input>
               <div class="tempVisitInput_employerName"  id="editUserNameCarManage" ref="editUserNameCarManage" v-show="employerNameSelectShow" >
                 <el-scrollbar style="height:100%">
                   <ul v-show="restaurantsListArr.length>0">
@@ -103,8 +106,8 @@
             </el-form-item>
           </div>
           <div class="parkServiceDialog" style="display: flex;">
-            <el-form-item label="车辆号" prop="carNo" class="park-address-item" style="width:48%;">
-              <el-input v-model="editForm.carNo" auto-complete="off" clearable></el-input><!--editForm.loginPwd-->
+            <el-form-item label="车牌号" prop="carNo" class="park-address-item" style="width:48%;">
+              <el-input v-model="editForm.carNo" auto-complete="off" clearable @change="editCarNumberfn"></el-input><!--editForm.loginPwd-->
             </el-form-item>
             <el-form-item label="车辆类型" prop="carType" class="park-address-item" style="width:48%;">
               <el-select v-model="editForm.carType" clearable placeholder="请选择" @change="editCarsSelect" style="width: 100%;">
@@ -157,7 +160,7 @@
           </div>
           <div class="parkServiceDialog" style="display: flex;">
             <el-form-item label="车牌号" prop="AddcarNum" class="park-address-item" style="width: 48%;">
-              <el-input v-model="addCarsContent.AddcarNum" auto-complete="off" clearable placeholder="请输入车牌号"></el-input><!--editForm.loginPwd-->
+              <el-input v-model="addCarsContent.AddcarNum" auto-complete="off" clearable placeholder="请输入车牌号" @change="carNumberChange"></el-input><!--editForm.loginPwd-->
             </el-form-item>
             <el-form-item label="车牌类型" prop="addCarType" class="park-address-item" style="width: 48%;">
               <el-select v-model="addCarsContent.addCarType" clearable placeholder="请选择" @change="selectParkName" style="width: 100%;">
@@ -201,6 +204,7 @@
 <script>
   import http from '../../../api/http'
   import BASE_URL from '../../../api/global'
+  import {checkCarCard} from '../../../util/regExp'
   import {reqSearchCarsList,
     reqAddCars,
     reqEditCars,
@@ -208,6 +212,8 @@
     reqUploadCarsFile,
     regCarsExpUserNumber,
     regExpCarManageUserName,
+    reqParkCarManageTakeEffect,//生效  0415
+    reqCarsNumberIsRepeat,//0415车牌号重复验证
 
   } from '../../../api'
   export default {
@@ -220,12 +226,16 @@
         isShow:true,//数据导入按钮显示与隐藏
         employerNameSelectShow:false,//新增员工工号列表显示模糊查询
         restaurantsListArr:[],//新增员工工号列表显示模糊查询到员工信息列表
+        regCarNumbers:true,//新增验证车牌号输入是否正确 true 错误   false 正确
+        editRegCarNumbers:true,//编辑验证车牌号输入是否正确 true 错误   false 正确
 
         addCarsContent:{
           AddcarNum:'',// 新增车牌号
           addworkname:'', // 新增员工姓名
           addWorkno:'',//新增员工工号
           addCarType:'',//新增车辆类型
+          personId:'',//0411新增加
+          phoneNo:'',//0417新增加手机号
         },
         rules: {
           addWorkno: [
@@ -274,22 +284,30 @@
 
         parkNameOptions:[{//新增车辆
           value:'1',
-          label:'大车'
+          label:'小车'
         },{
           value:'2',
-          label:'小车'
+          label:'大车'
+        },{
+          value:'0',
+          label:'其他车'
         }],value:'',
         addCarValue:'',//新增当前车辆类型value
-        editCarsOptions:[{ //编辑车辆
+        editCarsOptions:[{//新增车辆
           value:'1',
-          label:'大车'
+          label:'小车'
         },{
           value:'2',
-          label:'小车'
+          label:'大车'
+        },{
+          value:'0',
+          label:'其他车'
         }],editValue:'',
         editCarType:'',//选择当前车辆类型
+        editCarTypeNum:'',//选择当前车辆类型---向后台传递的数据
         editCarValue:'',//选择当前车辆类型value
         carTableData: [], //查询主列表信息
+        editCarNumber:'',//点击编辑得到的车牌号
         currentPage: 1,
         pageSize:20,
         total:0,
@@ -311,8 +329,18 @@
       async getCarManageList (carNo,userName,userNo,pageNum,pageSize){
         const res = await reqSearchCarsList(carNo,userName,userNo,pageNum,pageSize)
         if(res.data.code === 200){
-          this.carTableData = res.data.data.list
+          var  carArr = res.data.data.list
           this.total = res.data.data.total
+          carArr.forEach(item=>{
+            if(item.carType=== 0){
+              item.carType = '其他车'
+            }else if(item.carType===1){
+              item.carType = '小车'
+            }else if(item.carType===2){
+              item.carType = '大车'
+            }
+          })
+          this.carTableData = carArr
         }
       },
       /**
@@ -343,12 +371,14 @@
           type: 'warning'
         }).then(() => {
           const {multipleSelection} = this
+          // console.log('multipleSelection:',multipleSelection)
           var parkIdArr = []
           for (var i = 0; i < multipleSelection.length; i++) {
             //向后台发送删除请求
             var parkId = multipleSelection[i].id
+            var carNo = multipleSelection[i].carNo
             parkIdArr.push(parkId)
-            this.deleteDataFn(parkId)
+            this.deleteDataFn(parkId,carNo)
           }
         }).catch(() => {
           this.$message({
@@ -358,12 +388,12 @@
         });
       },
       //删除功能方法
-      async deleteDataFn(id){
-        const res = await reqDeleteCars(id)
+      async deleteDataFn(id,carNo){
+        const res = await reqDeleteCars(id,carNo)
         if(res&&res.data&&res.data.code===200){
           this.$message({
             type: 'success',
-            message: res.data.data
+            message: res.data.msg
           });
           //刷新页面
           const {parkCarManageName,parkCarManageCarNum,parkCarManageNum,currentPage,pageSize} = this
@@ -373,6 +403,50 @@
             type: 'error',
             message: res.data.data
           });
+        }
+      },
+
+      //点击生效按钮
+      takeEffectCars(){
+        if(this.multipleSelection.length === 0){
+          this.$message({
+            type:'error',
+            message:'请选择要生效的对象'
+          })
+          return
+        }
+        this.$confirm('是否生效?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          const {multipleSelection} = this
+          // console.log('multipleSelection:',multipleSelection)
+          var parkIdArr = []
+          for (var i = 0; i < multipleSelection.length; i++) {
+            //向后台发送生效请求
+            var parkId = multipleSelection[i].id
+            var carNo = multipleSelection[i].carNo
+            parkIdArr.push(parkId)
+            this.getTakeEffect(parkId,carNo)
+          }
+        }).catch(() => {
+          this.$message({
+            type: 'info',
+            message: '已取消删除'
+          });
+        });
+      },
+      //生效与后台的接口
+     async getTakeEffect(id,plateNo){
+        const res = await reqParkCarManageTakeEffect(id,plateNo)
+        if(res&&res.data.code===200){
+          this.$message({type:'success',message:res.data.msg})
+          //刷新页面
+          const {parkCarManageName,parkCarManageCarNum,parkCarManageNum,currentPage,pageSize} = this
+          this.getCarManageList(parkCarManageCarNum,parkCarManageName,parkCarManageNum,currentPage,pageSize)
+        }else{
+          this.$message({type:'error',message:res.data.msg})
         }
       },
       /**
@@ -420,6 +494,8 @@
         this.employerNameSelectShow = false
         this.addCarsContent.addWorkno = item.userNo
         this.addCarsContent.addworkname = item.userName
+        this.addCarsContent.personId = item.personId
+        this.addCarsContent.phoneNo = item.telephone
         console.log('item:',item)
       },
       //新增点击员工工号外时下拉框消失
@@ -430,6 +506,43 @@
           if(!userNameClick.contains(e.target)){
             this.employerNameSelectShow = false;
           }
+        }
+      },
+      //新增车牌号验证0415
+      carNumberChange(val){
+        this.regCarNumbers = checkCarCard(val,this)
+        if(this.regCarNumbers){
+          this.addCarsContent.AddcarNum = ''
+        }
+        this.carNumberFun(val)
+      },
+      //新增车牌号验证接口
+     async carNumberFun(carNo){
+        const res = await reqCarsNumberIsRepeat(carNo)
+       if(res&&res.data.code!==200){
+          this.$message({type:'error',message:res.data.msg})
+         this.addCarsContent.AddcarNum = ''
+       }
+      },
+      //编辑车牌号验证0415
+      editCarNumberfn(val){
+        // console.log('val0000',val)
+        // console.log('editCarNumber',this.editCarNumber)
+        this.editRegCarNumbers =  checkCarCard(val,this)
+        if(this.editRegCarNumbers){
+          this.editForm.carNo = ''
+        }
+        //编辑时，原车牌号可以继续输入
+        if(val!==this.editCarNumber){
+          this.editCarNumberFun(val)
+        }
+      },
+      //编辑车牌号验证接口
+      async editCarNumberFun(carNo){
+        const res = await reqCarsNumberIsRepeat(carNo)
+        if(res&&res.data.code!==200){
+          this.$message({type:'error',message:res.data.msg})
+          this.editForm.carNo = ''
         }
       },
       //编辑员工模糊查询，点击列表中item触发的事件
@@ -479,11 +592,13 @@
         this.restaurantsListArr.forEach((item,index)=>{
           var uerNumbers = item.userNo
           userNumberArr.push(uerNumbers)
+          /*console.log('this.addCarsContent.addWorkno:',this.addCarsContent.addWorkno)
+          console.log('item.userNo:',item.userNo)
           if(this.addCarsContent.addWorkno===item.userNo){
             this.addCarsContent.addworkname = item.userName
           }else{
             this.$message({message:'输入员工工号未找到'})
-          }
+          }*/
         })
         if(userNumberArr.indexOf(this.addCarsContent.addWorkno) === -1){
           this.$message({message:'输入员工工号未找到~'})
@@ -492,18 +607,30 @@
 
         this.$refs.addParkID.validate(async (valid) => {
           if (!valid) return;
-          const {addworkname,addWorkno,AddcarNum} = this.addCarsContent
-          const {remarkItem,addCarValue} = this
-          this.addCarsFun(addWorkno,addworkname,addCarValue,AddcarNum,remarkItem)
+          //提示员工工号是不可以修改的
+          this.$confirm('提交成功后，员工工号、员工姓名不可修改, 是否继续?', '提示', {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning'
+          }).then(() => {
+            const {addworkname,addWorkno,AddcarNum,personId,phoneNo} = this.addCarsContent
+            const {remarkItem,addCarValue} = this
+            this.addCarsFun(addWorkno,addworkname,Number(addCarValue),AddcarNum,remarkItem,personId,phoneNo)
+          }).catch(() => {
+            this.$message({
+              type: 'info',
+              message: '已取消提交'
+            });
+          });
         });
       },
       //新增异步
-      async addCarsFun(userNo,username,carType,carNo,remark){
-        const res = await reqAddCars(userNo,username,carType,carNo,remark)
+      async addCarsFun(userNo,username,carType,carNo,remark,ownerId,phoneNo){
+        const res = await reqAddCars(userNo,username,carType,carNo,remark,ownerId,phoneNo)
         if(res&&res.data&&res.data.code === 200){
           this.$message({
             type:'success',
-            message:res.data.data
+            message:res.data.msg
           })
           //刷新列表
           const {parkCarManageName,parkCarManageCarNum,parkCarManageNum,currentPage,pageSize} = this
@@ -527,9 +654,20 @@
       //点击编辑车辆按钮事件
       handleEditCars(index, row){
         this.editParkDialogVisible = true
+        this.editCarNumber = row.carNo
         this.editForm = Object.assign({}, row);
         console.log('editForm:',this.editForm)
         console.log('row:',row)
+        if(row.carType==='0'){
+          this.editForm.carType = '其他车'
+          this.editCarTypeNum = 0
+        }else if(row.carType==='1'){
+          this.editForm.carType = '小车'
+          this.editCarTypeNum = 1
+        }else if(row.carType==='2'){
+          this.editForm.carType = '大车'
+          this.editCarTypeNum = 2
+        }
       },
       editParkDialogClose(){this.editParkDialogVisible = false},
       editParkDialogCancel(){this.editParkDialogVisible = false},
@@ -562,7 +700,7 @@
            if (!valid) return;
            this.editParkDialogVisible = false
            //向后台发送编辑请求
-           this.editDataFn(carId,carNo,this.editForm.carType,remark,this.editForm.userName,userNo)
+           this.editDataFn(carId,carNo,Number(this.editCarTypeNum),remark,this.editForm.userName,userNo)
          })
        },300)
 
@@ -573,7 +711,7 @@
         if(res && res.data && res.data.code===200){
           this.$message({
             type:'success',
-            message:res.data.data
+            message:res.data.msg
           })
           //更新界面
           const {parkCarManageName,parkCarManageCarNum,parkCarManageNum,currentPage,pageSize} = this
@@ -581,7 +719,7 @@
         }else{
           this.$message({
             type:'error',
-            message:res.data.data
+            message:res.data.msg
           })
         }
       },
@@ -608,6 +746,7 @@
         });
         this.editCarType = obj.label
         this.editCarValue = obj.value
+        this.editCarTypeNum = obj.value
         console.log('编辑车辆类型：',this.editCarType)
       },
       /*函数名：submitCarsUpload

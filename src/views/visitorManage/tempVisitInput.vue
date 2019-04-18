@@ -1,5 +1,5 @@
 <template>
-   <div class="" @click="handleAllChange">
+   <div style="width:1600px" @click="handleAllChange">
    <!-- <p class="common-breadcrumb">临时拜访录入</p> -->
     <el-form
       :inline="true"
@@ -11,7 +11,8 @@
       style="position:relative"
       class="marginTop20 common-form-inline tempVisitInput_form"
       >
-        <el-form-item label="被拜访人">
+      <div class="tempVisitInputClass" style="display: flex">
+        <el-form-item label="被拜访人" style="width: 20%;">
           <el-input
             @keyup.native="querySearch" @blur="blurVisitor"
             v-model="formInline.sanyBussVisitor.employerName">
@@ -27,7 +28,7 @@
             </el-scrollbar>
           </div>
         </el-form-item>
-        <el-form-item label="到访日期" prop="planBeginTime">
+        <el-form-item label="到访日期" prop="planBeginTime" style="width: 20%;">
           <el-date-picker
             v-model="formInline.sanyBussVisitor.planBeginTime"
             type="date"
@@ -49,7 +50,7 @@
             placeholder="选择日期时间">
           </el-date-picker>
         </el-form-item>-->
-        <el-form-item label="拜访时间" prop="visitingTime">
+        <el-form-item label="拜访时间" prop="visitingTime" style="width: 20%;">
           <el-select v-model="formInline.sanyBussVisitor.visitingTime" :disabled="isSelected" placeholder="请选择">
             <el-option
               v-for="item in visitingTimeOptions"
@@ -60,13 +61,25 @@
             </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="来访人数量">
+        <el-form-item label="来访人数量" style="width: 20%;">
           <el-input-number :controls="false" disabled v-model="formInline.sanyBussVisitor.vistorNum" @change="handleInputPersonNum" :min="formInline.sanyBussVisitor.vistorNum" @blur="blurVisitorNum()"></el-input-number>
         </el-form-item>
-        <el-form-item label="是否驾车">
-          <el-select v-model="formInline.sanyBussVisitor.isCar" placeholder="请选择">
+      </div>
+      <div class="tempVisitInputClass" style="display: flex">
+        <el-form-item label="是否驾车" style="width: 20%;">
+          <el-select v-model="formInline.sanyBussVisitor.isCar" placeholder="请选择" @change="isCarNum">
             <el-option
               v-for="item in isDriveCarOptions"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value">
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="访客类型" style="width: 20%;">
+          <el-select v-model="isVip" placeholder="请选择" @change="isVipChange">
+            <el-option
+              v-for="item in isVipOptions"
               :key="item.value"
               :label="item.label"
               :value="item.value">
@@ -76,15 +89,21 @@
         <!--<el-form-item label="驾车数量" v-show="formInline.sanyBussVisitor.isCar==='1'">
           <el-input-number :controls="true" v-model="formInline.sanyBussVisitor.carNum" @change="handleInputCarNum" :min="1"></el-input-number>
         </el-form-item>-->
-        <el-form-item label="拜访原因">
+      </div>
+      <div class="tempVisitInputClass" style="display: flex">
+        <el-form-item label="拜访原因" >
           <el-input
-            style="width:1285px;"
+            style="width: 1290px;"
             type="textarea"
             :rows="4"
             placeholder="请输入原因"
             v-model="formInline.sanyBussVisitor.reason">
           </el-input>
         </el-form-item>
+      </div>
+
+
+
         <div>
           <el-form-item>
             <el-button type="primary" @click="handleInputPersonNum" >新增</el-button> &nbsp;&nbsp;
@@ -119,7 +138,7 @@
             <td v-text="index+1">1</td>
             <td style="position: relative">
               <!--regIsName-->
-              <el-input v-model="item.visitorName" :class="{regIsNull:item.visitorName===''?true:false}" placeholder="请输入姓名" @blur="blurUserName(item.visitorName)"  @change="inputChangeName(item.visitorName)"></el-input>
+              <el-input v-model="item.visitorName" :class="{regIsNull:item.visitorName==='' && isShowUserName ?true:false}" placeholder="请输入姓名" @blur="blurUserName(item.visitorName)"  @change="inputChangeName(item.visitorName)"></el-input>
               <span style="position:absolute;top: 22px;left: 0px;color: #f56c6c;">*</span>
               <!--isShowUserName-->
               <div v-if="isShowUserName" v-show="item.visitorName===''?true:false" style="color: #F56C6C;text-align: left;position: absolute;top:60px;left: 8px;" >请输入姓名</div>
@@ -132,14 +151,14 @@
             </td>
             <td style="position: relative">
               <!--regIsNull-->
-              <el-input v-model="item.phone" :class="{regIsNull:item.phone===''?true:false}" placeholder="请输入电话" @blur="blurPhone(item.phone)"  @change="regTel(item.phone)"></el-input>
+              <el-input v-model="item.phone" :class="{regIsNull:item.phone==='' &&　isShowPhone　?true:false}" placeholder="请输入电话" @blur="blurPhone(item.phone)"  @change="regTel(item.phone)"></el-input>
               <span style="position:absolute;top: 22px;left: 0px;color: #f56c6c;">*</span>
               <!--isShowPhone-->
               <div v-if="isShowPhone" v-show="item.phone===''?true:false" style="color: #F56C6C;text-align: left;position: absolute;top: 60px;left: 8px;" >请输入电话</div>
             </td>
             <td style="position: relative">
               <!--regIsIDCard-->
-              <el-input v-model="item.visitorId" :class="{regIsNull:item.visitorId===''?true:false}" placeholder="请输入身份证号" @keyup.native="isRepeatCardID" @blur="blurIdCard(item.visitorId)" @change="regID(item.visitorId,index)"></el-input>
+              <el-input v-model="item.visitorId" :class="{regIsNull:item.visitorId===''　&&　isShowIDCard　?true:false}" placeholder="请输入身份证号" @keyup.native="isRepeatCardID" @blur="blurIdCard(item.visitorId)" @change="regID(item.visitorId,index)"></el-input>
               <span style="position:absolute;top: 22px;left: 0px;color: #f56c6c;">*</span>
               <!--isShowIDCard-->
               <div v-if="isShowIDCard" v-show="item.visitorId===''?true:false" style="color: #F56C6C;text-align: left;position: absolute;top: 60px;left: 8px;" >请输入身份证号</div>
@@ -236,7 +255,7 @@
     </el-dialog>
     <!-- 查看照片end -->
     <div class="marginTop20" style="text-align: center">
-      <el-button type="primary" @click="handleSave" style="width: 120px;">保存</el-button>
+      <el-button type="primary" @click="handleSave" style="width: 200px;">保存</el-button>
     </div>
    </div>
 </template>
@@ -254,6 +273,8 @@
     name: "tempVisitInput",
     data() {
       return {
+        isTelephonetrue:false,//验证手机号是否可以点击确定
+        isIDCardtrue:false,//验证身份证是否可以点击确定
         deleteDisabled:false,//删除按钮是否可以点击
         restaurantsArr: [], // 被拜访人下拉数组
         employerNameSelectShow: false, // 拜访人下拉数组是否显示
@@ -262,6 +283,14 @@
           value: '1',
         }, {
           label: '否',
+          value: '0',
+        }],
+        isVip:'一般访客',
+        isVipOptions: [{ // 访客是否VIP
+          label: 'VIP',
+          value: '1',
+        }, {
+          label: '一般访客',
           value: '0',
         }],
         visitingTimeOptions:[{
@@ -298,6 +327,7 @@
           // ]
 
         },
+
         formInline: {
           sanyBussVisitor: {
             planBeginTime: '', // 拜访开始时间
@@ -305,7 +335,8 @@
             visitingTime:'03',//拜访时间     0311修改
             vistorNum: 1, // 来访人数量
             isCar: '0', // 是否驾车
-            carNum: '', // 驾车数量
+            isVip:0,//是否VIP
+            carNum: 0, // 驾车数量
             reason: '', // 拜访原因
           },
           sanyBussVisitorDetailsList: [
@@ -404,11 +435,10 @@
       handlePhotoUploadStart(index) {
         this.dialogVisible = true;
         this.currentUploadIndex = index
-        debugger
         myframe.window.Webcam.attach('#my_camera');
         //点击开始拍照时不回显图片
          var urls = myframe.window.getTakePhotoUrl()
-        urls = ''
+         urls = ''
       },
       // 点击重新拍照按钮，打开拍照弹窗
       handlePhotoUpload(index) {
@@ -445,17 +475,35 @@
         this.lookCurrentImgUrl = this.formInline.sanyBussVisitorDetailsList[this.currentUploadIndex].imgUrl
         console.log('lookCurrentImgUrl:',this.lookCurrentImgUrl)
       },
+      //车辆数量   是：1 否：0
+      isCarNum(){
+        if(this.formInline.sanyBussVisitor.isCar === '0'){
+          this.formInline.sanyBussVisitor.carNum = 0
+        }else if(this.formInline.sanyBussVisitor.isCar === '1'){
+          this.formInline.sanyBussVisitor.carNum = 1
+        }
+      },
+      //是否VIP
+      isVipChange(val){
+        let obj = {};
+        obj = this.isVipOptions.find((item)=>{
+          return item.value === val;
+        });
+        this.isVip = obj.label
+        this.formInline.sanyBussVisitor.isVip =Number(obj.value)
+        console.log('this.formInline.sanyBussVisitor.isVip:',this.formInline.sanyBussVisitor.isVip)
+      },
       // 输入车辆数,小于人员数
       handleInputCarNum() {
         let {carNum,vistorNum} = this.formInline.sanyBussVisitor
-        if(carNum > vistorNum){
+       /* if(carNum > vistorNum){
           this.formInline.sanyBussVisitor.carNum = this.formInline.sanyBussVisitor.vistorNum-1
           this.$message({
             type:'error',
             message:'输入车辆必须小于人员数量'
           })
           return
-        }
+        }*/
         // 输入车辆数,动态增加车辆表格
        /* let carNum = this.formInline.sanyBussVisitor.carNum
         this.formInline.sanyBussVisitorCarList = []
@@ -480,6 +528,7 @@
       },
       // 保存
       handleSave() {
+        console.log(' this.isTelephonetrue:', this.isTelephonetrue)
         const {employerName} = this.formInline.sanyBussVisitor
         //0330修改includes，注释下面遍历方法
         var restaurantNameArr = []
@@ -510,6 +559,14 @@
                 this.isShowIDCard= true
                 return
               }
+            }
+            if(this.isTelephonetrue){
+              this.$message({type:'error',message:'手机号码输入不正确'})
+              return
+            }
+            if(this.isIDCardtrue){
+              this.$message({type:'error',message:'身份证号码输入不正确'})
+              return
             }
             if(this.formInline.sanyBussVisitor.visitingTime === '下午'){
               this.formInline.sanyBussVisitor.visitingTime = '02'
@@ -606,7 +663,7 @@
           visitingTime:'',//拜访时间
           vistorNum: '', // 来访人数量
           isCar: '', // 是否驾车
-          carNum: '', // 驾车数量
+          carNum: 0, // 驾车数量
           reason: '', // 拜访原因
         }
         this.formInline.sanyBussVisitorDetailsList = [] // 来访人员数组
@@ -621,16 +678,15 @@
       },
       //前台验证-------start---------
       regTel(val){
-        checkPhone(val,this)
-        console.log('tel:',val)
+        this.isTelephonetrue = checkPhone(val,this)
+        console.log('tel:',this.isTelephonetrue)
         val===''? this.regIsNull= true: this.regIsNull= false
       },
       isRepeatCardID(){
 
       },
       async regID(val,index){
-        checkIDCard(val,this)
-
+        this.isIDCardtrue = checkIDCard(val,this)
         //0401增加多个时不能有重复的cardID
         let cardIdArr = []
         this.formInline.sanyBussVisitorDetailsList.forEach(item=>{
@@ -644,10 +700,6 @@
           this.formInline.sanyBussVisitorDetailsList[index].visitorId = ''
           this.$message({type:'error',message:'输入的身份证重复，请重新输入'})
         }
-
-
-
-
         const res = await reqrRegIDCard(val)
         if(res&&res.data.code!==200){
           this.$message({
@@ -686,7 +738,7 @@
         }
         this.formInline.sanyBussVisitorDetailsList.splice(index,1)
         this.formInline.sanyBussVisitor.vistorNum = this.formInline.sanyBussVisitorDetailsList.length
-        this.formInline.sanyBussVisitor.carNum = this.formInline.sanyBussVisitor.vistorNum
+        // this.formInline.sanyBussVisitor.carNum = this.formInline.sanyBussVisitor.vistorNum
         console.log('删除行index:',index)
         console.log('删除行:',this.formInline.sanyBussVisitorDetailsList)
       },
@@ -759,25 +811,25 @@
   &_personTable{
     th,td{text-align: center;}
     th:nth-child(1) {
-      width: 80px;
+      width:5%;
     }
     th:nth-child(2) {
-      width: 150px;
+      width: 10%;
     }
     th:nth-child(3) {
-      width: 100px;
+      width: 10%;
     }
     th:nth-child(4) {
-      width: 200px;
+      width: 15%;
     }
     th:nth-child(5) {
-      width: 250px;
+      width: 20%;
     }
     th:nth-child(6) {
-      width: 150px;
+      width: 15%;
     }
     th:nth-child(7) {
-      width: 105px;
+      width: 10%;
     }
   }
   &_carTable{
@@ -791,6 +843,9 @@
   &_cameraArea{
     width:400px;height:400px;
   }
+}
+/deep/.tempVisitInputClass .el-form-item__label{
+  width: 100px;
 }
 .regIsNull{
   /deep/ .el-input__inner{

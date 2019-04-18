@@ -80,26 +80,26 @@
                  :before-close="handleClose">
         <el-form :v-model="editForm" label-width="80px" ref="editForm"><!--:v-model="editForm"-->
           <div class="bookVisitSearchDialog" style="display: flex;">
-            <el-form-item label="到访日期" prop="planBeginTime">
+            <el-form-item label="到访日期" prop="planBeginTime" style="width: 32%;">
               <el-input :disabled="true"  v-model="editForm.planBeginTime" auto-complete="off"></el-input>
             </el-form-item>
-            <el-form-item label="拜访时间" prop="visitingTime">
+            <el-form-item label="拜访时间" prop="visitingTime" style="width: 32%;">
               <el-input :disabled="true" v-model="editForm.visitingTime" auto-complete="off"></el-input>
             </el-form-item>
-            <el-form-item label="来访人员数量" prop="vistorNum">
+            <el-form-item label="来访人员数量" prop="vistorNum" style="width: 32%;">
               <el-input :disabled="true" v-model="editForm.vistorNum" auto-complete="off"></el-input>
             </el-form-item>
           </div>
           <div class="bookVisitSearchDialog"  style="display: flex;">
-            <el-form-item  label="是否驾车" prop="isCar">
+            <el-form-item  label="是否驾车" prop="isCar" style="width: 32%;">
               <el-input :disabled="true" v-model="editForm.isCar" auto-complete="off"></el-input>
             </el-form-item>
-            <el-form-item label="驾车数量" prop="carNum">
+            <el-form-item label="驾车数量" prop="carNum" style="width: 32%;">
               <el-input :disabled="true"  v-model="editForm.carNum" auto-complete="off"></el-input>
             </el-form-item>
           </div>
           <div class="bookVisitSearchDialog"  style="display: flex;">
-            <el-form-item label="拜访原因" prop="reason" style="width: 275px;">
+            <el-form-item label="拜访原因" prop="reason" style="width: 96%;">
               <el-input class="visitReasonTextarea"
                         type="textarea" :rows="2" placeholder="请输入拜访原因"
                         v-model="editForm.reason">
@@ -572,7 +572,7 @@
     width: 100px!important;
   }
   .visitReasonTextarea .el-textarea__inner{
-    width: 430%;
+    width: 100%;
   }
   .endVisitSearch .el-dialog__wrapper .el-dialog{
     margin-top: 11vh!important;

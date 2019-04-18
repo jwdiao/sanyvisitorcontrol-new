@@ -74,7 +74,6 @@
                 </el-upload>
 
               </el-form-item>
-              <br />
               <el-form-item>
                 <el-button type="primary" @click="handleAdd">新增</el-button>
               </el-form-item>
@@ -598,6 +597,8 @@ export default {
         isUndisabeld:true, //是否取消禁止选择下拉
         isDisabledParkSelect:false,//新增所属园区是否可选
         //新增弹窗end
+        idCardIsRepeat:'',//编辑时，当返回值是原值时，可以继续保存数据，身份证
+        telephoneIsRepeat:'',//编辑时，当返回值是原值时，可以继续保存数据，电话号
         isUploadImage:false,//是否自动上传图片
         isShow:true,//数据导入按钮显示与隐藏
         isShowImage:true,//照片导入按钮显示与隐藏
@@ -835,7 +836,7 @@ export default {
         }
       },
       //编辑出生日期变化
-      async editInputIDCard(){
+      async editInputIDCard(val){
         checkIDCard(this.outWorkerEditForm.idCard,this)  //前台验证
         if(this.outWorkerEditForm.idCard.length >=14){
           const {idCard} = this.outWorkerEditForm
@@ -844,17 +845,21 @@ export default {
           let startDay = idCard.substr(12,2)
           this.editDateValue = startYear +'-'+ startMouth +'-'+ startDay
 
-          const res = await regIDCard(this.outWorkerEditForm.idCard)
-          if(res&&res.data.code!==200){
-            this.$message({type:'error',message:res.data.msg})
-            this.outWorkerEditForm.idCard = ''
-            return
+          // console.log('val:',val)
+          if(this.idCardIsRepeat !== val){
+            const res = await regIDCard(this.outWorkerEditForm.idCard)
+            if(res&&res.data.code!==200){
+              this.$message({type:'error',message:res.data.msg})
+              this.outWorkerEditForm.idCard = ''
+              return
+            }
           }
         }
       },
       //编辑输入手机号前台验证
-      async editChangeTelephoto(){
+      async editChangeTelephoto(val){
         checkPhone(this.outWorkerEditForm.telephone,this)
+        if(this.telephoneIsRepeat !== val){
           const res = await regTelephone(this.outWorkerEditForm.telephone)
           if(res&&res.data.code!==200){
             this.$message({type:'error',message:res.data.msg})
@@ -865,6 +870,7 @@ export default {
               this.regExpUserNumberFun(this.outWorkerEditForm.telephone)
             }
           }
+        }
       },
       //编辑--外部员工时验证工号是否重复
       changeUserNumber(){
@@ -1392,7 +1398,10 @@ export default {
       },
         //点击编辑按钮
       handleEditOuterWorkerManage(index, row){
-
+        console.log('row:',row)
+        //回显值，
+        this.idCardIsRepeat = row.idCard
+        this.telephoneIsRepeat = row.telephone
 
         this.editOuterWorkerManageList = true
         if(this.roleCode==='2'){
@@ -1408,14 +1417,17 @@ export default {
         }
         this.imageGoBackShow = true  //回显照片
         this.outWorkerEditForm = Object.assign({}, row);
-        console.log('row:',row)
         this.outWorkerEditForm.userName = row.userName
         this.outWorkerEditForm.telephone = row.telephone
         this.editFormUserTelephone = row.telephone
         this.outWorkerEditForm.idCard = row.idCard
         this.outWorkerEditForm.userNo = row.userNo
         this.EditFormUserNo = row.userNo
-        this.editDateValue = row.brithday
+        let startYear = row.idCard.toString().substr(6,4)
+        let startMouth = row.idCard.substr(10,2)
+        let startDay = row.idCard.substr(12,2)
+        var brithdayDate = startYear +'-'+ startMouth +'-'+ startDay
+        this.editDateValue = row.brithday || brithdayDate
         this.editRoleName = row.roleName
         this.editRoleName = row.roleName
         this.editRoleCode = row.roleCode
@@ -1713,8 +1725,10 @@ export default {
     height: 100%;
   }
 
-  /deep/ .el-upload-list__item-name{
-    display: none;
+  .addVisitorDialog{
+    /deep/ .el-upload-list__item-name{
+      display: none;
+    }
   }
   .currentOrg{
     &>div{

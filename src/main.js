@@ -5,8 +5,9 @@ import store from './store'
 import './assets/icon/iconfont.css'
 import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
-
+import Icon from 'vue-svg-icon/Icon.vue' //SVG
 Vue.use(ElementUI)
+Vue.component('icon', Icon)
 
 Vue.config.productionTip = false
 

@@ -142,12 +142,12 @@ export default {
 
       <el-submenu index="systemManage" v-if="roleCode==='3' || roleCode==='4'">
         <template slot="title"><i class="fontFamily hhtx-xitongpeizhi"></i>系统管理</template>
-        <el-menu-item v-if="roleCode==='3' || roleCode==='4'" index="photoInputSearch">照片录入查询</el-menu-item><!--管理-->
-        <el-menu-item v-if="roleCode==='4'" index="userManage">用户管理</el-menu-item><!--系统管理员-->
+        <!--<el-menu-item v-if="roleCode==='3' || roleCode==='4'" index="photoInputSearch">照片录入查询</el-menu-item>&lt;!&ndash;管理&ndash;&gt;-->
+        <!--<el-menu-item v-if="roleCode==='4'" index="userManage">用户管理</el-menu-item>&lt;!&ndash;系统管理员&ndash;&gt;-->
         <el-menu-item v-if="roleCode==='4'" index="roleManage">角色管理</el-menu-item><!--系统管理员-->
         <el-menu-item v-if="roleCode==='4'" index="userRole">用户角色</el-menu-item><!--系统管理员-->
-        <el-menu-item v-if="roleCode==='4'" index="manageEmpowerment">管理授权</el-menu-item><!--系统管理员-->
-        <el-menu-item v-if="roleCode==='4'" index="parkPorter">园区门卫</el-menu-item><!--系统管理员-->
+        <!--<el-menu-item v-if="roleCode==='4'" index="manageEmpowerment">管理授权</el-menu-item>&lt;!&ndash;系统管理员&ndash;&gt;-->
+        <!--<el-menu-item v-if="roleCode==='4'" index="parkPorter">园区门卫</el-menu-item>&lt;!&ndash;系统管理员&ndash;&gt;-->
       </el-submenu>
 
 

@@ -57,7 +57,7 @@
                 prop="account"
                 label="员工账号">
               </el-table-column>
-              <el-table-column label="恢复原始密码[身份证后6位]">
+              <el-table-column label="恢复原始密码">
                 <template slot-scope="scope">
                   <el-button
                     size="mini"

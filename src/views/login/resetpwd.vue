@@ -1,7 +1,7 @@
 <template>
   <div class="resetpwd">
     <section class="form_contianer">
-      <p class="resetpwd_tip">找回密码</p>
+      <p class="resetpwd_tip">修改密码</p>
       <el-form ref="loginForm" :model="loginData" :rules="rules">
 
         <!--<el-form-item prop="usernum">
@@ -19,7 +19,7 @@
         </el-form-item>
         <el-form-item prop="newPwd">
           <i></i>
-          <el-input placeholder="新密码至少6位" type="password" v-model="loginData.newPwd"><span></span></el-input>
+          <el-input placeholder="新密码至少6位" type="password" v-model="loginData.newPwd" @change="pwdRegExpFun"><span></span></el-input>
         </el-form-item>
         <el-form-item prop="reNewPwd">
           <i></i>
@@ -170,6 +170,15 @@ export default {
     regPhone(){
       var tel = this.loginData.phoneNum
       checkPhone(tel,this)
+    },
+    //密码复杂性验证
+    pwdRegExpFun(val){
+      console.log('val:',val)
+      var pattern = /^.*(?=.{6,})(?=.*\d)(?=.*[A-Z]{1,})(?=.*[a-z]{1,})/
+     if(!pattern.test(val)){
+       this.loginData.newPwd = ''
+        this.$message({type:'error',message:'密码必须包含数字，大写，小写字母且6位以上'})
+     }
     },
     //校验两次密码是否一致
     regNewBlur(){

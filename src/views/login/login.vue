@@ -15,7 +15,7 @@
           <el-input type="password" v-model="loginData.password" placeholder="请输入密码" @keyup.native="isClickFun" @keyup.enter.native="login()"></el-input>
         </el-form-item>
          <div class="login_forgetPwd">
-          <span @click="handleForgetPwd">忘记密码</span>
+          <span @click="handleForgetPwd">设置密码</span>
         </div>
         <el-form-item>
             <el-button type="primary" block class="submit_btn" @click="login()" :disabled="isClickLogin">登 &nbsp; 录</el-button>
@@ -139,7 +139,7 @@ export default {
 
     handleForgetPwd () {
       this.$router.push('/resetpwd')
-    }
+    },
   }
 }
 </script>

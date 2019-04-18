@@ -94,9 +94,10 @@
             <el-form-item label="驾车数量">
               <el-input  v-model="editForm.sanyBussVisitor.carNum" disabled></el-input>
             </el-form-item>
-            <br />
+          </div>
+          <div  class="endVisitSearchDialog">
             <el-form-item label="拜访原因" >
-              <el-input disabled style="width:795px;"
+              <el-input disabled style="width:100%;"
                         type="textarea" :rows="3"
                         v-model="editForm.sanyBussVisitor.reason">
               </el-input>
@@ -161,12 +162,12 @@
         endTime: '', // 结束时间
         pickerOptionsStart: {
           disabledDate(time) {
-            return time.getTime() < Date.now()- 3600*1000*24;
+            return time.getTime() > Date.now()
           }
         },
         pickerOptionsEnd:{
           disabledDate:(time) =>{
-            return time.getTime() < new Date(this.startTime).getTime();/*|| time.getTime() > new Date(this.startTime).getTime() + 3600*1000*24*/
+            return time.getTime() > Date.now()|| time.getTime() < new Date(this.startTime).getTime() + 3600*1000*24
           }
         },
         tableData: [],
@@ -232,6 +233,12 @@
           } else if (visitingTime === '03') {
             visitingTime = '全天'
           }
+          var isCar = item.sanyBussVisitor.isCar // 是否驾车
+          if (isCar === '0') {
+            isCar = '否'
+          } else if (isCar === '1') {
+            isCar = '是'
+          }
           return {
             id: item.sanyBussVisitor.id, // id
             planBeginTime: item.sanyBussVisitor.planBeginTime, // 计划拜访开始时间（到访日期0312）
@@ -240,7 +247,7 @@
             beginTime: item.sanyBussVisitor.beginTime, // 实际拜访开始时间
             endTime: item.sanyBussVisitor.endTime, // 实际拜访结束时间
             vistorNum: item.sanyBussVisitor.vistorNum, // 来访人员数
-            isCar: item.sanyBussVisitor.isCar, // 是否驾车（1.是，0.否）
+            isCar: isCar, // 是否驾车（1.是，0.否）
             carNum: item.sanyBussVisitor.carNum, // 来访车数量
             visitorStatus: visitorStatus, // 访问状态（01:待访问02：访问中03：访问结束'）
             auditingType: auditingType, // 审核通过类型（01：个人审核通过02：门岗审核通过'）
