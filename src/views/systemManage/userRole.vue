@@ -31,7 +31,7 @@
 					</el-form-item>
 
 					<el-form-item>
-						<el-button type="primary" @click="onSubmit">查询</el-button>
+						<el-button type="primary" style="width: 100px" @click="onSubmit">查询</el-button>
 					</el-form-item>
 				</el-form>
 				<div class="common-table">
@@ -184,7 +184,7 @@
 				Array.from(document.querySelectorAll('.el-checkbox__original')).forEach(function(ele,index){
 					   if(ele.checked){
 							flag = 2
-						 } 	
+						 }
 				})
 				if(flag === 1){
 					this.roleCode = ''

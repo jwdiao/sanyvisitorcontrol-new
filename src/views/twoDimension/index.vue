@@ -3,7 +3,7 @@
     <div class="index">
       <icon name="profile1" width="260" height="50" viewBox="0 0 416.29 113.5"></icon>
       <img class='qrcodeimg' :src="imgUrlUpload" />
-      <!--<img class='qrcodeimg' src="http://222.240.233.67:80/erweima/7d0d7ef05957489fa234a3dbc8283b31.png" />-->
+      <!--<img class='qrcodeimg' src="http://222.240.233.67:80/erweima/d07418db9a9e453cac2205d78e93f488.png" />-->
       <!--<img class='qrcodeimg' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHQAAAB0CAYAAABUmhYnAAAEzUlEQVR4Xu2dy44cIRAEd/7/o8eSb81KGwplMXhx+kpTBRn1oOmx/Xq/3++v/rlGgVeBXsPy70YK9C6eBXoZzwIt0NsUuGw/7aEFepkCl22nGVqglylw2XaaoQV6mQKXbacZWqCXKXDZdpqhBXqZApdtJ87Q1+v1UUmmP9+u61/t/7b9FegSkAXaDB2tUGkFaoY2Q58BST0oDd9p+9aefd7ud9r+eIamJWMVZHzDkJG7/e+2X6Dwo8fpgCpQmVFU8iwg+zz5//VA7XscvTbYcRKYgNlx8je9/m8Bkv4u9/SGyT8JTPPtOPkrUPlaYQ9lFhgBKdBFARLMjpPABbooZAUhgS0w26NX/5TRp/dHel3fQ60ABdoMfShgK4StQDZAt18s7N6wtd+SCyFyuscQ0OmSShlGGUXzab1k//oMJYFsQBIQEpzm03rJfoGG77lUIajEU0ARwP/ulEsRT4LacQLw6zOUNkjjVtAU4O7L8932t5dcAkbjBUoKPccLtN9Dl4gY/l5pSxJlsLWXPu/y6evLrp/sj2coOUzH7aGCBLPj6fppPp0BaH6BytcWEjQdL1AJJM3wFBjNL9ACfcRIXHIp4naP001NGvG71z9tv0CnFT1sr0APA5h2X6DTih62FwP99Huc7Ylpj6X5lp9dv7VfoPLqzwq8Pl+giyJWEMowskfzLWDyZ+19u6r81345TxuyghAQskfzab2/PkPTDdie/OmbHwqAbxkTXnzYgBnvoQX6VCAN0AKVGWEFa4bK/0UkjWg7v0AXBayAaYQTgNQ+9eS0pdgeS/s9fspNBacNpvYLVPasVPAC/VmB8VMuRXiBulMwBfB4yaWeYHtO2pOnLwLs+kkPG9AFuvmfqrNAKEAtMHo+LrkUkTbCSQA7TgLY8QJdFCNBLDDq2RYYPU/rpwC382k923soLWC6x5FAaYBYQOn+aD+ob/q1hRyQIHb+p0s4rX+6QhSo/EBNAEhQm/E2YMk/2Rs/FKHD4VMoCWABTNsjPWzFIXsfB0oLsuO2Z+3OULv+6ecLVP7tOcr4aUDWXoEWqI2Zvc+35D71jTPUCprinT60TPdUe8iZLuEFurz2WIEpoNMAtAlQoAW61Ozh90qKyDTiKQNpnG6Oriu5JDgBI8Go51lB0/Wk/mwA0XrHS26Bvknzx3iBQs9LM4ZopIcgW4FoPd/spV9bpiPMbnhaYBJw2t+0fttLLglAGUUbtuOpvzTgplvSxzO0QJ//YW6Bhr/7pYCiUzMBsBWC7FHJp/GW3OGLhTRACBiNXwfU9kgSiMZPA7y+hxZoWNRtD5mO+LRH0npovBkKClmBCvQp6HU91BactMJYf5Tx6XiBytci6tEpkHR+gRboUrNDQSjibUm0JdDap/WmGZbO356h8QKHf5VHhyi7Xgog8kfz7XoK1Cq2PE9ACnQRjEpi+vUj5PlVoFLBAnWCjZdc594/TRcP9tCyO2Aog70CP88o0M2HrgINrwaboWEI0SluuqS05G4uudPAai9TIO6hmfvOnlagQKcVPWyvQA8DmHZfoNOKHrZXoIcBTLsv0GlFD9sr0MMApt0X6LSih+0V6GEA0+4LdFrRw/YK9DCAafcFOq3oYXsFehjAtPsCnVb0sL0CPQxg2v0fxrUnDuOUSlAAAAAASUVORK5CYII=" />-->
       <div style="font-size: 18px;color: #666;">扫码进园</div>
     </div>
@@ -30,7 +30,8 @@
       // this.imgUrlUpload = `http://222.240.233.67/erweima/9d845f01770f468e991afd26921d481c.png`
       //0329修改
       // this.imgUrlUpload = `http://10.19.8.21/erweima/${window.location.href.substr(window.location.href.length-32,32)}.png`
-      this.imgUrlUpload = `http://222.240.233.67:80/erweima/${window.location.href.substr(window.location.href.length-32,32)}.png`
+      this.imgUrlUpload = `http://222.240.233.67:8181/sanyvisitorcontrol/img/erweima/${window.location.href.substr(window.location.href.length-32,32)}.png`
+      console.log('imgurl:',this.imgUrlUpload)
       // console.log('12132:',window.location.href.substr(window.location.href.length-32,32))
 
     /*  // var imgUrlUploadArr = JSON.parse(localStorage.getItem('getQrCodeImg'))

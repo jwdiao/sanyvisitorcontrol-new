@@ -20,20 +20,22 @@
         ></el-date-picker>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" @click="onSubmit">查询</el-button>
+        <el-button type="primary" style="width: 100px" @click="onSubmit">查询</el-button>
       </el-form-item>
     </el-form>
+    <!--主列表-->
     <div class="common-table">
-      <el-table header-row-class-name="table-header" stripe  border  style="width: 100%"
+      <el-table header-row-class-name="table-header" stripe  border  style="width: 100%" height="650"
                 ref="multipleTable" tooltip-effect="dark"
                 @selection-change="handleSelectionChange"
                 :data="tableData">
         <el-table-column type="index" label="序号" width="50"></el-table-column>
         <el-table-column prop="planBeginTime" label="到访日期" width="180">  </el-table-column>
-        <el-table-column prop="visitingTime" label="拜访时间"  width="180">  </el-table-column>
+        <el-table-column prop="visitingTime" label="拜访时间"  width="120">  </el-table-column>
         <el-table-column prop="beginTime" label="实际开始时间" width="160">  </el-table-column>
         <el-table-column prop="endTime" label="实际结束时间"  width="160">  </el-table-column>
-        <el-table-column prop="vistorNum" label="来访人员数" width="130">  </el-table-column>
+        <el-table-column prop="vistorNum" label="访客人数" width="100">  </el-table-column>
+        <!--<el-table-column prop="isVip" label="访客类型" width="100">  </el-table-column>-->
         <el-table-column prop="isCar" label="是否驾车" width="120"> </el-table-column>
         <el-table-column prop="carNum" label="驾车数量" width="120"> </el-table-column>
         <el-table-column prop="visitorStatus" label="访问状态"> </el-table-column>
@@ -74,11 +76,15 @@
             <el-form-item label="实际结束时间" prop="endTime">
               <el-input v-model="editForm.endTime" :disabled="true" auto-complete="off"></el-input>
             </el-form-item>
-            <el-form-item label="是否驾车" prop="isCar">
-              <el-input v-model="editForm.isCar" :disabled="true" auto-complete="off"></el-input>
+
+            <el-form-item label="访客类型" prop="visitorTableDataIsVip">
+              <el-input  v-model="visitorTableDataIsVip" :disabled="true" auto-complete="off"></el-input>
             </el-form-item>
           </div>
           <div class="endVisitSearchDialog" style="display: flex;">
+            <el-form-item label="是否驾车" prop="isCar">
+              <el-input v-model="editForm.isCar" :disabled="true" auto-complete="off"></el-input>
+            </el-form-item>
             <el-form-item label="驾车数量" prop="carNum">
               <el-input  v-model="editForm.carNum" :disabled="true" auto-complete="off"></el-input>
             </el-form-item>
@@ -210,6 +216,11 @@
           this.totalPage = res.data.data.total
           for (var i = 0; i < this.tableData.length; i++) {
             this.tableData[i].isCar === '0'? this.tableData[i].isCar= '否':this.tableData[i].isCar= '是'
+            if(this.tableData[i].isVip === 0){
+              this.tableData[i].isVip = '一般访客'
+            }else if(this.tableData[i].isVip === 1){
+              this.tableData[i].isVip = 'Vip'
+            }
             if(this.tableData[i].auditingType === '01'){
               this.tableData[i].auditingType= '个人审核通过'
             }else if(this.tableData[i].auditingType === '02'){
@@ -285,6 +296,12 @@
         const res = await reqCheckDetailList(visitorId)
         if(res.data.code === 200){
           this.visitorTableData = res.data.data.sanyBussVisitorDetailsList
+          this.visitorTableDataIsVip = res.data.data.sanyBussVisitorDetailsList[0].isVip
+          if(res.data.data.sanyBussVisitorDetailsList[0].isVip === 1){
+            this.visitorTableDataIsVip = 'Vip'
+          }else if(res.data.data.sanyBussVisitorDetailsList[0].isVip === 0){
+            this.visitorTableDataIsVip = '一般访客'
+          }
           this.visitorCarTableData = res.data.data.sanyBussVisitorCarList
 
 

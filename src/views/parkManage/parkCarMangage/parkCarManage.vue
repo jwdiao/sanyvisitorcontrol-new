@@ -1,56 +1,58 @@
 
 <template>
-  <div class="">
+  <div class="container" style="display:flex;flex-direction: column; width:100%;overflow: hiddne;">
     <!--表头-->
-    <el-form
-      :inline="true"
-      :v-model="bookVisitArr"
-      size="medium"
-      class="marginTop20 common-form-inline"
-    >
-      <el-form-item label="姓名">
-        <el-input v-model="parkCarManageName" placeholder="请输入姓名"></el-input>
-      </el-form-item>
-      <el-form-item label="工号">
-        <el-input v-model="parkCarManageNum" placeholder="请输入工号"></el-input>
-      </el-form-item>
-      <el-form-item label="车牌号">
-        <el-input v-model="parkCarManageCarNum" placeholder="请输入车牌号"></el-input>
-      </el-form-item>
-      <el-form-item>
-        <el-button type="primary" @click="parkCarManageOnSubmit" style="width: 100px;">查询</el-button>
-      </el-form-item>
-      <el-form-item>
-        <el-button type="primary" @click="uploadTemplateParkCarManage" style="width: 100px;">下载模板</el-button>
-      </el-form-item>
-      <el-form-item>
-        <el-button type="primary" @click="newAddCarsSubmit">新增车辆</el-button>
-      </el-form-item>
-      <el-form-item>
-        <el-upload id="carsForm" style="display:inline-block;background:none" :limit="1"
-                   class="upload-demo" ref="carsupload" accept=".xls,.xlsx"  action="/userPushRecord/find/all"
-                   :on-change="beforeUpload" :on-exceed="handleExceed"
-                   :on-remove="removeDoc"
-                   :http-request="uploadSectionFile" :auto-upload="false">
-          <el-button id="upload-document" slot="trigger" type="primary" v-show="isShow">车辆导入</el-button>
-          <el-button style="width: 100px;" type="primary" @click="submitCarsUpload" v-show="!isShow">确定</el-button>
-        </el-upload>
+	 <div style="width:100%;">
+			<el-form
+				:inline="true"
+				:v-model="bookVisitArr"
+				size="medium"
+				class="marginTop20 common-form-inline"
+			>
+				<el-form-item label="姓名">
+					<el-input v-model="parkCarManageName" placeholder="请输入姓名"></el-input>
+				</el-form-item>
+				<el-form-item label="工号">
+					<el-input v-model="parkCarManageNum" placeholder="请输入工号"></el-input>
+				</el-form-item>
+				<el-form-item label="车牌号">
+					<el-input v-model="parkCarManageCarNum" placeholder="请输入车牌号"></el-input>
+				</el-form-item>
+				<el-form-item>
+					<el-button type="primary" @click="parkCarManageOnSubmit" style="width: 100px;">查询</el-button>
+				</el-form-item>
+				<el-form-item>
+					<el-button type="primary" @click="uploadTemplateParkCarManage" style="width: 100px;">下载模板</el-button>
+				</el-form-item>
+				<el-form-item>
+					<el-button type="primary" @click="newAddCarsSubmit">新增车辆</el-button>
+				</el-form-item>
+				<el-form-item>
+					<el-upload id="carsForm" style="display:inline-block;background:none" :limit="1"
+										 class="upload-demo" ref="carsupload" accept=".xls,.xlsx"  action="/userPushRecord/find/all"
+										 :on-change="beforeUpload" :on-exceed="handleExceed"
+										 :on-remove="removeDoc"
+										 :http-request="uploadSectionFile" :auto-upload="false">
+						<el-button id="upload-document" slot="trigger" type="primary" v-show="isShow">车辆导入</el-button>
+						<el-button style="width: 100px;" type="primary" @click="submitCarsUpload" v-show="!isShow">确定</el-button>
+					</el-upload>
 
-      </el-form-item>
-      <el-form-item>
-        <el-button class="deleteBtn" type="danger" @click="deleteCarsSubmit" style="width: 100px;background: #ff404a;color: #fff;border: 1px solid #ff404a">删除</el-button>
-      </el-form-item>
-      <el-form-item>
-        <el-button type="primary" @click="takeEffectCars" style="width: 100px;color: #fff;">批量生效</el-button>
-      </el-form-item>
-    </el-form>
+				</el-form-item>
+				<el-form-item>
+					<el-button class="deleteBtn" type="danger" @click="deleteCarsSubmit" style="width: 100px;background: #ff404a;color: #fff;border: 1px solid #ff404a">删除</el-button>
+				</el-form-item>
+				<el-form-item>
+					<el-button type="primary" @click="takeEffectCars" style="width: 100px;color: #fff;">批量生效</el-button>
+				</el-form-item>
+			</el-form>
+	  </div>
     <!--主列表-->
-    <div class="common-table">
-      <el-table :data="carTableData" fit align="left" stripe header-row-class-name="table-header" style="width: 100%;" height="650"
+     <div class="common-table" >
+      <el-table :data="carTableData" fit align="left" stripe header-row-class-name="table-header" style="width: 100%;" height="550"
                 ref="multipleTable" tooltip-effect="dark"
                 @selection-change="handleSelectionChange">
-        <el-table-column type="selection" label="选择" width="80"></el-table-column>
-        <el-table-column type="index" label="序号" width="100"></el-table-column>
+        <el-table-column type="selection" label="选择" width="50"></el-table-column>
+        <el-table-column type="index" label="序号" width="80"></el-table-column>
         <el-table-column prop="workno" label="员工工号">
           <template slot-scope="scope">
             <span style="margin-left: 10px">{{ scope.row.userNo }}</span>
@@ -59,6 +61,11 @@
         <el-table-column prop="workname" label="员工姓名">
           <template slot-scope="scope">
             <span style="margin-left: 10px">{{ scope.row.userName }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="phoneNo" label="员工手机号">
+          <template slot-scope="scope">
+            <span style="margin-left: 10px">{{ scope.row.phoneNo }}</span>
           </template>
         </el-table-column>
         <el-table-column prop="carNum" label="车牌号">
@@ -101,13 +108,14 @@
                 </el-scrollbar>
               </div>
             </el-form-item>
-            <el-form-item label="员工姓名" prop="userName" style="width:48%;">
-              <el-input v-model="editForm.userName" disabled auto-complete="off" clearable></el-input>
-            </el-form-item>
-          </div>
-          <div class="parkServiceDialog" style="display: flex;">
             <el-form-item label="车牌号" prop="carNo" class="park-address-item" style="width:48%;">
               <el-input v-model="editForm.carNo" auto-complete="off" clearable @change="editCarNumberfn"></el-input><!--editForm.loginPwd-->
+            </el-form-item>
+
+          </div>
+          <div class="parkServiceDialog" style="display: flex;">
+            <el-form-item label="员工姓名" prop="userName" style="width:48%;">
+              <el-input v-model="editForm.userName" disabled auto-complete="off" clearable></el-input>
             </el-form-item>
             <el-form-item label="车辆类型" prop="carType" class="park-address-item" style="width:48%;">
               <el-select v-model="editForm.carType" clearable placeholder="请选择" @change="editCarsSelect" style="width: 100%;">
@@ -119,6 +127,12 @@
                 </el-option>
               </el-select>
             </el-form-item>
+          </div>
+          <div class="parkServiceDialog" style="display: flex;">
+            <el-form-item label="员工手机号" prop="phoneNo" style="width:48%;">
+              <el-input v-model="editForm.phoneNo" disabled auto-complete="off" clearable></el-input>
+            </el-form-item>
+
           </div>
           <div class="parkServiceDialog" style="display: flex;width: 100%;">
             <el-form-item label="备注说明" class="park-address-item" style="width:96%;" prop="remark">
@@ -154,14 +168,15 @@
                 </el-scrollbar>
               </div>
             </el-form-item>
-            <el-form-item label="员工姓名" prop="addworkname" style="width: 48%;">
-              <el-input v-model="addCarsContent.addworkname" disabled auto-complete="off" clearable placeholder="请输入员工姓名"></el-input>
-            </el-form-item>
-          </div>
-          <div class="parkServiceDialog" style="display: flex;">
             <el-form-item label="车牌号" prop="AddcarNum" class="park-address-item" style="width: 48%;">
               <el-input v-model="addCarsContent.AddcarNum" auto-complete="off" clearable placeholder="请输入车牌号" @change="carNumberChange"></el-input><!--editForm.loginPwd-->
             </el-form-item>
+          </div>
+          <div class="parkServiceDialog" style="display: flex;">
+            <el-form-item label="员工姓名" prop="addworkname" style="width: 48%;">
+              <el-input v-model="addCarsContent.addworkname" disabled auto-complete="off" clearable placeholder="输入工号生成"></el-input>
+            </el-form-item>
+
             <el-form-item label="车牌类型" prop="addCarType" class="park-address-item" style="width: 48%;">
               <el-select v-model="addCarsContent.addCarType" clearable placeholder="请选择" @change="selectParkName" style="width: 100%;">
                 <el-option
@@ -171,6 +186,12 @@
                   :value="item.value">
                 </el-option>
               </el-select>
+            </el-form-item>
+          </div>
+          <div class="parkServiceDialog" style="display: flex;">
+            <!--20190426增加手机号显示，但是有员工是没有手机号的，何正飞说不用管-->
+            <el-form-item label="员工手机号" prop="phoneNo" style="width: 48%;">
+              <el-input v-model="addCarsContent.phoneNo" disabled auto-complete="off" clearable placeholder="输入工号生成"></el-input>
             </el-form-item>
           </div>
           <div class="parkServiceDialog" style="display: flex;width: 100%;">
@@ -256,7 +277,7 @@
           userNo:'',// 编辑车牌号
           userName:'', // 编辑员工姓名
           carNo:'',//编辑员工工号
-          carType:'',//编辑车辆类型
+          telephone:'',//编辑员工手机号          carType:'',//编辑车辆类型
         },
         editCarsRules: {
           userNo: [
@@ -341,6 +362,7 @@
             }
           })
           this.carTableData = carArr
+          console.log('carTableData:',this.carTableData)
         }
       },
       /**
@@ -488,6 +510,7 @@
         if(res&&res.data.code===200){
           this.restaurantsListArr = res.data.data
         }
+        console.log('restaurantsListArr:',this.restaurantsListArr)
       },
       //新增员工模糊查询，点击列表中item触发的事件
       handleSelectUserName(item){

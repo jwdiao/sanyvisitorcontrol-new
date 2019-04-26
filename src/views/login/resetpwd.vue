@@ -10,7 +10,7 @@
         </el-form-item>-->
         <el-form-item prop="phoneNum" style="width: 61%;">
           <i></i>
-          <el-input v-model="loginData.phoneNum" :disabled="isEditPhone" placeholder="手机号" @keyup.native="phoneChange" @change="regPhone"></el-input>
+          <el-input v-model="loginData.phoneNum" :disabled="isEditPhone" placeholder="帐号/手机号" @keyup.native="phoneChange" @change="regPhone"></el-input>
           <el-button :disabled='reTimeBtnClick' type="primary" style="position: absolute;width: 117px;" @click="reqExpregNumClick">{{expregText}}</el-button>
         </el-form-item>
         <el-form-item prop="card">
@@ -235,18 +235,18 @@ export default {
   /deep/ .el-input__inner{padding-left:45px;}
   .submit_btn{width: 100%;margin-top:20px;}
    /deep/ .el-form .el-form-item:nth-child(1) i{
-    background: #fff url("../../assets/images/F1.png") no-repeat 10px center;
+    background: #fff url("../../assets/images/phone.png") no-repeat 10px center;
   }
   .submit_btn{width: 100%;margin-top:20px;}
    /deep/ .el-form .el-form-item:nth-child(2) i{
-    background: #fff url("../../assets/images/phone.png") no-repeat 10px center;
+    background: #fff url("../../assets/images/regImage.png") no-repeat 10px center;
   }
   .submit_btn{width: 100%;margin-top:20px;}
    /deep/ .el-form .el-form-item:nth-child(3) i{
     background: #fff url("../../assets/images/F2.png") no-repeat 10px center;
   }
   /deep/ .el-form .el-form-item:nth-child(4) i{
-    background: #fff url("../../assets/images/regImage.png") no-repeat 10px center;
+    background: #fff url("../../assets/images/comfrimPwd.png") no-repeat 10px center;
   }
   /deep/ .el-form .el-form-item:nth-child(5) i{
     background: #fff url("../../assets/images/newPwd.png") no-repeat 10px center;

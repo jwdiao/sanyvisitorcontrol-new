@@ -27,7 +27,7 @@
               </el-form-item>
 
               <el-form-item>
-                <el-button type="primary" @click="onSubmit">查询</el-button>
+                <el-button type="primary" style="width: 100px" @click="onSubmit">查询</el-button>
               </el-form-item>
           </el-form>
           <div class="common-table">
@@ -36,33 +36,14 @@
               header-row-class-name="table-header"
 							height="580"
               style="width: 100%">
-              <el-table-column
-                prop="number"
-                label="序号"
-                width="80">
-              </el-table-column>
-              <el-table-column
-                prop="name"
-                label="姓名">
-              </el-table-column>
-							<el-table-column
-								prop="department"
-								label="归属部门">
-							</el-table-column>
-              <el-table-column
-                prop="tel"
-                label="电话号码">
-              </el-table-column>
-              <el-table-column
-                prop="account"
-                label="员工账号">
-              </el-table-column>
+              <el-table-column prop="number"  label="序号" width="80"></el-table-column>
+              <el-table-column prop="name" label="姓名"></el-table-column>
+							<el-table-column prop="department" label="归属部门"></el-table-column>
+              <el-table-column prop="tel" label="电话号码"></el-table-column>
+              <el-table-column prop="account" label="员工账号"></el-table-column>
               <el-table-column label="恢复原始密码">
                 <template slot-scope="scope">
-                  <el-button
-                    size="mini"
-                    type="text"
-                    @click="handleEdit(scope.$index, scope.row)">恢复密码</el-button>
+                  <el-button size="mini" type="text" @click="handleEdit(scope.$index, scope.row)">恢复密码</el-button>
                 </template>
               </el-table-column>
             </el-table>

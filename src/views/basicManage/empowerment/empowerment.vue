@@ -11,11 +11,11 @@
         <el-input v-model="organizatioName" placeholder="请输入组织名称"></el-input>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" @click="onSubmit">查询</el-button>
+        <el-button type="primary" style="width: 100px" @click="onSubmit">查询</el-button>
       </el-form-item>
     </el-form>
     <div class="common-table">
-      <el-table header-row-class-name="table-header" stripe style="width: 100%" ref="multipleTable" tooltip-effect="dark"
+      <el-table header-row-class-name="table-header" stripe style="width: 100%" ref="multipleTable" tooltip-effect="dark" height="650"
                 @selection-change="handleSelectionChange"
                 :data="empowermentTableData">
         <el-table-column type="index" label="序号" width="100"></el-table-column>
@@ -155,7 +155,7 @@
 					}
 					this.$refs.tree.setCheckedKeys(arr);
 					this.expandedArr = arr;
-					
+
        }
       },
 			//点击授权
@@ -163,12 +163,12 @@
         // console.log(index, row);
 				//this.strictFlag = true;
 				//this.dataArr = [];
-				
+
         this.addFormVisible = true
         this.editForm = Object.assign({},row)
 				console.log(this.editForm.parkCode)
 				this.getEmpowerTree()
-        
+
       },
 			closeDialog(){
 			   this.strictFlag = true;
@@ -230,7 +230,7 @@
 				console.log('点击了')
 			},
       handleCheckChange(data,checked,indeterminate){
-				 
+
       },
       handleSelectionChange(val){
         this.multipleSelection = val;

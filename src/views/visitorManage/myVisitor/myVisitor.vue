@@ -10,7 +10,7 @@
         <el-input v-model="visitorName" placeholder="访客姓名"></el-input>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" @click="handleSearchByName">查询</el-button>
+        <el-button type="primary" @click="handleSearchByName" style="width: 100px;">查询</el-button>
         <el-button type="primary" @click="handleAddVisitor">新增访客</el-button>
         <!--<el-button type="primary" @click="handleDownSubPhoto">下发照片</el-button>-->
         <!--<el-button type="primary" @click="handleSendMessages">发送短信</el-button>-->
@@ -29,6 +29,7 @@
         <el-table-column prop="planBeginTime" label="到访日期" width="200" align="left" header-align="left">  </el-table-column>
         <el-table-column prop="visitingTime" label="拜访时间"  align="left" header-align="left">  </el-table-column>
         <el-table-column prop="vistorNum" label="访客人数"  align="left" header-align="left">  </el-table-column>
+        <el-table-column prop="isVip" label="访客类型"  align="left" header-align="left">  </el-table-column>
         <el-table-column prop="isCar" label="是否驾车"  align="left"> </el-table-column>
         <el-table-column prop="carNum" label="驾车数量"  align="left" header-align="left"> </el-table-column>
         <el-table-column prop="visitorStatus" label="访问状态"  align="left"> </el-table-column>
@@ -112,6 +113,9 @@
             </el-form-item>
             <el-form-item label="驾车数量">
               <el-input  v-model="editForm.sanyBussVisitor.carNum" disabled></el-input>
+            </el-form-item>
+            <el-form-item label="访客类型">
+              <el-input  v-model="editFormFirstIsVip" disabled></el-input>
             </el-form-item>
             <br />
             <el-form-item label="拜访原因" >
@@ -229,6 +233,7 @@ import {
     data() {
       return {
         tableData: [],
+        editFormFirstIsVip:'',//访客类型---0422---提取下表的第一条
         qrCode:'',//二维码地址
         reImageId:'',//信息维护--重新上传id
         currentPage: 1, // 当前页
@@ -316,6 +321,12 @@ import {
           } else if (isCar === '0') {
             isCar = '否'
           }
+          var isVip = item.isVip // 访客类型
+          if (isVip === 1) {
+            isVip = 'Vip'
+          } else if (isVip === 0) {
+            isVip = '一般访客'
+          }
          /* else if(downStatus === '3'){
             downStatus = '已下发照片不合规'
           }else if(downStatus === '4'){
@@ -328,8 +339,7 @@ import {
           }else if(visitingTime === '02'){
             visitingTime = '下午'
           }else if(visitingTime === '03'){
-            visitingTime = '全天'
-          }
+            visitingTime = '全天'          }
           // 审核人工号/姓名
           let auditingCode = item.auditingCode? item.auditingCode: ''
           let auditingName = item.auditingName? item.auditingName: ''
@@ -347,6 +357,7 @@ import {
             // planEndTime: item.planEndTime, // 拜访结束时间
             vistorNum: item.vistorNum, // 来访人员数
             isCar: isCar, // 是否驾车（1.是，0.否）
+            isVip: isVip, // 访客类型（1.VIp，0.一般访客）
             carNum: item.carNum, // 来访车数量
             visitorStatus: visitorStatus, // 访问状态（01:待访问02：访问中03：访问结束'）
             submitStatus: submitStatus, // 审核状态（01:待审核（申请中）02：审核通过）
@@ -363,10 +374,8 @@ import {
             documentNo:item.documentNo,//预约码
             userName:item.userName,
           }
-
+          console.log('isVip:',isVip)
         })
-
-
       },
       // 每页多少条改变回调
       handleSizeChange(val) {
@@ -409,6 +418,11 @@ import {
         }
         this.editForm = res.data.data
         this.editForm.sanyBussVisitor.isCar = this.editForm.sanyBussVisitor.isCar==='1'? '是':'否'
+        if(this.editForm.sanyBussVisitor.isVip===1){
+          this.editForm.sanyBussVisitor.isVip = 'Vip'
+        }else if(this.editForm.sanyBussVisitor.isVip===0){
+          this.editForm.sanyBussVisitor.isVip = '一般访客'
+        }
         if(this.editForm.sanyBussVisitor.visitingTime === '01'){
           this.editForm.sanyBussVisitor.visitingTime = '上午'
         }else if(this.editForm.sanyBussVisitor.visitingTime === '02'){
@@ -423,6 +437,11 @@ import {
             item.isSub = '已登记'
           } else if (item.isSub === '2') {
             item.isSub = '未登记'
+          }
+          if (item.isVip === 1) {
+            this.editFormFirstIsVip = 'Vip'
+          } else if (item.isVip === 0) {
+            this.editFormFirstIsVip = '一般访客'
           }
           // console.log('isSub:',item.isSub)
           // console.log('sanyBussVisitorDetailsList:',this.editForm.sanyBussVisitorDetailsList)

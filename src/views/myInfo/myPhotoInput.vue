@@ -2,6 +2,7 @@
 	<div class="container">
 		<!--:file-list="fileList" -->
 		<div class="fileBox">
+		  <div class="fileBox_left">	
 			<el-form
 			:model="userMessage"
 			size="medium"
@@ -17,6 +18,7 @@
 				<el-input v-model="isQualified"  :disabled="true"></el-input>
 			</el-form-item>-->
 			</el-form>
+		  </div>	
 			 <div class="upload">
 			 	<el-upload
 			 	class="upload-demo"
@@ -238,22 +240,25 @@
 
 <style lang="scss" scoped>
 	.container {
+		
 		.upload {
 			width: 100%;
 			margin-top: 20px;
 			.upload-demo{
 				width:90%;
-				min-width: 1400px;
+				//min-width: 1400px;
 				margin:0 auto;
 				text-align: center;
 				/deep/ .el-upload-list--picture-card .el-upload-list__item{
-					   width:650px;
-						 height:400px;
+					     width:200px;
+						 height:200px;
 				}
 				/deep/ .el-upload--picture-card{
-					   width:650px;
-					   height:400px;
-						 position:relative;
+					   /* width:650px;
+					   height:400px; */
+					   width:200px;
+					   height:200px;
+					   position:relative;
 				}
 				/deep/ .el-icon-plus{
 							font-size:150px;
@@ -276,6 +281,7 @@
 			}
 		}
 		.fileBox{
+			display: flex;
 			width:100%;
 			height:92%;
 			margin:20px auto;

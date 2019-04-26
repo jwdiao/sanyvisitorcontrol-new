@@ -1,273 +1,274 @@
 <template>
-   <div style="width:1600px" @click="handleAllChange">
-   <!-- <p class="common-breadcrumb">临时拜访录入</p> -->
-    <el-form
-      :inline="true"
-      :model="formInline.sanyBussVisitor"
-      :rules="rules"
-      ref="tempVisitInputID"
-      size="medium"
-      label-width="100px"
-      style="position:relative"
-      class="marginTop20 common-form-inline tempVisitInput_form"
-      >
-      <div class="tempVisitInputClass" style="display: flex">
-        <el-form-item label="被拜访人" style="width: 20%;">
-          <el-input
-            @keyup.native="querySearch" @blur="blurVisitor"
-            v-model="formInline.sanyBussVisitor.employerName">
-          </el-input>
-          <div class="tempVisitInput_employerName"  id="userNameClick" ref="userNameClick" v-show="employerNameSelectShow" >
-            <el-scrollbar style="height:100%">
-              <ul v-show="restaurantsArr.length>0">
-                <li style="cursor: pointer;" v-for="(item,index) in restaurantsArr" :key="index" @click="handleSelect(item)">
-                  {{item.name}}
-                </li>
-              </ul>
-              <div v-show="restaurantsArr.length<=0">暂无数据</div>
-            </el-scrollbar>
-          </div>
-        </el-form-item>
-        <el-form-item label="到访日期" prop="planBeginTime" style="width: 20%;">
-          <el-date-picker
-            v-model="formInline.sanyBussVisitor.planBeginTime"
-            type="date"
-            format="yyyy-MM-dd"
-            value-format="yyyy-MM-dd"
-            :default-value="new Date()"
-            :picker-options="pickerOptionsStart"
-            @change="selectDateValueControl"
-            placeholder="选择到访日期 ">
-          </el-date-picker>
-        </el-form-item>
-        <!--<el-form-item label="结束时间" prop="planEndTime">
-          <el-date-picker
-            v-model="formInline.sanyBussVisitor.planEndTime"
-            type="datetime"
-            format="yyyy-MM-dd HH:mm:ss"
-            value-format="yyyy-MM-dd HH:mm:ss"
-            :picker-options="pickerOptionsEnd"
-            placeholder="选择日期时间">
-          </el-date-picker>
-        </el-form-item>-->
-        <el-form-item label="拜访时间" prop="visitingTime" style="width: 20%;">
-          <el-select v-model="formInline.sanyBussVisitor.visitingTime" :disabled="isSelected" placeholder="请选择">
-            <el-option
-              v-for="item in visitingTimeOptions"
-              :key="item.value"
-              :label="item.label"
-              :disabled="item.disabled"
-              :value="item.value">
-            </el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="来访人数量" style="width: 20%;">
-          <el-input-number :controls="false" disabled v-model="formInline.sanyBussVisitor.vistorNum" @change="handleInputPersonNum" :min="formInline.sanyBussVisitor.vistorNum" @blur="blurVisitorNum()"></el-input-number>
-        </el-form-item>
-      </div>
-      <div class="tempVisitInputClass" style="display: flex">
-        <el-form-item label="是否驾车" style="width: 20%;">
-          <el-select v-model="formInline.sanyBussVisitor.isCar" placeholder="请选择" @change="isCarNum">
-            <el-option
-              v-for="item in isDriveCarOptions"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value">
-            </el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="访客类型" style="width: 20%;">
-          <el-select v-model="isVip" placeholder="请选择" @change="isVipChange">
-            <el-option
-              v-for="item in isVipOptions"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value">
-            </el-option>
-          </el-select>
-        </el-form-item>
-        <!--<el-form-item label="驾车数量" v-show="formInline.sanyBussVisitor.isCar==='1'">
-          <el-input-number :controls="true" v-model="formInline.sanyBussVisitor.carNum" @change="handleInputCarNum" :min="1"></el-input-number>
-        </el-form-item>-->
-      </div>
-      <div class="tempVisitInputClass" style="display: flex">
-        <el-form-item label="拜访原因" >
-          <el-input
-            style="width: 1290px;"
-            type="textarea"
-            :rows="4"
-            placeholder="请输入原因"
-            v-model="formInline.sanyBussVisitor.reason">
-          </el-input>
-        </el-form-item>
-      </div>
+     <div style="width:100%" @click="handleAllChange">
+       <!-- <p class="common-breadcrumb">临时拜访录入</p> -->
+       <el-form
+         :inline="true"
+         :model="formInline.sanyBussVisitor"
+         :rules="rules"
+         ref="tempVisitInputID"
+         size="medium"
+         label-width="100px"
+         style="position:relative"
+         class="marginTop20 common-form-inline tempVisitInput_form"
+       >
+           <el-form-item label="被拜访人" >
+             <el-input
+               @keyup.native="querySearch" @blur="blurVisitor"
+               v-model="formInline.sanyBussVisitor.employerName">
+             </el-input>
+             <div class="tempVisitInput_employerName"  id="userNameClick" ref="userNameClick" v-show="employerNameSelectShow" >
+               <el-scrollbar style="height:100%">
+                 <ul v-show="restaurantsArr.length>0">
+                   <li style="cursor: pointer;" v-for="(item,index) in restaurantsArr" :key="index" @click="handleSelect(item)">
+                     {{item.name}}
+                   </li>
+                 </ul>
+                 <div v-show="restaurantsArr.length<=0">暂无数据</div>
+               </el-scrollbar>
+             </div>
+           </el-form-item>
+           <!--<span style="position:absolute;top: 10px;left: 40px;color: #f56c6c;">*</span>-->
+           <el-form-item label="到访日期" prop="planBeginTime">
+             <el-date-picker
+               v-model="formInline.sanyBussVisitor.planBeginTime"
+               type="date"
+               format="yyyy-MM-dd"
+               value-format="yyyy-MM-dd"
+               :default-value="new Date()"
+               :picker-options="pickerOptionsStart"
+               @change="selectDateValueControl"
+               placeholder="选择到访日期 ">
+             </el-date-picker>
+           </el-form-item>
+           <!--<el-form-item label="结束时间" prop="planEndTime">
+             <el-date-picker
+               v-model="formInline.sanyBussVisitor.planEndTime"
+               type="datetime"
+               format="yyyy-MM-dd HH:mm:ss"
+               value-format="yyyy-MM-dd HH:mm:ss"
+               :picker-options="pickerOptionsEnd"
+               placeholder="选择日期时间">
+             </el-date-picker>
+           </el-form-item>-->
+           <el-form-item label="拜访时间" prop="visitingTime" >
+             <el-select v-model="formInline.sanyBussVisitor.visitingTime" :disabled="isSelected" placeholder="请选择">
+               <el-option
+                 v-for="item in visitingTimeOptions"
+                 :key="item.value"
+                 :label="item.label"
+                 :disabled="item.disabled"
+                 :value="item.value">
+               </el-option>
+             </el-select>
+           </el-form-item>
+           <el-form-item label="来访人数量" >
+             <el-input-number :controls="false" disabled v-model="formInline.sanyBussVisitor.vistorNum" @change="handleInputPersonNum" :min="formInline.sanyBussVisitor.vistorNum" @blur="blurVisitorNum()"></el-input-number>
+           </el-form-item>
+           <el-form-item label="是否驾车" >
+             <el-select v-model="formInline.sanyBussVisitor.isCar" placeholder="请选择" @change="isCarNum">
+               <el-option
+                 v-for="item in isDriveCarOptions"
+                 :key="item.value"
+                 :label="item.label"
+                 :value="item.value">
+               </el-option>
+             </el-select>
+           </el-form-item>
+           <el-form-item label="访客类型" >
+             <el-select v-model="isVip" placeholder="请选择" @change="isVipChange">
+               <el-option
+                 v-for="item in isVipOptions"
+                 :key="item.value"
+                 :label="item.label"
+                 :value="item.value">
+               </el-option>
+             </el-select>
+           </el-form-item>
+         <div class="tempVisitInputClass" >
+
+           <!--<span style="position:absolute;top: 65px;left: 410px;color: #f56c6c;">*</span>-->
+
+           <!--<el-form-item label="驾车数量" v-show="formInline.sanyBussVisitor.isCar==='1'">
+             <el-input-number :controls="true" v-model="formInline.sanyBussVisitor.carNum" @change="handleInputCarNum" :min="1"></el-input-number>
+           </el-form-item>-->
+         </div>
+         <div class="tempVisitInputClass" >
+           <el-form-item label="拜访原因" >
+             <el-input
+               style="width: 480%;"
+               type="textarea"
+               :rows="4"
+               placeholder="请输入原因"
+               v-model="formInline.sanyBussVisitor.reason">
+             </el-input>
+           </el-form-item>
+         </div>
+         <div>
+           <el-form-item>
+             <el-button type="primary" @click="handleInputPersonNum" style="width: 100px">新增</el-button> &nbsp;&nbsp;
+             <el-tooltip content="点击新增，增加来访人员列表数量" placement="top">
+               <img src="../../../src/assets/images/imageSize.png" style="vertical-align: middle" alt="">
+             </el-tooltip>
+           </el-form-item>
+         </div>
+       </el-form>
 
 
-
-        <div>
-          <el-form-item>
-            <el-button type="primary" @click="handleInputPersonNum" >新增</el-button> &nbsp;&nbsp;
-            <el-tooltip content="点击新增，增加来访人员列表数量" placement="top">
-              <img src="../../../src/assets/images/imageSize.png" style="vertical-align: middle" alt="">
-            </el-tooltip>
-          </el-form-item>
-        </div>
-    </el-form>
-    <!-- 来访人表格 start -->
-    <!-- v-if="formInline.sanyBussVisitorDetailsList.length>0" -->
-    <div
-      class="tempVisitInput_table tempVisitInput_personTable"
-    >
-      <table>
-        <thead>
-          <tr>
-            <th>序号</th>
-            <th>拜访人姓名</th>
-            <th>性别</th>
-            <th>电话号码</th>
-            <th>身份证号</th>
-            <th>车牌号</th>
-            <!--<th>二维码次数</th>-->
-            <th>拍照</th>
-            <th>查看图片</th>
-            <th>操作</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="(item, index) in formInline.sanyBussVisitorDetailsList" :key="index">
-            <td v-text="index+1">1</td>
-            <td style="position: relative">
-              <!--regIsName-->
-              <el-input v-model="item.visitorName" :class="{regIsNull:item.visitorName==='' && isShowUserName ?true:false}" placeholder="请输入姓名" @blur="blurUserName(item.visitorName)"  @change="inputChangeName(item.visitorName)"></el-input>
-              <span style="position:absolute;top: 22px;left: 0px;color: #f56c6c;">*</span>
-              <!--isShowUserName-->
-              <div v-if="isShowUserName" v-show="item.visitorName===''?true:false" style="color: #F56C6C;text-align: left;position: absolute;top:60px;left: 8px;" >请输入姓名</div>
-            </td>
-            <td style="position: relative;left: 20px;">
-              <el-radio v-model="item.gender" label='1'>男</el-radio>
-              <el-radio v-model="item.gender" label='2'>女</el-radio>
-              <span style="position:absolute;top: 22px;left: 0px;color: #f56c6c;">*</span>
-              <div v-if="isShowGender"  v-show="item.gender===''?true:false" style="color: #F56C6C;text-align: left;position: absolute;top:60px;left: 8px;" >请选择性别</div>
-            </td>
-            <td style="position: relative">
-              <!--regIsNull-->
-              <el-input v-model="item.phone" :class="{regIsNull:item.phone==='' &&　isShowPhone　?true:false}" placeholder="请输入电话" @blur="blurPhone(item.phone)"  @change="regTel(item.phone)"></el-input>
-              <span style="position:absolute;top: 22px;left: 0px;color: #f56c6c;">*</span>
-              <!--isShowPhone-->
-              <div v-if="isShowPhone" v-show="item.phone===''?true:false" style="color: #F56C6C;text-align: left;position: absolute;top: 60px;left: 8px;" >请输入电话</div>
-            </td>
-            <td style="position: relative">
-              <!--regIsIDCard-->
-              <el-input v-model="item.visitorId" :class="{regIsNull:item.visitorId===''　&&　isShowIDCard　?true:false}" placeholder="请输入身份证号" @keyup.native="isRepeatCardID" @blur="blurIdCard(item.visitorId)" @change="regID(item.visitorId,index)"></el-input>
-              <span style="position:absolute;top: 22px;left: 0px;color: #f56c6c;">*</span>
-              <!--isShowIDCard-->
-              <div v-if="isShowIDCard" v-show="item.visitorId===''?true:false" style="color: #F56C6C;text-align: left;position: absolute;top: 60px;left: 8px;" >请输入身份证号</div>
-            </td>
-            <td>
-              <el-input v-model="item.carNo" :disabled="formInline.sanyBussVisitor.isCar === '0' ? true : false" placeholder="请输入车牌号"></el-input>
-            </td>
-           <!-- <td>
-              <el-input v-model="item.countCard" placeholder="二维码次数"></el-input>
-            </td>-->
-            <td>
-              <div>
-                <el-button
-                  v-show="!item.imgUrl"
-                  size="mini" type="primary"
-                  @click="handlePhotoUploadStart(index)">开始拍照</el-button>
-                </div>
-                <div>
-                  <el-button
-                  v-show="item.imgUrl"
-                  size="mini" type="primary"
-                  @click="handlePhotoUpload(index)">重新拍照</el-button>
-                </div>
-            </td>
-            <td>
-              <el-button
-                v-show="item.imgUrl"
-                size="mini"
-                type="text"
-                @click="handleLookImg(index)">查看图片</el-button>
-            </td>
-            <td>
-              <el-button type="danger" size="mini" :disabled="deleteDisabled" @click="deleteSingleLine(item,index)">删除</el-button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-    <!-- 来访人表格 end -->
-    <!-- 拍照上传 start -->
-    <div class="tempVisitInput_camera">
-      <el-dialog
-        title="临时拜访录入"
-        :visible.sync="dialogVisible"
-        width="1100px"
-        height="600px"
-        :close-on-click-modal="false"
-        :before-close="handleClose">
-        <div class="fatheramalltitle">
-          <input type="hidden" value="" id="photoUrl" />
-          <!--<iframe width="100%" height="470" frameborder="0" src="http://10.19.8.22:8081/sanyvisitorcontrol/photo/photo.html" id="myframe" name="myframe" />-->
-          <iframe width="100%" height="470" frameborder="0" src="http://10.19.8.21:8181/sanyvisitorcontrol/photo/photo.html" id="myframe" name="myframe" />
-           <!--<iframe width="100%" height="400" frameborder="0" src="http://localhost/sanyvisitorcontrol/photo/photo.html" id="myframe" name="myframe" />-->
-          <el-tooltip content="必须点击拍照后再确定，否则将保存默认图片显示区内图片" placement="top" class="small-title">
-            <img src="../../../src/assets/images/imageSize.png" style="vertical-align: middle" alt="">
-          </el-tooltip>
-        </div>
-        <span slot="footer" class="dialog-footer">
+       <!-- 来访人表格 start -->
+       <!-- v-if="formInline.sanyBussVisitorDetailsList.length>0" -->
+       <div class="tempVisitInput_table tempVisitInput_personTable">
+         <table>
+           <thead>
+           <tr>
+             <th>序号</th>
+             <th>拜访人姓名</th>
+             <th>性别</th>
+             <th>电话号码</th>
+             <th>身份证号</th>
+             <th>车牌号</th>
+             <!--<th>二维码次数</th>-->
+             <th>拍照</th>
+             <th>查看图片</th>
+             <th>操作</th>
+           </tr>
+           </thead>
+           <tbody>
+           <tr v-for="(item, index) in formInline.sanyBussVisitorDetailsList" :key="index">
+             <td v-text="index+1">1</td>
+             <td style="position: relative">
+               <!--regIsName-->
+               <el-input v-model="item.visitorName" :class="{regIsNull:item.visitorName==='' && isShowUserName ?true:false}" placeholder="请输入姓名" @blur="blurUserName(item.visitorName)"  @change="inputChangeName(item.visitorName)"></el-input>
+               <span style="position:absolute;top: 22px;left: 0px;color: #f56c6c;">*</span>
+               <!--isShowUserName-->
+               <div v-if="isShowUserName" v-show="item.visitorName===''?true:false" style="color: #F56C6C;text-align: left;position: absolute;top:60px;left: 8px;" >请输入姓名</div>
+             </td>
+             <td style="position: relative;">
+               <el-radio v-model="item.gender" label='1'>男</el-radio>
+               <el-radio v-model="item.gender" label='2'>女</el-radio>
+               <span style="position:absolute;top: 22px;left: 0px;color: #f56c6c;">*</span>
+               <div v-if="isShowGender"  v-show="item.gender===''?true:false" style="color: #F56C6C;text-align: left;position: absolute;top:60px;left: 8px;" >请选择性别</div>
+             </td>
+             <td style="position: relative">
+               <!--regIsNull-->
+               <el-input v-model="item.phone" :class="{regIsNull:item.phone==='' &&　isShowPhone　?true:false}" placeholder="请输入电话" @blur="blurPhone(item.phone)"  @change="regTel(item.phone)"></el-input>
+               <span style="position:absolute;top: 22px;left: 0px;color: #f56c6c;">*</span>
+               <!--isShowPhone-->
+               <div v-if="isShowPhone" v-show="item.phone===''?true:false" style="color: #F56C6C;text-align: left;position: absolute;top: 60px;left: 8px;" >请输入电话</div>
+             </td>
+             <td style="position: relative">
+               <!--regIsIDCard-->
+               <el-input v-model="item.visitorId" :class="{regIsNull:item.visitorId===''　&&　isShowIDCard　?true:false}" placeholder="请输入身份证号" @keyup.native="isRepeatCardID" @blur="blurIdCard(item.visitorId)" @change="regID(item.visitorId,index)"></el-input>
+               <span style="position:absolute;top: 22px;left: 0px;color: #f56c6c;">*</span>
+               <!--isShowIDCard-->
+               <div v-if="isShowIDCard" v-show="item.visitorId===''?true:false" style="color: #F56C6C;text-align: left;position: absolute;top: 60px;left: 8px;" >请输入身份证号</div>
+             </td>
+             <td style="position: relative">
+               <!-- regIsNull:item.carNo===''　&&　isShowCarNo　?true:false -->
+               <el-input v-model="item.carNo" :disabled="formInline.sanyBussVisitor.isCar === '0' ? true : false"  :class="{regIsNull:item.carNo==='' && formInline.sanyBussVisitor.isCar === '1'?true:false}"  placeholder="请输入车牌号" @blur="blurCarNo" @change="regCarNo(item.carNo,index)"></el-input>
+               <div v-show="item.carNo==='' && formInline.sanyBussVisitor.isCar === '1' ? true : false" style="color: #F56C6C;text-align: left;position: absolute;top: 60px;left: 8px;" >请输入车牌号</div>
+             </td>
+             <!-- <td>
+                <el-input v-model="item.countCard" placeholder="二维码次数"></el-input>
+              </td>-->
+             <td>
+               <div>
+                 <el-button
+                   v-show="!item.imgUrl"
+                   size="mini" type="primary"
+                   @click="handlePhotoUploadStart(index)">开始拍照</el-button>
+               </div>
+               <div>
+                 <el-button
+                   v-show="item.imgUrl"
+                   size="mini" type="primary"
+                   @click="handlePhotoUpload(index)">重新拍照</el-button>
+               </div>
+             </td>
+             <td>
+               <el-button
+                 v-show="item.imgUrl"
+                 size="mini"
+                 type="text"
+                 @click="handleLookImg(index)">查看图片</el-button>
+             </td>
+             <td>
+               <el-button type="danger"  style="width: 80px;" size="mini" :disabled="deleteDisabled" @click="deleteSingleLine(item,index)">删除</el-button>
+             </td>
+           </tr>
+           </tbody>
+         </table>
+       </div>
+       <!-- 来访人表格 end -->
+       <!-- 拍照上传 start -->
+       <div class="tempVisitInput_camera">
+         <el-dialog
+           title="临时拜访录入"
+           :visible.sync="dialogVisible"
+           width="1100px"
+           height="600px"
+           :close-on-click-modal="false"
+           :before-close="handleClose">
+           <div class="fatheramalltitle">
+             <input type="hidden" value="" id="photoUrl" />
+             <!--<iframe width="100%" height="470" frameborder="0" src="http://10.19.8.22:8081/sanyvisitorcontrol/photo/photo.html" id="myframe" name="myframe" />-->
+             <iframe width="100%" height="470" frameborder="0" src="http://10.19.8.21:8181/sanyvisitorcontrol/photo/photo.html" id="myframe" name="myframe" />
+             <!--<iframe width="100%" height="400" frameborder="0" src="http://localhost/sanyvisitorcontrol/photo/photo.html" id="myframe" name="myframe" />-->
+             <el-tooltip content="必须点击拍照后再确定，否则将保存默认图片显示区内图片" placement="top" class="small-title">
+               <img src="../../../src/assets/images/imageSize.png" style="vertical-align: middle" alt="">
+             </el-tooltip>
+           </div>
+           <span slot="footer" class="dialog-footer">
           <el-button @click="dialogVisible = false">取 消</el-button>
           <el-button type="primary" @click="handleConfirmCamera">确 定</el-button>
         </span>
-      </el-dialog>
-    </div>
-    <!-- 拍照上传 end -->
-    <!-- 车辆 start -->
-   <!-- <div class="tempVisitInput_table tempVisitInput_carTable" v-if="formInline.sanyBussVisitorCarList.length>0">
-      <table>
-        <thead>
-          <tr>
-            <th>序号</th>
-            <th>车牌号码</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="(item, index) in formInline.sanyBussVisitorCarList" :key="index">
-            <td v-text="index+1"></td>
-            <td>
-              <el-input v-model="item.carNo" placeholder="请输入车牌号"></el-input>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>-->
-    <!-- 车辆 end -->
+         </el-dialog>
+       </div>
+       <!-- 拍照上传 end -->
+       <!-- 车辆 start -->
+       <!-- <div class="tempVisitInput_table tempVisitInput_carTable" v-if="formInline.sanyBussVisitorCarList.length>0">
+          <table>
+            <thead>
+              <tr>
+                <th>序号</th>
+                <th>车牌号码</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="(item, index) in formInline.sanyBussVisitorCarList" :key="index">
+                <td v-text="index+1"></td>
+                <td>
+                  <el-input v-model="item.carNo" placeholder="请输入车牌号"></el-input>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>-->
+       <!-- 车辆 end -->
 
-    <!-- 查看照片 -->
-    <el-dialog title="图片信息"
-                :visible.sync="dialogVisibleImg"
-                :close-on-click-modal="false"
-                class="edit-form">
-        <div class="inputText" style="display: flex;justify-content: center;align-items: center;overflow: hidden;">
-            <img :src="lookCurrentImgUrl" alt="" style="max-width:100%;">
-        </div>
-    </el-dialog>
-    <!-- 查看照片end -->
-    <div class="marginTop20" style="text-align: center">
-      <el-button type="primary" @click="handleSave" style="width: 200px;">保存</el-button>
-    </div>
-   </div>
+       <!-- 查看照片 -->
+       <el-dialog title="图片信息"
+                  :visible.sync="dialogVisibleImg"
+                  :close-on-click-modal="false"
+                  class="edit-form">
+         <div class="inputText" style="display: flex;justify-content: center;align-items: center;overflow: hidden;">
+           <img :src="lookCurrentImgUrl" alt="" style="max-width:100%;">
+         </div>
+       </el-dialog>
+       <!-- 查看照片end -->
+       <div class="marginTop20" style="text-align: center">
+         <el-button type="primary" @click="handleSave" style="width: 200px;">保存</el-button>
+       </div>
+     </div>
 </template>
 
 <script>
  import {
-  addApplyRequest,
+  addApplyRequest,addApplyRequest1,
   getNamesByLikeRequest,
   fileUploadForOutEmployersPhotoRequest
 } from '../../api/businessManageApi'
  import {reqAddVisitorSuccessReq,reqrRegIDCard} from '../../api'
- import {checkPhone,checkIDCard} from '../../util/regExp'
+ import {checkPhone,checkIDCard,checkCarCard} from '../../util/regExp'
 // import http from '../../../../sanyreport/src/api/http';
   export default {
     name: "tempVisitInput",
@@ -317,6 +318,7 @@
         isShowUserName:false,////是否显示提示姓名
         isShowPhone:false,////是否显示提示手机号
         isShowIDCard:false,////是否显示提示身份证
+        isShowCarNo:false,////是否显示车牌号
         isShowGender:false,//是否显示性别
         rules: {
           planBeginTime: [
@@ -479,6 +481,11 @@
       isCarNum(){
         if(this.formInline.sanyBussVisitor.isCar === '0'){
           this.formInline.sanyBussVisitor.carNum = 0
+          //清空车牌号码
+          this.formInline.sanyBussVisitorDetailsList.forEach(item=>{
+            item.carNo = ''
+          })
+
         }else if(this.formInline.sanyBussVisitor.isCar === '1'){
           this.formInline.sanyBussVisitor.carNum = 1
         }
@@ -558,6 +565,9 @@
                 this.regIsIDCard= true
                 this.isShowIDCard= true
                 return
+              }else if(sanyBussVisitorDetailsList[i].carNo === '' && this.formInline.sanyBussVisitor.isCar === '1'){
+                this.$message({type:'error',message:'请输入车牌号'})//当是驾车时，不输入车牌号就返回
+                return
               }
             }
             if(this.isTelephonetrue){
@@ -568,11 +578,16 @@
               this.$message({type:'error',message:'身份证号码输入不正确'})
               return
             }
+            if(this.checkCarCardBoolean){
+              this.$message({type:'error',message:'车牌号码输入不正确'})
+              return
+            }
             if(this.formInline.sanyBussVisitor.visitingTime === '下午'){
               this.formInline.sanyBussVisitor.visitingTime = '02'
             }else if(this.formInline.sanyBussVisitor.visitingTime === '全天'){
               this.formInline.sanyBussVisitor.visitingTime = '03'
             }
+
             //时间校验
             var startTime = new Date(this.formInline.sanyBussVisitor.planBeginTime).getTime()
             // source = 2表示从临时拜访录入[门岗]页面过来的添加信息
@@ -627,7 +642,7 @@
 
       // 新增请求数据接口
       async addApplyRequestData(param) {
-        const res = await addApplyRequest(param);
+        const res = await addApplyRequest1(param);
         // console.log('请求添加接口：',res)
         if (!res || res.data.code!==200) {
           this.$message({
@@ -685,6 +700,10 @@
       isRepeatCardID(){
 
       },
+      //车牌号验证
+      regCarNo(val){
+        this.checkCarCardBoolean = checkCarCard(val,this)
+      },
       async regID(val,index){
         this.isIDCardtrue = checkIDCard(val,this)
         //0401增加多个时不能有重复的cardID
@@ -728,6 +747,10 @@
         val===''? this.regIsIDCard= true: this.regIsIDCard= false
         val===''? this.isShowIDCard= true: this.isShowIDCard= false
       },
+      blurCarNo(val){
+        // val = val.replace(/\s*/g,"")
+        val===''? this.isShowCarNo= true: this.isShowCarNo= false
+      },
       //前台验证-------end----------------
       //单独删除每一行，，
       deleteSingleLine(item,index){
@@ -736,11 +759,24 @@
           this.$message({message:'删除失败,默认保留一行'})
           return
         }
-        this.formInline.sanyBussVisitorDetailsList.splice(index,1)
-        this.formInline.sanyBussVisitor.vistorNum = this.formInline.sanyBussVisitorDetailsList.length
-        // this.formInline.sanyBussVisitor.carNum = this.formInline.sanyBussVisitor.vistorNum
-        console.log('删除行index:',index)
-        console.log('删除行:',this.formInline.sanyBussVisitorDetailsList)
+        this.$confirm('删除该条数据, 是否继续?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          this.$message({
+            type: 'success',
+            message: '删除成功!'
+          });
+          this.formInline.sanyBussVisitorDetailsList.splice(index,1)
+          this.formInline.sanyBussVisitor.vistorNum = this.formInline.sanyBussVisitorDetailsList.length
+          // this.formInline.sanyBussVisitor.carNum = this.formInline.sanyBussVisitor.vistorNum
+        }).catch(() => {
+          this.$message({
+            type: 'info',
+            message: '已取消删除'
+          });
+        });
       },
       //拜访人弹窗不缩回问题
       blurVisitor(){
@@ -817,7 +853,7 @@
       width: 10%;
     }
     th:nth-child(3) {
-      width: 10%;
+      width: 5%;
     }
     th:nth-child(4) {
       width: 15%;
@@ -844,6 +880,10 @@
     width:400px;height:400px;
   }
 }
+
+
+
+
 /deep/.tempVisitInputClass .el-form-item__label{
   width: 100px;
 }
@@ -869,5 +909,10 @@
   margin-top: 10px;
   margin-left: 0px;
 }
+  .tempVisitInput_form {
+    /deep/ .el-form-item{
+      margin-left: 15px;
+    }
+  }
 
 </style>

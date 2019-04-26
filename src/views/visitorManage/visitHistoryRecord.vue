@@ -36,7 +36,7 @@
         <el-table-column prop="visitingTime" label="拜访时间"  width="180" align="left" header-align="left">  </el-table-column>
         <el-table-column prop="beginTime" label="实际开始时间"  width="160" align="right" header-align="center">  </el-table-column>
         <el-table-column prop="endTime" label="实际结束时间"  width="160" align="right" header-align="center">  </el-table-column>
-        <el-table-column prop="vistorNum" label="来访人员数" width="130" align="left" header-align="left">  </el-table-column>
+        <el-table-column prop="vistorNum" label="访客人数" width="130" align="left" header-align="left">  </el-table-column>
         <el-table-column prop="isCar" label="是否驾车" width="120" align="left"> </el-table-column>
         <el-table-column prop="carNum" label="驾车数量" width="120" align="left" header-align="left"> </el-table-column>
         <el-table-column prop="visitorStatus" label="访问状态" width="120" align="left"> </el-table-column>
@@ -69,36 +69,43 @@
       <el-dialog title="拜访历史记录"
         :visible.sync="visitorInfomation"
         :close-on-click-modal="false"
-        class="edit-form"
+        class="edit-form" width="1000px"
         >
         <el-form :v-model="editForm" label-width="110px" ref="editForm" :inline="true">
-          <div class="endVisitSearchDialog">
-            <el-form-item label="到访日期">
+          <div class="endVisitSearchDialog" style="display: flex">
+            <el-form-item label="到访日期" style="width: 33%;">
               <el-input  v-model="editForm.sanyBussVisitor.planBeginTime" disabled></el-input>
             </el-form-item>
-            <el-form-item label="拜访时间">
+            <el-form-item label="拜访时间" style="width: 33%;">
               <el-input v-model="editForm.sanyBussVisitor.visitingTime" disabled></el-input>
             </el-form-item>
-            <el-form-item label="来访人员数量">
+            <el-form-item label="来访人员数量" style="width: 33%;">
               <el-input v-model="editForm.sanyBussVisitor.vistorNum" disabled></el-input>
             </el-form-item>
-            <el-form-item label="实际开始时间">
+          </div>
+          <div class="endVisitSearchDialog" style="display: flex">
+            <el-form-item label="实际开始时间" style="width: 33%;">
               <el-input  v-model="editForm.sanyBussVisitor.beginTime" disabled></el-input>
             </el-form-item>
-            <el-form-item label="实际结束时间">
+            <el-form-item label="实际结束时间" style="width: 33%;">
               <el-input v-model="editForm.sanyBussVisitor.endTime" disabled></el-input>
             </el-form-item>
-            <el-form-item label="是否驾车">
-              <el-input v-model="editForm.sanyBussVisitor.isCar" disabled></el-input>
-            </el-form-item>
-            <el-form-item label="驾车数量">
-              <el-input  v-model="editForm.sanyBussVisitor.carNum" disabled></el-input>
+            <el-form-item label="访客类型" style="width: 33%;">
+              <el-input v-model="editFormIsVip" disabled></el-input>
             </el-form-item>
           </div>
-          <div  class="endVisitSearchDialog">
-            <el-form-item label="拜访原因" >
-              <el-input disabled style="width:100%;"
-                        type="textarea" :rows="3"
+          <div class="endVisitSearchDialog" style="display: flex">
+            <el-form-item label="驾车数量" style="width: 33%;">
+              <el-input  v-model="editForm.sanyBussVisitor.carNum" disabled></el-input>
+            </el-form-item>
+            <el-form-item label="是否驾车" style="width: 33%;">
+              <el-input v-model="editForm.sanyBussVisitor.isCar" disabled></el-input>
+            </el-form-item>
+          </div>
+          <div  class="endVisitSearchDialog" style="display: flex">
+            <el-form-item label="拜访原因" class="textareaInput" style="width: 98%">
+              <el-input disabled
+                        type="textarea"
                         v-model="editForm.sanyBussVisitor.reason">
               </el-input>
             </el-form-item>
@@ -194,7 +201,7 @@
         // debugger;
         if (!res || !res.data || res.data.code !== 200) {
           this.$message({
-            type: 'success',
+            // type: 'success',
             message: "请重新登录！"//res.data.msg,该信息后期从后端获取2019.4.2yangbao
           });
           return;
@@ -290,6 +297,11 @@
           return
         }
         this.editForm = res.data.data
+        if(res.data.data.sanyBussVisitorDetailsList[0].isVip === 0){
+          this.editFormIsVip = '一般访客'
+        }else if(res.data.data.sanyBussVisitorDetailsList[0].isVip === 1){
+          this.editFormIsVip = 'Vip'
+        }
         this.editForm.sanyBussVisitor.isCar = this.editForm.sanyBussVisitor.isCar==='1'? '是':'否'
 
         if (this.editForm.sanyBussVisitor.visitingTime === '01') {
@@ -316,7 +328,14 @@
   /deep/ .el-dialog__header{
     border-bottom: 1px solid #DCDFE6;
   }
-  /deep/.el-form-item__content{
-    margin-left: 0px;
+  /deep/.common_lookInfoDialog .endVisitSearchDialog .el-form-item .el-form-item__content{
+    margin-left: 0px!important;
   }
+  /deep/ .endVisitSearchDialog .textareaInput .el-form-item__content{
+    width: 88%;
+  }
+  /deep/ .endVisitSearchDialog .el-form-item .el-form-item__label{
+    width: 100px;
+  }
+
 </style>

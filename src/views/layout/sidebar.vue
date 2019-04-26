@@ -188,6 +188,7 @@ export default {
 		    font-size: 16px;
         margin-right: 7px;
 	}
+	
  /deep/.el-submenu__title{font-size:16px;}
 .el-submenu /deep/ .el-menu-item{padding-left:50px !important;font-size: 14px;color:#9098a5 !important;}
  .el-menu /deep/.el-menu-item.is-active{background: rgba(48,65,86,1) !important;color:rgba(64,158,255,1) !important;}

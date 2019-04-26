@@ -1,10 +1,10 @@
 <template>
-  <div>
+  <div class="container">
    <!-- <p class="common-breadcrumb">外部员工管理</p> -->
-    <el-row class="marginTop20" :gutter="20">
-      <el-col :span="4">
 
-        <div class="">
+
+
+        <div class="treeBox" >
           <el-tree
             :data="dataTree"
             :props="defaultProps"
@@ -16,9 +16,8 @@
             @node-click="handleNodeClick">
 					</el-tree>
         </div>
-      </el-col>
-      <el-col :span="20">
-        <div class="">
+
+        <div class="right_container" >
           <el-form
             :inline="true"
             :model="formInline"
@@ -44,7 +43,7 @@
                 </el-select>
               </el-form-item>
               <el-form-item>
-                <el-button type="primary" @click="onSubmit">查询</el-button>
+                <el-button type="primary" style="width: 100px;" @click="onSubmit">查询</el-button>
               </el-form-item>
               <el-form-item>
                 <el-button type="primary" @click="uploadTemplate">下载模板</el-button>
@@ -75,10 +74,10 @@
 
               </el-form-item>
               <el-form-item>
-                <el-button type="primary" @click="handleAdd">新增</el-button>
+                <el-button type="primary" @click="handleAdd" style="width: 100px;">新增</el-button>
               </el-form-item>
               <el-form-item>
-                <el-button type="danger" style="background: #ff404a;" @click="deleteContentItemSubmit">删除</el-button>
+                <el-button type="danger" style="background: #ff404a;width: 100px;" @click="deleteContentItemSubmit">删除</el-button>
               </el-form-item>
               <el-form-item>
                 <el-button type="primary" @click="batchAuthoriaztion">批量授权</el-button>
@@ -165,11 +164,11 @@
             </el-pagination>
           </div>
         </div>
-      </el-col>
-    </el-row>
+
+
     <!--操作---编辑-->
     <div class="addVisitorDialog">
-      <el-dialog title="员工管理信息" width="1200px"
+      <el-dialog title="员工管理信息" width="1120px"
                  :visible.sync="editOuterWorkerManageList"
                  :close-on-click-modal="false"
                  :before-close="editOuterWorkerManageDialogClose">
@@ -292,7 +291,7 @@
       :close-on-click-modal="false"
       :visible.sync="dialogVisibles"
       @close="handleDialogClose"
-      width="1200px">
+      width="1120px">
       <div class="addVisitorDialog">
         <!-- 表单 -->
         <el-form
@@ -724,7 +723,7 @@ export default {
      * */
       async handleInputIDCard(){
         // this.formDataAdd.card !== ''?this.isUndisabeld = false:this.isUndisabeld = true
-        checkIDCard(this.formDataAdd.card,this)  //前台验证
+       this.addIdCardReg = checkIDCard(this.formDataAdd.card,this)  //前台验证
         if(this.formDataAdd.card.length >=14){
           this.getStartTime()
         }
@@ -837,7 +836,7 @@ export default {
       },
       //编辑出生日期变化
       async editInputIDCard(val){
-        checkIDCard(this.outWorkerEditForm.idCard,this)  //前台验证
+        this.editIdCardReg = checkIDCard(this.outWorkerEditForm.idCard,this)  //前台验证
         if(this.outWorkerEditForm.idCard.length >=14){
           const {idCard} = this.outWorkerEditForm
           let startYear = idCard.toString().substr(6,4)
@@ -858,7 +857,7 @@ export default {
       },
       //编辑输入手机号前台验证
       async editChangeTelephoto(val){
-        checkPhone(this.outWorkerEditForm.telephone,this)
+        this.editTelephoneReg = checkPhone(this.outWorkerEditForm.telephone,this)
         if(this.telephoneIsRepeat !== val){
           const res = await regTelephone(this.outWorkerEditForm.telephone)
           if(res&&res.data.code!==200){
@@ -1063,7 +1062,7 @@ export default {
       },
       //新增输入手机号前台验证
       async changeTelephoto(){
-        checkPhone(this.formDataAdd.tel,this)
+        this.addTelephoneRegExg = checkPhone(this.formDataAdd.tel,this)
         const res = await regTelephone(this.formDataAdd.tel)
         if(res&&res.data.code!==200){
           this.$message({type:'error',message:res.data.msg})
@@ -1212,6 +1211,14 @@ export default {
            })
             return
          }
+         //验证手机号码格式是否正确
+          if(this.addTelephoneRegExg){
+            return this.$message({type:'error',message:'手机号码格式不正确'})
+          }
+          ////验证身份证格式是否正确
+          if(this.addIdCardReg){
+            return this.$message({type:'error',message:'身份证号码格式不正确'})
+          }
           const{selectDateValue,sexRadio,selectRoleName,selectRoleCode,selectGuishuParkName,selectGuishuParkCode,uploadImageUrl,photoPicture} = this
             if(sexRadio === '男'){this.sexRadio = '1'
             }else if(sexRadio === '女'){this.sexRadio = '2'}
@@ -1400,6 +1407,7 @@ export default {
       handleEditOuterWorkerManage(index, row){
         console.log('row:',row)
         //回显值，
+        this.editDateValue = ''
         this.idCardIsRepeat = row.idCard
         this.telephoneIsRepeat = row.telephone
 
@@ -1423,11 +1431,7 @@ export default {
         this.outWorkerEditForm.idCard = row.idCard
         this.outWorkerEditForm.userNo = row.userNo
         this.EditFormUserNo = row.userNo
-        let startYear = row.idCard.toString().substr(6,4)
-        let startMouth = row.idCard.substr(10,2)
-        let startDay = row.idCard.substr(12,2)
-        var brithdayDate = startYear +'-'+ startMouth +'-'+ startDay
-        this.editDateValue = row.brithday || brithdayDate
+
         this.editRoleName = row.roleName
         this.editRoleName = row.roleName
         this.editRoleCode = row.roleCode
@@ -1447,9 +1451,16 @@ export default {
           this.outWorkerEditForm.editPersonType = '外部员工'
         }
          this.editSexRadio = row.userSex   //1男  2女
-        this.$refs.uploadPerson0.clearFiles()
-
-
+        if(this.$refs.uploadPerson0){
+          this.$refs.uploadPerson0.clearFiles()
+        }
+        if(row.idCard){
+          let startYear = row.idCard.toString().substr(6,4)
+          let startMouth = row.idCard.substr(10,2)
+          let startDay = row.idCard.substr(12,2)
+          var brithdayDate = startYear +'-'+ startMouth +'-'+ startDay
+          this.editDateValue = row.brithday || brithdayDate
+        }
       },
         // 提交编辑信息
       editOuterWorkerManageDialogAddFn(val){
@@ -1461,15 +1472,16 @@ export default {
           })
           return
         }
-       /* if(this.isRegexg){
-          this.$message({
-            type:'error',
-            message:'保存失败，手机号或身份号输入格式不正确'
-          })
-          return
-        }*/
         this.$refs.workerManageList.validate(async (valid) => {
           if (!valid) return;
+          //验证身份证号格式
+          if(this.editIdCardReg){
+            return this.$message({type:'error',message:'身份证号码格式输入不正确'})
+          }
+          //验证手机号格式
+          if(this.editTelephoneReg){
+            return this.$message({type:'error',message:'手机号码格式输入不正确'})
+          }
           this.editOuterWorkerManageList = false
           console.log('val:',val)
           //编辑与后台交互--》根据需要参数在val中找
@@ -1592,6 +1604,19 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
+	.container{
+		display: flex;
+		.treeBox{
+			width:300px;
+			padding-top:20px
+		}
+		.right_container{
+			flex:1;
+      /deep/ .el-form .el-form-item{
+        margin-left: 15px;
+      }
+		}
+	}
   .addVisitorDialog{
     &_form{
       // width:1100px;

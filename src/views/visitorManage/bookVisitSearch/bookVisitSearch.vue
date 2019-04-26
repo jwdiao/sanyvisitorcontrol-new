@@ -15,7 +15,7 @@
         <el-input v-model="bookVisitArr.num" clearable placeholder="被访人工号"></el-input>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" @click="onSubmit">查询</el-button>
+        <el-button type="primary" style="width: 100px" @click="onSubmit">查询</el-button>
       </el-form-item>
       <!--<el-form-item>
         <el-button type="primary" @click="recordingClick">登记</el-button>
@@ -34,8 +34,9 @@
         <el-table-column type="index" label="序号" width="50"></el-table-column>
         <el-table-column prop="planBeginTime" label="到访日期" width="160">  </el-table-column>
         <el-table-column prop="employerName" label="被访人姓名"> </el-table-column>
-        <el-table-column prop="visitingTime" label="拜访时间"  width="160">  </el-table-column>
-        <el-table-column prop="vistorNum" label="来访人员数" width="95">  </el-table-column>
+        <el-table-column prop="visitingTime" label="拜访时间"  width="100">  </el-table-column>
+        <el-table-column prop="vistorNum" label="访客人数" width="95">  </el-table-column>
+        <el-table-column prop="isVip" label="访客类型" width="95">  </el-table-column>
         <el-table-column prop="isCar" label="是否驾车" width="80"> </el-table-column>
         <el-table-column prop="carNum" label="驾车数量" width="80"> </el-table-column>
         <el-table-column prop="visitorStatus" label="访问状态"> </el-table-column>
@@ -96,6 +97,9 @@
             </el-form-item>
             <el-form-item label="驾车数量" prop="carNum" style="width: 32%;">
               <el-input :disabled="true"  v-model="editForm.carNum" auto-complete="off"></el-input>
+            </el-form-item>
+            <el-form-item label="访客类型" prop="isVip" style="width: 32%;">
+              <el-input :disabled="true"  v-model="editForm.isVip" auto-complete="off"></el-input>
             </el-form-item>
           </div>
           <div class="bookVisitSearchDialog"  style="display: flex;">
@@ -245,6 +249,11 @@
           this.visitTableListData = resultData.list
           for (var i = 0; i < this.visitTableListData.length; i++) {
             this.visitTableListData[i].isCar === '0'? this.visitTableListData[i].isCar= '否':this.visitTableListData[i].isCar= '是'
+            if(this.visitTableListData[i].isVip === 0){
+              this.visitTableListData[i].isVip = '一般访客'
+            }else if(this.visitTableListData[i].isVip === 1){
+              this.visitTableListData[i].isVip = 'Vip'
+            }
             if(this.visitTableListData[i].auditingType === '01'){
               this.visitTableListData[i].auditingType= '个人审核通过'
             }else if(this.visitTableListData[i].auditingType === '02'){
@@ -376,6 +385,7 @@
         console.log('row:',row)
         this.bookVisitorInfomation = true
         this.editForm = Object.assign({},row)
+
         const rowID = row.id
         const res = await reqCheckDetailList(rowID)
           if(res.data.code === 200){

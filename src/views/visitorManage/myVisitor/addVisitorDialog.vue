@@ -5,7 +5,7 @@
   :close-on-click-modal="false"
   :visible.sync="dialogVisibles"
   @close="handleDialogClose"
-  width="1350px">
+  width="1120px">
     <div class="addVisitorDialog">
       <!-- 表单 -->
       <el-form :model="formInline.sanyBussVisitor" ref="editDateForm" :rules="rules"
@@ -75,7 +75,7 @@
           </el-form-item>-->
           <el-form-item label="拜访原因">
             <el-input
-              style="width:1080px;"
+              style="width:905px;"
               type="textarea"
               :rows="4"
               placeholder="请输入原因"
@@ -84,7 +84,7 @@
           </el-form-item>
         <div>
           <el-form-item>
-            <el-button type="primary" @click="handleInputPersonNum" >新增</el-button> &nbsp;&nbsp;
+            <el-button type="primary" style="width: 100px" @click="handleInputPersonNum" >新增</el-button> &nbsp;&nbsp;
             <el-tooltip content="点击新增，增加来访人员列表数量" placement="top">
               <img src="../../../../src/assets/images/imageSize.png" style="vertical-align: middle" alt="">
             </el-tooltip>
@@ -145,8 +145,10 @@
                 <!--isShowIDCard-->
                 <div v-if="isShowIDCard" v-show="item.visitorId===''?true:false" style="color: #F56C6C;text-align: left;position: absolute;top: 60px;left: 8px;" >请输入身份证号</div>
               </td>
-              <td>
-                <el-input v-model="item.carNo" :disabled="formInline.sanyBussVisitor.isCar==='0'?true:false"  placeholder="请输入车牌号"></el-input>
+              <td style="position: relative">
+                <!-- regIsNull:item.carNo===''　&&　isShowCarNo　?true:false -->
+                <el-input v-model="item.carNo" :disabled="formInline.sanyBussVisitor.isCar === '0' ? true : false"  :class="{regIsNull:item.carNo==='' && formInline.sanyBussVisitor.isCar === '1'?true:false}"  placeholder="请输入车牌号" @blur="blurCarNo" @change="regCarNo(item.carNo,index)"></el-input>
+                <div v-show="item.carNo==='' && formInline.sanyBussVisitor.isCar === '1' ? true : false" style="color: #F56C6C;text-align: left;position: absolute;top: 60px;left: 8px;" >请输入车牌号</div>
               </td>
               <!--<td>
                 <el-input v-model="item.countCard" placeholder="二维码次数"></el-input>
@@ -188,7 +190,7 @@
                   @click="handleLookImg(item, index)">查看图片</el-button>
               </td>
               <td>
-                <el-button type="danger" size="mini" :disabled="deleteDisabled" @click="deleteSingleLine(item,index)">删除</el-button>
+                <el-button type="danger" style="width: 80px;height:32px;" size="mini" :disabled="deleteDisabled" @click="deleteSingleLine(item,index)">删除</el-button>
               </td>
             </tr>
           </tbody>
@@ -242,7 +244,7 @@ import {
   fileUploadRequest
 } from '../../../api/businessManageApi'
 import {reqAddVisitorSuccessReq,reqrRegIDCard} from '../../../api'
-import {checkPhone,checkIDCard} from "../../../util/regExp";
+import {checkPhone,checkIDCard,checkCarCard} from "../../../util/regExp";
 
 export default {
   name: 'AddVisitorDialog',
@@ -409,6 +411,10 @@ export default {
     isCarNum(){
       if(this.formInline.sanyBussVisitor.isCar === '0'){
         this.formInline.sanyBussVisitor.carNum = 0
+        //清空车牌号码
+        this.formInline.sanyBussVisitorDetailsList.forEach(item=>{
+          item.carNo = ''
+        })
       }else if(this.formInline.sanyBussVisitor.isCar === '1'){
         this.formInline.sanyBussVisitor.carNum = 1
       }
@@ -473,6 +479,10 @@ export default {
             this.$message({type:'error',message:'身份证号码输入不正确'})
             return
         }
+        if(this.checkCarCardBoolean){
+          this.$message({type:'error',message:'车牌号码输入不正确'})
+          return
+        }
 
         if(this.formInline.sanyBussVisitor.visitingTime === '下午'){
           this.formInline.sanyBussVisitor.visitingTime = '02'
@@ -482,14 +492,34 @@ export default {
         this.dialogVisibles = false
         this.$emit('dialogvisible', this.dialogVisibles)
         // Source：1表示从我的访客信息[全部员工]页面过来的添加信息
+        const {planBeginTime,visitingTime,vistorNum,isCar,isVip,carNum,reason} = this.formInline.sanyBussVisitor
+        const [{visitorName,gender,phone,visitorId,imgUrl,carNo,countCard}] = this.formInline.sanyBussVisitorDetailsList
+
+        console.log('this.sanyBussVisitor:',this.formInline.sanyBussVisitor)
+        console.log('this.sanyBussVisitorDetailsList:',this.formInline.sanyBussVisitorDetailsList)
+
+
         this.formInline.source = 1
-        this.addApplyRequestData(this.formInline)
+        this.addApplyRequestData(
+          planBeginTime,visitingTime,vistorNum,isCar,isVip,carNum,reason,
+          visitorName,gender,phone,visitorId,imgUrl,carNo,countCard,
+          this.formInline.source
+        )
       });
+
 
     },
     // 新增请求数据接口
-    async addApplyRequestData(param) {
-      const res = await addApplyRequest(param);
+    async addApplyRequestData(
+      planBeginTime,visitingTime,vistorNum,isCar,isVip,carNum,reason,
+      visitorName,gender,phone,visitorId,imgUrl,carNo,countCard,
+      source
+    ) {
+      const res = await addApplyRequest(
+        planBeginTime,visitingTime,vistorNum,isCar,isVip,carNum,reason,
+        visitorName,gender,phone,visitorId,imgUrl,carNo,countCard,
+        source
+      );
       // console.log('请求添加接口：',res)
       if (!res || res.data.code!==200) {
         this.$message({
@@ -638,6 +668,14 @@ export default {
       val===''? this.regIsIDCard= true: this.regIsIDCard= false
       val===''? this.isShowIDCard= true: this.isShowIDCard= false
     },
+    blurCarNo(val){
+      // val = val.replace(/\s*/g,"")
+      val===''? this.isShowCarNo= true: this.isShowCarNo= false
+    },
+    //车牌号验证
+    regCarNo(val){
+      this.checkCarCardBoolean = checkCarCard(val,this)
+    },
     ///input聚焦
     focusUserName(val,index){
       // val = ''
@@ -650,9 +688,25 @@ export default {
         this.$message({message:'删除失败,默认保留一行'})
         return
       }
-      this.formInline.sanyBussVisitorDetailsList.splice(index,1)
-      this.formInline.sanyBussVisitor.vistorNum = this.formInline.sanyBussVisitorDetailsList.length
-      // this.formInline.sanyBussVisitor.carNum = this.formInline.sanyBussVisitor.vistorNum
+      this.$confirm('删除该条数据文件, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.$message({
+          type: 'success',
+          message: '删除成功!'
+        });
+        this.formInline.sanyBussVisitorDetailsList.splice(index,1)
+        this.formInline.sanyBussVisitor.vistorNum = this.formInline.sanyBussVisitorDetailsList.length
+        // this.formInline.sanyBussVisitor.carNum = this.formInline.sanyBussVisitor.vistorNum
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消删除'
+        });
+      });
+
     },
     //选择日期控制上午显示
     selectDateValueControl(val){
@@ -681,11 +735,15 @@ export default {
       width: 100%;
     }
     /deep/ .el-select{
-      display:block;width:268px;
+      display:block;width:235px;
     }
     /deep/ .el-input{
-      width: 268px;
+      width: 235px;
     }
+  }
+  /deep/ .el-form-item{
+    margin-left: 0px!important;
+    margin-right: 0px!important;
   }
   &_table{
     table{
@@ -719,16 +777,16 @@ export default {
       width: 120px;
     }
     th:nth-child(3) {
-      width: 80px;
+      width: 60px;
     }
     th:nth-child(4) {
-      width: 150px;
+      width: 130px;
     }
     th:nth-child(5) {
-      width: 200px;
+      width: 180px;
     }
     th:nth-child(6) {
-      width: 150px;
+      width: 115px;
     }
     th:nth-child(7) {
       width: 120px;

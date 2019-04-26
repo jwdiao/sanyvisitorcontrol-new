@@ -60,6 +60,7 @@ export default {
       headers: {
         'X-Requested-With': 'XMLHttpRequest',
          'Content-Type': 'application/json;charset=UTF-8'
+        // 'Content-Type': 'application/x-www-form-urlencoded;chartset=UTF-8'
          // 'Content-Type': 'application/x-www-form-urlencoded'
         // 'Content-Type': 'text/plain'
         // 'Content-Type': 'multipart/form-data'

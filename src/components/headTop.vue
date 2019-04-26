@@ -22,8 +22,8 @@ export default {
 	.header_container{
     background-color: #EFF2F7;
 		height: 60px;
-		display: flex;
-		justify-content: space-between;
+	  display: flex;
+		//justify-content: space-between;
 		align-items: center;
 		padding-left: 20px;
     font-size: 26px;

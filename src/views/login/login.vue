@@ -52,7 +52,7 @@ export default {
     }
   },
   created(){
-
+    this.loginData.password.length>=6 ? this.isClickLogin = false : this.isClickLogin = true
   },
   mounted(){
     this.isClickFun()

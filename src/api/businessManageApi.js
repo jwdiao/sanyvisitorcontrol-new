@@ -43,7 +43,34 @@ export const getVisitorAllByVisitorNameRequest = async (pageNum,pageSize,visitor
     ]
   }
 */
-export const addApplyRequest = async (addApplyParam) => $http.post(`${BASE_URL}/visitorcontrol/SanyBussVisitor/addApplyAndSendHaiKang`, addApplyParam)
+export const addApplyRequest = async (
+  planBeginTime,visitingTime,vistorNum,isCar,isVip,carNum,reason,
+  visitorName,gender,phone,visitorId,imgUrl,carNo,countCard,
+  source
+) => $http.post(`${BASE_URL}/visitorcontrol/SanyBussVisitor/addApplyAndSendHaiKang`,
+  {
+    sanyBussVisitor:{planBeginTime,visitingTime,vistorNum,isCar,isVip,carNum,reason},
+    sanyBussVisitorDetailsList:[{visitorName,gender,phone,visitorId,imgUrl,carNo,countCard}],
+    sanyBussVisitorCarList:[],
+    source
+})
+export const addApplyRequest1 = async (
+ paramsData
+) => $http.post(`${BASE_URL}/visitorcontrol/SanyBussVisitor/addApplyAndSendHaiKang`,
+      paramsData
+)
+
+
+
+
+/*
+* {"sanyBussVisitor":{"planBeginTime":"2019-04-26","visitingTime":"03","vistorNum":1,"isCar":"0","isVip":0,"carNum":0,"reason":"拜访原因"},
+* "sanyBussVisitorDetailsList":[{"visitorName":"djw","gender":"1","phone":"13245455656","visitorId":"123456199912122323","imgUrl":"http://10.19.8.22:8080/fangke/344efdffda2f4b2bae39956a49c9a41credux.png","carNo":"","countCard":""}],
+* "sanyBussVisitorCarList":[],"source":1}
+*
+*
+* */
+
 
 
 /**

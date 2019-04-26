@@ -1,7 +1,7 @@
 <template>
-  <div class="fillcontain layout">
-    <el-container class="fillcontain">
-      <el-header>
+  <div class="fillcontain layout" style="">
+    <div class="fillcontain" style="display:flex;flex-direction: column;">
+      <div class="el-header">
         <el-row class="clear">
           <!-- <img class="layout_logo" src="../../assets/images/layout_logo.jpg" /> -->
 					<div class="manage_title">
@@ -13,15 +13,15 @@
             <span @click = "handleLogout"><img src="../../assets/images/manage_layout.png" />退出</span>
           </div>
         </el-row>
-      </el-header>
-      <el-container>
+      </div>
+      <div class="el-box">
         <Sidebar></Sidebar>
-        <el-main>
+        <div style="padding: 20px;display: flex;flex-direction: column;flex:1;overflow:auto;">
 					<head-top></head-top>
           <router-view></router-view>
-        </el-main>
-      </el-container>
-    </el-container>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -104,13 +104,16 @@ export default {
 			background-color: #192433;
 			padding-left: 25px;box-sizing: border-box;
 			position:absolute;
-			img{width: 26px;vertical-align: middle;margin-right: 8px;font-size: 24px;}
+			img{width: 26px;vertical-align: middle;margin-right: 8px;font-size: 24px;height:26px;}
 			i{vertical-align: middle;color: #5b9fff;font-size: 19px;}
 		}
 }
-/deep/ .el-main{
+/deep/ .el-box{
   box-shadow: 0 2px 12px 0 rgba(0,0,0,.1);
   background-color: #f8f8f8;
   box-shadow: -5px 2px 5px rgba(0, 0, 0, 0.1) inset;
+	flex:1;
+	display: flex;
+	overflow: hidden; 
 }
 </style>
