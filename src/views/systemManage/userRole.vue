@@ -12,7 +12,6 @@
 				:inline="true"
 				:model="formInline"
 				 size="medium"
-
 				ref = "userForm"
 				class="common-form-inline"
 				><!--	:rules="rules"-->
@@ -31,32 +30,20 @@
 					</el-form-item>
 
 					<el-form-item>
-						<el-button type="primary" style="width: 100px" @click="onSubmit">查询</el-button>
+						<el-button class="btnIsBlue" type="primary" style="width: 100px" @click="onSubmit">查询</el-button>
 					</el-form-item>
 				</el-form>
 				<div class="common-table">
-				        <el-table
+          <div v-if="tableData.length===0" class="lazyImg"><span class="lazyText">暂无数据</span></div>
+				        <el-table v-else
 				          :data="tableData"
 				          header-row-class-name="table-header"
-				          height="580"
+				          height="660"
 				          style="width: 100%">
-				          <el-table-column
-				            prop="num"
-				            label="序号"
-				            width="80">
-				          </el-table-column>
-				          <el-table-column
-				            prop="userNo"
-				            label="员工工号">
-				          </el-table-column>
-				          <el-table-column
-				            prop="userName"
-				            label="员工姓名">
-				          </el-table-column>
-				          <el-table-column
-				            prop="roleName"
-				            label="功能角色">
-				          </el-table-column>
+				          <el-table-column prop="num" label="序号" width="80"> </el-table-column>
+				          <el-table-column prop="userNo" label="员工工号"></el-table-column>
+				          <el-table-column prop="userName" label="员工姓名"></el-table-column>
+				          <el-table-column prop="roleName" label="功能角色"></el-table-column>
 						  <el-table-column
 						  prop="address"
 						  label="修改角色">
@@ -81,15 +68,16 @@
 						:total="pageTotal">
 					</el-pagination>
 				</div>
-				<el-dialog title="" :visible.sync="dialogFormVisible">
-					<el-form :model="form">
+        <!--修改角色-->
+				<el-dialog title="用户角色" :visible.sync="dialogFormVisible" width="1000px">
+					<el-form :model="form" style="display: flex;">
 						<el-form-item label="姓名" :label-width="formLabelWidth" >
 							<el-input v-model="form.name" autocomplete="off" :disabled="true"></el-input>
 						</el-form-item>
 						<el-form-item label="工号" :label-width="formLabelWidth" >
 							<el-input v-model="form.workno" autocomplete="off" :disabled="true"></el-input>
 						</el-form-item>
-						<el-form-item label="用户角色" :label-width="formLabelWidth" :disabled="true">
+						<el-form-item label="用户角色" :label-width="formLabelWidth" :disabled="true" >
 							<el-select v-model="roleValue" placeholder="请选择角色" @change="selectRole">
 								<el-option
 								v-for="item in roleOptions"
@@ -102,7 +90,7 @@
 					</el-form>
 					<div slot="footer" class="dialog-footer">
 						<el-button @click="dialogFormVisible = false">取 消</el-button>
-						<el-button type="primary" @click="confirmRevision">确 定</el-button>
+						<el-button class="btnIsBlue" type="primary" @click="confirmRevision">确 定</el-button>
 					</div>
 				</el-dialog>
 			</div>
@@ -314,4 +302,11 @@
 			}
 		}
 	}
+
+    /deep/.el-dialog__footer{
+      border-top: 1px solid #DCDFE6;/*#DCDFE6*/
+    }
+    /deep/ .el-dialog__header{
+      border-bottom: 1px solid #DCDFE6;
+    }
 </style>

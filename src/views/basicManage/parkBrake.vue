@@ -18,17 +18,18 @@
           </el-select>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="onSubmit" style="width: 100px;">查询</el-button>
+          <el-button class="btnIsBlue" type="primary" @click="onSubmit" style="width: 100px;">查询</el-button>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="addDataFun" style="width: 100px;">新增</el-button>
+          <el-button class="btnIsBlue" type="primary" @click="addDataFun" style="width: 100px;">新增</el-button>
         </el-form-item>
         <el-form-item>
           <el-button class="deleteBtn" type="danger" @click="deleteBrakeSubmit" style="width: 100px;background: #ff404a;color: #fff;border: 1px solid #ff404a">删除</el-button>
         </el-form-item>
       </el-form>
       <div class="common-table">
-        <el-table
+        <div v-if="tableDataBrake.length===0" class="lazyImg"><span class="lazyText">暂无数据</span></div>
+        <el-table v-else
           :data="tableDataBrake" stripe
           header-row-class-name="table-header" @selection-change="handleSelectionChange"
           style="width: 100%" height="650">
@@ -45,19 +46,19 @@
           </el-table-column>
         </el-table>
       </div>
-     <!--编辑-->
+     <!--编辑弹窗-->
      <div class="editParkDialog">
        <el-dialog title="闸机信息"
                   :visible.sync="editBrakeDialogVisible"
                   :close-on-click-modal="false"
-                  class="edit-form"
+                  class="edit-form" width="800px"
                   :before-close="editBrakeDialogClose">
          <el-form :v-model="editBrakeForm" label-width="80px" :model="editBrakeArr" ref="editFormItem" :rules="editRules"><!--:rules="editFormRules"-->
            <div class="parkServiceDialog" style="display: flex">
-             <el-form-item label="闸机名称" prop="selectBrakeName">
+             <el-form-item label="闸机名称" prop="selectBrakeName" style="flex: 1">
                <el-input v-model="editBrakeArr.selectBrakeName" auto-complete="off" clearable></el-input>
              </el-form-item>
-             <el-form-item label="闸机类型" prop="selectBrakeTypeName">
+             <el-form-item label="闸机类型" prop="selectBrakeTypeName" style="flex: 1">
                <el-select v-model="selectBrakeTypeName" disabled clearable placeholder="请选择闸机类型" @change="selectBrakeType">
                  <el-option
                    v-for="item in editBrakeTypeOption"
@@ -67,7 +68,7 @@
                  </el-option>
                </el-select>
              </el-form-item>
-             <el-form-item label="归属园区" class="editGuiShuParkerName">
+             <el-form-item label="归属园区" class="editGuiShuParkerName" style="flex: 1">
                <el-select v-model="editGuiShuParkerName" disabled placeholder="请输入归属园区" clearable @change="editSelectGuiShuParker">
                  <el-option
                    v-for="item in editGuiShuParkerOptions"
@@ -82,7 +83,7 @@
          </el-form>
          <div slot="footer" class="dialog-footer">
            <el-button @click.native="editBrakeDialogCancel('editForm')">取消</el-button>
-           <el-button type="primary" @click.native="editBrakeDialogAddFn(editBrakeForm)">提交</el-button>
+           <el-button class="btnIsBlue" type="primary" @click.native="editBrakeDialogAddFn(editBrakeForm)">提交</el-button>
          </div>
        </el-dialog>
      </div>
@@ -90,17 +91,17 @@
      <el-dialog title="园区闸机"
                 :visible.sync="addFormVisible"
                 :close-on-click-modal="false"
-                class="edit-form"
+                class="edit-form" width="800px"
                 :before-close="handleClose">
        <el-form  label-width="80px" ref="addBrakeItem" :model="addBrakeArr" :rules="addRules" >
          <div class="inputText" style="display: flex">
-           <el-form-item label="闸机编号" v-show="false">
+           <el-form-item label="闸机编号" v-show="false" style="flex: 1">
              <el-input  auto-complete="off" placeholder="请输入闸机编号" clearable></el-input>
            </el-form-item>
-           <el-form-item label="闸机名称" prop="brakeName">
+           <el-form-item label="闸机名称" prop="brakeName" style="flex: 1">
              <el-input v-model="addBrakeArr.brakeName"  auto-complete="off" placeholder="请输入闸机名称" clearable></el-input>
            </el-form-item>
-           <el-form-item label="闸机类型" prop="brakeType">
+           <el-form-item label="闸机类型" prop="brakeType" style="flex: 1">
              <el-select v-model="addBrakeArr.brakeType" clearable placeholder="请选择闸机类型" @change="selectBrakeType">
                <el-option
                  v-for="item in brakeTypeOptions"
@@ -124,7 +125,7 @@
        </el-form>
        <div slot="footer" class="dialog-footer">
          <el-button @click.native="handleCancel('editForm')">取消</el-button>
-         <el-button type="primary" @click.native="handleAddDataFn('editForm')">提交</el-button>
+         <el-button class="btnIsBlue" type="primary" @click.native="handleAddDataFn('editForm')">提交</el-button>
        </div>
      </el-dialog>
       <div class="marginTop10 text-right">

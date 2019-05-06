@@ -1,23 +1,14 @@
 <template>
 	<div>
 		<div class="common-table marginTop20">
-				<el-table
+      <div v-if="tableData.length===0" class="lazyImg"><span class="lazyText">暂无数据</span></div>
+				<el-table v-else
 				:data="tableData"
 				header-row-class-name="table-header"
 				style="width: 100%">
-				<el-table-column
-					prop="roleCode"
-					label="序号"
-					width="80">
-				</el-table-column>
-				<el-table-column
-					prop="roleCode"
-					label="角色编号">
-				</el-table-column>
-				<el-table-column
-					prop="roleName"
-					label="角色名称">
-				</el-table-column>
+				<el-table-column	prop="id"	label="序号"	width="80"></el-table-column>
+				<el-table-column	prop="roleCode"	label="角色编号"></el-table-column>
+        <el-table-column	prop="roleName"	label="角色名称"></el-table-column>
 				</el-table>
 		</div>
 		<div class="marginTop10 text-right">
@@ -52,10 +43,10 @@
 		},
 		methods:{
 			handleSizeChange(val){
-				
+
 			},
 			handleCurrentChange(val){
-				
+
 			},
 			async selectRoles(){
 				const res = await http.post('/user/SanyBasicShrUser/selectRoles',{

@@ -10,7 +10,7 @@ import BASE_URL from './global'
  * visitorName 访客姓名
  *  */
 
-export const getVisitorAllByVisitorNameRequest = async (pageNum,pageSize,visitorName) => $http.post(`${BASE_URL}/visitorcontrol/SanyBussVisitor/getVisitorAllByVisitorName`, {
+export const getVisitorAllByVisitorNameRequest = async (pageNum,pageSize,visitorName) => $http.post(`/visitorcontrol/SanyBussVisitor/getVisitorAllByVisitorName`, {
   'pageNum': pageNum,
   'pageSize': pageSize,
   'query': {
@@ -45,18 +45,18 @@ export const getVisitorAllByVisitorNameRequest = async (pageNum,pageSize,visitor
 */
 export const addApplyRequest = async (
   planBeginTime,visitingTime,vistorNum,isCar,isVip,carNum,reason,
-  visitorName,gender,phone,visitorId,imgUrl,carNo,countCard,
+  params,
   source
-) => $http.post(`${BASE_URL}/visitorcontrol/SanyBussVisitor/addApplyAndSendHaiKang`,
+) => $http.post(`/visitorcontrol/SanyBussVisitor/addApplyAndSendHaiKang`,
   {
     sanyBussVisitor:{planBeginTime,visitingTime,vistorNum,isCar,isVip,carNum,reason},
-    sanyBussVisitorDetailsList:[{visitorName,gender,phone,visitorId,imgUrl,carNo,countCard}],
+    sanyBussVisitorDetailsList:params,
     sanyBussVisitorCarList:[],
     source
 })
 export const addApplyRequest1 = async (
  paramsData
-) => $http.post(`${BASE_URL}/visitorcontrol/SanyBussVisitor/addApplyAndSendHaiKang`,
+) => $http.post(`/visitorcontrol/SanyBussVisitor/addApplyAndSendHaiKang`,
       paramsData
 )
 
@@ -77,20 +77,20 @@ export const addApplyRequest1 = async (
  * 上传照片接口
  *
  */
-export const fileUploadRequest = (formData) =>  $http.postFileData(`${BASE_URL}/user/SanyBasicShrUser/fileUploadForVisitors`,formData);
+export const fileUploadRequest = (formData) =>  $http.postFileData(`/user/SanyBasicShrUser/fileUploadForVisitors`,formData);
 
 /**
  * 拍照上传图片
  * @param {*} imgStr图片字符串
  */
-export const fileUploadForOutEmployersPhotoRequest = (imgStr) => $http.post(`${BASE_URL}/user/SanyBasicShrUser/fileUploadForOutEmployersPhoto`,{imgStr:imgStr})
+export const fileUploadForOutEmployersPhotoRequest = (imgStr) => $http.post(`/user/SanyBasicShrUser/fileUploadForOutEmployersPhoto`,{imgStr:imgStr})
 
 /**
  * 确认访问接口
  * visitorId：拜访主表id
  * source：确认访问操作是从哪个页面发起的：1为我的访客信息，2为预约访客查询【门岗】
  */
-export const confirmVisitRequest = async (visitorId, source) => $http.post(`${BASE_URL}/visitorcontrol/SanyBussVisitor/confirmVisit`,{
+export const confirmVisitRequest = async (visitorId, source) => $http.post(`/visitorcontrol/SanyBussVisitor/confirmVisit`,{
   visitorId: visitorId,
   source: source
 })
@@ -99,7 +99,7 @@ export const confirmVisitRequest = async (visitorId, source) => $http.post(`${BA
  * 无效访问接口
  * visitorId：拜访主表id
  */
-export const invalidVisitRequest = async (visitorId) => $http.post(`${BASE_URL}/visitorcontrol/SanyBussVisitor/invalid`,{
+export const invalidVisitRequest = async (visitorId) => $http.post(`/visitorcontrol/SanyBussVisitor/invalid`,{
   visitorId: visitorId
 })
 
@@ -107,7 +107,7 @@ export const invalidVisitRequest = async (visitorId) => $http.post(`${BASE_URL}/
  * 作废接口
  * visitorId：拜访主表id
  */
-export const cancelRequest = async (visitorId) => $http.post(`${BASE_URL}/visitorcontrol/SanyBussVisitor/cancel`,{
+export const cancelRequest = async (visitorId) => $http.post(`/visitorcontrol/SanyBussVisitor/cancel`,{
   visitorId: visitorId
 })
 
@@ -115,7 +115,7 @@ export const cancelRequest = async (visitorId) => $http.post(`${BASE_URL}/visito
  * 手动结束接口
  * visitorId：拜访主表id
  */
-export const manualEndRequest = async (visitorId) => $http.post(`${BASE_URL}/visitorcontrol/SanyBussVisitor/manualEnd`,{
+export const manualEndRequest = async (visitorId) => $http.post(`/visitorcontrol/SanyBussVisitor/manualEnd`,{
   visitorId: visitorId
 })
 
@@ -130,7 +130,7 @@ export const manualEndRequest = async (visitorId) => $http.post(`${BASE_URL}/vis
  * endTime 结束日期
  *  */
 
-export const getVisitorHistoryRequest = async (pageNum,pageSize,startTime,endTime) => $http.post(`${BASE_URL}/visitorcontrol/SanyBussVisitor/getVisitorHistory`, {
+export const getVisitorHistoryRequest = async (pageNum,pageSize,startTime,endTime) => $http.post(`/visitorcontrol/SanyBussVisitor/getVisitorHistory`, {
   pageNum: pageNum,
   pageSize: pageSize,
   query: {
@@ -143,7 +143,7 @@ export const getVisitorHistoryRequest = async (pageNum,pageSize,startTime,endTim
  *
  * visitorId：行id
  *  */
-export const getVisitorDetailsRequest = async (visitorId) => $http.post(`${BASE_URL}/visitorcontrol/SanyBussVisitor/getVisitorDetails`, {visitorId: visitorId})
+export const getVisitorDetailsRequest = async (visitorId) => $http.post(`/visitorcontrol/SanyBussVisitor/getVisitorDetails`, {visitorId: visitorId})
 
 
 
@@ -152,5 +152,5 @@ export const getVisitorDetailsRequest = async (visitorId) => $http.post(`${BASE_
  * 模糊查询被拜访人
  *
  *  */
-export const getNamesByLikeRequest = async (queryStr,queryNo) => $http.post(`${BASE_URL}/visitorcontrol/SanyBussVisitor/getNamesByLike`, {queryStr,queryNo})
+export const getNamesByLikeRequest = async (queryStr,queryNo) => $http.post(`/visitorcontrol/SanyBussVisitor/getNamesByLike`, {queryStr,queryNo})
 

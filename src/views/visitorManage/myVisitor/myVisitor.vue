@@ -10,8 +10,8 @@
         <el-input v-model="visitorName" placeholder="访客姓名"></el-input>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" @click="handleSearchByName" style="width: 100px;">查询</el-button>
-        <el-button type="primary" @click="handleAddVisitor">新增访客</el-button>
+        <el-button class="btnIsBlue" type="primary" @click="handleSearchByName" style="width: 100px;">查询</el-button>
+        <el-button class="btnIsBlue" type="primary" @click="handleAddVisitor">新增访客</el-button>
         <!--<el-button type="primary" @click="handleDownSubPhoto">下发照片</el-button>-->
         <!--<el-button type="primary" @click="handleSendMessages">发送短信</el-button>-->
       </el-form-item>
@@ -21,7 +21,8 @@
     </el-form>
     <!--主列表-->
     <div class="common-table">
-      <el-table header-row-class-name="table-header"  border  style="width: 100%" @selection-change="handleSelectionChange"
+      <div v-if="tableData.length===0" class="lazyImg"><span class="lazyText">暂无数据</span></div>
+      <el-table v-else header-row-class-name="table-header"  border  style="width: 100%" @selection-change="handleSelectionChange"
         :data="tableData">
 
         <!--<el-table-column type="selection" label="选择" width="50"></el-table-column>-->
@@ -149,7 +150,7 @@
                   :before-upload="onBeforeUploadImage"
                   :http-request="UploadImage"
                 >
-                <el-button size="mini" type="primary"
+                <el-button size="mini" type="primary" class="btnIsBlue"
                            v-show="isShowDownSubBtn"
                            @click="handleRepeatUploadPhoto(scope.$index, scope.row)">重新上传 </el-button>&nbsp;
                   <el-tooltip  v-show="isShowDownSubBtn" content="只能上传jpg/png文件，且大小不超过2M" placement="top">

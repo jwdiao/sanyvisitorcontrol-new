@@ -2,7 +2,7 @@
 	<div class="container">
 		<!--:file-list="fileList" -->
 		<div class="fileBox">
-		  <div class="fileBox_left">	
+		  <div class="fileBox_left">
 			<el-form
 			:model="userMessage"
 			size="medium"
@@ -18,7 +18,7 @@
 				<el-input v-model="isQualified"  :disabled="true"></el-input>
 			</el-form-item>-->
 			</el-form>
-		  </div>	
+		  </div>
 			 <div class="upload">
 			 	<el-upload
 			 	class="upload-demo"
@@ -36,7 +36,7 @@
 			 	:http-request="uploadSectionFile"
 			 	enctype="multipart/form-data"
 			 	accept=".jpg,.png">
-				<el-button slot="trigger" size="small" type="primary" class="fileButton" v-show="isFileBtnShow">
+				<el-button slot="trigger" size="small" type="primary" class="fileButton btnIsBlue" v-show="isFileBtnShow">
 				      选择文件
 				</el-button>
 
@@ -240,7 +240,7 @@
 
 <style lang="scss" scoped>
 	.container {
-		
+
 		.upload {
 			width: 100%;
 			margin-top: 20px;
@@ -287,7 +287,7 @@
 			margin:20px auto;
 			background:#FFFFFF;
 			padding: 20px;
-			box-shadow: 0 0 20px rgba(0, 0, 0, 0.1) inset;
+			/*box-shadow: 0 0 20px rgba(0, 0, 0, 0.1) inset;*/
 			/deep/ .el-form.common-form-inline{
 				position:absolute;
 				overflow: hidden;

@@ -30,13 +30,14 @@ import CryptoJS from 'crypto-js'
 import { LoginRequest } from '../../api/loginApi'
 // import {regRoleCodeIsMengang} from '../../api'
 import { mapActions } from 'vuex'
-
-
+import {isInnerIPFn} from '../../util/isInnerIP'
+import axios from 'axios'
 export default {
   name: 'Login',
   data () {
     return {
-      isClickLogin:true,//登录是否点击
+      isInnerIpNum:'',//访问地址ip
+      isClickLogin:false,//登录是否点击
       loginData: {
 				username: '',
 				password: ''
@@ -51,12 +52,14 @@ export default {
 			}
     }
   },
-  created(){
-    this.loginData.password.length>=6 ? this.isClickLogin = false : this.isClickLogin = true
-  },
+  created(){},
   mounted(){
-    this.isClickFun()
+    // 判断是内网，外网  20190505
+    const BaseUrlReq = isInnerIPFn()
+    axios.defaults.baseURL = BaseUrlReq
+    console.log('BaseUrlReq000:',BaseUrlReq)
   },
+
   methods: {
     ...mapActions(['loginAction']),
 		//DES加密 Pkcs7填充方式
@@ -101,7 +104,7 @@ export default {
           this.loginMethods(formData)
 			});
 		},
-    //
+    // 要求密码必须大于6位，，，初始化保存密码时按钮可以点击
     isClickFun(){
       this.loginData.password.length>=6 ? this.isClickLogin = false : this.isClickLogin = true
     },

@@ -15,10 +15,14 @@
         </el-row>
       </div>
       <div class="el-box">
-        <Sidebar></Sidebar>
-        <div style="padding: 20px;display: flex;flex-direction: column;flex:1;overflow:auto;">
-					<head-top></head-top>
-          <router-view></router-view>
+				<Sidebar></Sidebar>
+        <div style="padding: 20px;display: flex;flex-direction: column;flex:1;overflow:auto;background-color: #fff">
+					<div style="height:60px;">
+						<head-top v-if="this.$route.path !== '/index'"></head-top>
+					</div>
+					<div style="flex:1;">
+						<router-view></router-view>
+					</div>
         </div>
       </div>
     </div>
@@ -51,15 +55,15 @@ export default {
 		async logoutHttp(){
       const res = await logOutRequest();
 			if(res && res.data.code === 200){
-			   this.logOutAction(); 
-			   this.$router.push('/login');	
+			   this.logOutAction();
+			   this.$router.push('/login');
 			}else{
 			   this.$message({
 			   	type: 'error',
 			   	message: '服务器错误'
          })
 			}
-			
+
 		}
   }
 }
@@ -114,6 +118,6 @@ export default {
   box-shadow: -5px 2px 5px rgba(0, 0, 0, 0.1) inset;
 	flex:1;
 	display: flex;
-	overflow: hidden; 
+	overflow: hidden;
 }
 </style>

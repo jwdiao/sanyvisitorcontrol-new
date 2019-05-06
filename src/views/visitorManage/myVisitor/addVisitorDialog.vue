@@ -84,7 +84,7 @@
           </el-form-item>
         <div>
           <el-form-item>
-            <el-button type="primary" style="width: 100px" @click="handleInputPersonNum" >新增</el-button> &nbsp;&nbsp;
+            <el-button class="btnIsBlue" type="primary" style="width: 100px" @click="handleInputPersonNum" >新增</el-button> &nbsp;&nbsp;
             <el-tooltip content="点击新增，增加来访人员列表数量" placement="top">
               <img src="../../../../src/assets/images/imageSize.png" style="vertical-align: middle" alt="">
             </el-tooltip>
@@ -156,7 +156,7 @@
               <!--<td>-->
                 <!--<el-input v-model="item.downStatus" placeholder="下发状态"></el-input>-->
               <!--</td>-->
-              <td>
+              <td style="display: flex; align-items: center; justify-content: center; margin-top: 7px">
                 <div @click="handleClickUpload(index)">
                   <el-upload
                     class="upload-demo"
@@ -170,17 +170,21 @@
                     :http-request="UploadImage"
                     :file-list="item.fileList"
                     >
-                      <div  v-show="!item.imgUrl"><el-button size="small" type="primary">点击上传</el-button>&nbsp;&nbsp;
-                        <el-tooltip content="只能上传jpg/png文件，且大小不超过2M" placement="top">
-                          <img src="./images/imageSize.png" style="vertical-align: middle" alt="">
-                        </el-tooltip>
+                      <div  v-show="!item.imgUrl">
+                        <el-button size="small" type="primary" class="btnIsBlue">点击上传</el-button>&nbsp;&nbsp;
+
                       </div>
-                      <div v-show="item.imgUrl"><el-button size="small" type="primary" >重新上传</el-button>&nbsp;&nbsp;
-                        <el-tooltip content="只能上传jpg/png文件，且大小不超过2M" placement="top">
+                      <div v-show="item.imgUrl">
+                        <el-button size="small" type="primary" class="btnIsBlue" >重新上传</el-button>&nbsp;&nbsp;
+                        <!--<el-tooltip content="只能上传jpg/png文件，且大小不超过2M" placement="top">
                           <img src="./images/imageSize.png" style="vertical-align: middle" alt="">
-                        </el-tooltip></div>
+                        </el-tooltip>-->
+                      </div>
                   </el-upload>
                 </div>
+                <el-tooltip content="只能上传jpg/png文件，且大小不超过2M" placement="top">
+                  <img src="./images/imageSize.png" style="vertical-align: middle" alt="">
+                </el-tooltip>
               </td>
               <td>
                 <el-button
@@ -220,7 +224,7 @@
     </div>
     <span slot="footer" class="dialog-footer">
       <el-button @click="handleDialogCancle">取 消</el-button>
-      <el-button type="primary" @click="handleDialogConfirm">确 定</el-button>
+      <el-button class="btnIsBlue" type="primary" @click="handleDialogConfirm">确 定</el-button>
     </span>
 </el-dialog>
 <!-- 查看图片 -->
@@ -280,7 +284,7 @@ export default {
       }],
       isVip:'一般访客',
       isVipOptions: [{ // 访客是否VIP
-        label: 'VIP',
+        label: 'Vip',
         value: '1',
       }, {
         label: '一般访客',
@@ -493,8 +497,8 @@ export default {
         this.$emit('dialogvisible', this.dialogVisibles)
         // Source：1表示从我的访客信息[全部员工]页面过来的添加信息
         const {planBeginTime,visitingTime,vistorNum,isCar,isVip,carNum,reason} = this.formInline.sanyBussVisitor
-        const [{visitorName,gender,phone,visitorId,imgUrl,carNo,countCard}] = this.formInline.sanyBussVisitorDetailsList
-
+        // const [{visitorName,gender,phone,visitorId,imgUrl,carNo,countCard}] = this.formInline.sanyBussVisitorDetailsList
+          var params =   this.formInline.sanyBussVisitorDetailsList
         console.log('this.sanyBussVisitor:',this.formInline.sanyBussVisitor)
         console.log('this.sanyBussVisitorDetailsList:',this.formInline.sanyBussVisitorDetailsList)
 
@@ -502,7 +506,7 @@ export default {
         this.formInline.source = 1
         this.addApplyRequestData(
           planBeginTime,visitingTime,vistorNum,isCar,isVip,carNum,reason,
-          visitorName,gender,phone,visitorId,imgUrl,carNo,countCard,
+          params,
           this.formInline.source
         )
       });
@@ -512,12 +516,14 @@ export default {
     // 新增请求数据接口
     async addApplyRequestData(
       planBeginTime,visitingTime,vistorNum,isCar,isVip,carNum,reason,
-      visitorName,gender,phone,visitorId,imgUrl,carNo,countCard,
+      // visitorName,gender,phone,visitorId,imgUrl,carNo,countCard,
+      params,
       source
     ) {
       const res = await addApplyRequest(
         planBeginTime,visitingTime,vistorNum,isCar,isVip,carNum,reason,
-        visitorName,gender,phone,visitorId,imgUrl,carNo,countCard,
+        // visitorName,gender,phone,visitorId,imgUrl,carNo,countCard,
+        params,
         source
       );
       // console.log('请求添加接口：',res)
@@ -551,6 +557,7 @@ export default {
         vistorNum: 1, // 来访人数量
         isCar: '0', // 是否驾车
         carNum: 0, // 驾车数量
+        isVip:0,//是否VIP
         reason: '', // 拜访原因
         planBeginTime: '', // 拜访开始时间
         // planEndTime: '', // 拜访结束时间

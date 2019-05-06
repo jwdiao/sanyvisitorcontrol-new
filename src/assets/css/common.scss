@@ -70,7 +70,9 @@ html,body{
 }
 .text-center{text-align: center}
 .text-right{text-align: right}
-
+.btnIsBlue{
+  background-color: #5a8cff !important;
+}
 .padding20{
     padding:20px;
 }
@@ -104,3 +106,20 @@ html,body{
     }
   }
 body{font-size: 12px;}
+
+.lazyImg{
+  width: 300px;
+  height: 300px;
+  margin: 0 auto;
+  margin-top: 200px;
+  background: url("../../assets/images/noWeb.png") no-repeat;
+  background-size: 100% 75%;
+  position: relative;
+}
+.lazyText{
+  font-size: 18px;
+  position: absolute;
+  top: 200px;
+  left: 120px;
+  color: #8497AE;
+}

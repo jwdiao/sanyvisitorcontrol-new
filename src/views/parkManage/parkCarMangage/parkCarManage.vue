@@ -19,13 +19,13 @@
 					<el-input v-model="parkCarManageCarNum" placeholder="请输入车牌号"></el-input>
 				</el-form-item>
 				<el-form-item>
-					<el-button type="primary" @click="parkCarManageOnSubmit" style="width: 100px;">查询</el-button>
+					<el-button class="btnIsBlue" type="primary" @click="parkCarManageOnSubmit" style="width: 100px;">查询</el-button>
 				</el-form-item>
 				<el-form-item>
-					<el-button type="primary" @click="uploadTemplateParkCarManage" style="width: 100px;">下载模板</el-button>
+					<el-button class="btnIsBlue" type="primary" @click="uploadTemplateParkCarManage" style="width: 100px;">下载模板</el-button>
 				</el-form-item>
 				<el-form-item>
-					<el-button type="primary" @click="newAddCarsSubmit">新增车辆</el-button>
+					<el-button class="btnIsBlue" type="primary" @click="newAddCarsSubmit">新增车辆</el-button>
 				</el-form-item>
 				<el-form-item>
 					<el-upload id="carsForm" style="display:inline-block;background:none" :limit="1"
@@ -33,8 +33,8 @@
 										 :on-change="beforeUpload" :on-exceed="handleExceed"
 										 :on-remove="removeDoc"
 										 :http-request="uploadSectionFile" :auto-upload="false">
-						<el-button id="upload-document" slot="trigger" type="primary" v-show="isShow">车辆导入</el-button>
-						<el-button style="width: 100px;" type="primary" @click="submitCarsUpload" v-show="!isShow">确定</el-button>
+						<el-button class="btnIsBlue" id="upload-document" slot="trigger" type="primary" v-show="isShow">车辆导入</el-button>
+						<el-button class="btnIsBlue" style="width: 100px;" type="primary" @click="submitCarsUpload" v-show="!isShow">确定</el-button>
 					</el-upload>
 
 				</el-form-item>
@@ -42,12 +42,13 @@
 					<el-button class="deleteBtn" type="danger" @click="deleteCarsSubmit" style="width: 100px;background: #ff404a;color: #fff;border: 1px solid #ff404a">删除</el-button>
 				</el-form-item>
 				<el-form-item>
-					<el-button type="primary" @click="takeEffectCars" style="width: 100px;color: #fff;">批量生效</el-button>
+					<el-button class="btnIsBlue" type="primary" @click="takeEffectCars" style="width: 100px;color: #fff;">批量生效</el-button>
 				</el-form-item>
 			</el-form>
 	  </div>
     <!--主列表-->
      <div class="common-table" >
+       <div v-if="carTableData.length===0" class="lazyImg"><span class="lazyText">暂无数据</span></div>
       <el-table :data="carTableData" fit align="left" stripe header-row-class-name="table-header" style="width: 100%;" height="550"
                 ref="multipleTable" tooltip-effect="dark"
                 @selection-change="handleSelectionChange">
@@ -142,7 +143,7 @@
         </el-form>
         <div slot="footer" class="dialog-footer">
           <el-button @click.native="editParkDialogCancel('editForm')">取消</el-button>
-          <el-button type="primary" @click.native="editParkDialogAddFn(editForm)">提交</el-button>
+          <el-button class="btnIsBlue" type="primary" @click.native="editParkDialogAddFn(editForm)">提交</el-button>
         </div>
       </el-dialog>
     </div>
@@ -174,7 +175,7 @@
           </div>
           <div class="parkServiceDialog" style="display: flex;">
             <el-form-item label="员工姓名" prop="addworkname" style="width: 48%;">
-              <el-input v-model="addCarsContent.addworkname" disabled auto-complete="off" clearable placeholder="输入工号生成"></el-input>
+              <el-input v-model="addCarsContent.addworkname" disabled auto-complete="off" clearable placeholder="输入员工工号自动生成"></el-input>
             </el-form-item>
 
             <el-form-item label="车牌类型" prop="addCarType" class="park-address-item" style="width: 48%;">
@@ -190,8 +191,8 @@
           </div>
           <div class="parkServiceDialog" style="display: flex;">
             <!--20190426增加手机号显示，但是有员工是没有手机号的，何正飞说不用管-->
-            <el-form-item label="员工手机号" prop="phoneNo" style="width: 48%;">
-              <el-input v-model="addCarsContent.phoneNo" disabled auto-complete="off" clearable placeholder="输入工号生成"></el-input>
+            <el-form-item label="手机号" prop="phoneNo" style="width: 48%;">
+              <el-input v-model="addCarsContent.phoneNo" disabled auto-complete="off" clearable placeholder="输入员工工号自动生成"></el-input>
             </el-form-item>
           </div>
           <div class="parkServiceDialog" style="display: flex;width: 100%;">
@@ -202,7 +203,7 @@
         </el-form>
         <div slot="footer" class="dialog-footer">
           <el-button @click.native="NewParkDialogCancel('editForm')">取消</el-button>
-          <el-button type="primary" @click.native="NewParkDialogAddFn()">提交</el-button>
+          <el-button class="btnIsBlue" type="primary" @click.native="NewParkDialogAddFn()">提交</el-button>
         </div>
       </el-dialog>
     </div>
@@ -877,9 +878,22 @@
     top:25px;
     left: 0px;
   }
-
+  /deep/ .el-form .el-form-item{
+    margin-left: 15px;
+    margin-right: 0px;
+  }
+  .parkServiceDialog .el-form-item .el-form-item__content{
+    margin-left: 100px!important;
+  }
+  .parkServiceDialog .el-form-item .el-form-item__label{
+    width: 100px!important;
+  }
+  .tempVisitInput_employerName{
+    height:200px;position:absolute;top:40px;z-index:20;border:1px solid #c0c4cc;width:216px;color:#606266;padding:0 10px;
+    background-color:#fff;
+  }
 </style>
-<style>
+<!--<style>
   .parkServiceDialog .el-form-item .el-form-item__content{
     margin-left: 100px!important;
   }
@@ -891,7 +905,7 @@
     background-color:#fff;
   }
 
-</style>
+</style>-->
 
 
 

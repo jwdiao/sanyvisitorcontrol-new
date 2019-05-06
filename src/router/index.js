@@ -38,7 +38,8 @@ const router = new Router({
         {
           path: '/index',
           name: 'index',
-          component: () => import('../views/index/index.vue') // 首页
+          component: () => import('../views/index/index.vue'), // 首页
+          meta: ['首页']
         },
         {
           path: '/nopage',

@@ -27,11 +27,12 @@
               </el-form-item>
 
               <el-form-item>
-                <el-button type="primary" style="width: 100px" @click="onSubmit">查询</el-button>
+                <el-button class="btnIsBlue" type="primary" style="width: 100px" @click="onSubmit">查询</el-button>
               </el-form-item>
           </el-form>
           <div class="common-table">
-            <el-table
+            <div v-if="tableData.length===0" class="lazyImg"><span class="lazyText">数据加载中</span></div>
+            <el-table v-else
               :data="tableData"
               header-row-class-name="table-header"
 							height="580"

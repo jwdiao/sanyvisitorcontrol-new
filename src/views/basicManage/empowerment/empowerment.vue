@@ -11,11 +11,12 @@
         <el-input v-model="organizatioName" placeholder="请输入组织名称"></el-input>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" style="width: 100px" @click="onSubmit">查询</el-button>
+        <el-button class="btnIsBlue" type="primary" style="width: 100px" @click="onSubmit">查询</el-button>
       </el-form-item>
     </el-form>
     <div class="common-table">
-      <el-table header-row-class-name="table-header" stripe style="width: 100%" ref="multipleTable" tooltip-effect="dark" height="650"
+      <div v-if="empowermentTableData.length===0" class="lazyImg"><span class="lazyText">暂无数据</span></div>
+      <el-table v-else header-row-class-name="table-header" stripe style="width: 100%" ref="multipleTable" tooltip-effect="dark" height="650"
                 @selection-change="handleSelectionChange"
                 :data="empowermentTableData">
         <el-table-column type="index" label="序号" width="100"></el-table-column>
@@ -33,14 +34,14 @@
                  :visible.sync="addFormVisible"
                  :close-on-click-modal="false"
 								 @close="closeDialog"
-                 class="edit-form"
+                 class="edit-form" width="800px"
                  :before-close="handleClose">
         <el-form  label-width="80px" ref="editForm"><!--:v-model="editForm"-->
           <div class="inputText" style="display: flex">
-            <el-form-item label="园区编号" prop="parkCode">
+            <el-form-item label="园区编号" prop="parkCode" style="flex: 1">
               <el-input v-model="editForm.parkCode" :disabled="true" auto-complete="off" placeholder="请输入园区编号" clearable></el-input>
             </el-form-item>
-            <el-form-item label="园区名称" prop="parkName">
+            <el-form-item label="园区名称" prop="parkName" style="flex: 1">
               <el-input v-model="editForm.parkName" :disabled="true" auto-complete="off" placeholder="请输入园区名称" clearable></el-input>
             </el-form-item>
           </div>
@@ -66,7 +67,7 @@
         </el-form>
         <div slot="footer" class="dialog-footer">
           <el-button @click.native="handleCancel('editForm')">取消</el-button>
-          <el-button type="primary" @click.native="handleGivePowerFn('editForm')">提交</el-button>
+          <el-button class="btnIsBlue" type="primary" @click.native="handleGivePowerFn('editForm')">提交</el-button>
         </div>
       </el-dialog>
     </div>

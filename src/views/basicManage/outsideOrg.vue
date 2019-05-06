@@ -34,27 +34,15 @@
                 <el-input v-model="formInline.orgText"></el-input>
               </el-form-item>
               <el-form-item>
-                <el-button type="primary" style="width: 100px" @click="onSubmit">保存</el-button>
+                <el-button class="btnIsBlue" type="primary" style="width: 100px" @click="onSubmit">保存</el-button>
               </el-form-item>
           </el-form>
           <div class="common-table">
-            <el-table
-              :data="tableData"
-              header-row-class-name="table-header"
-              style="width: 100%">
-              <el-table-column
-                type="index"
-                label="序号"
-                width="120">
-              </el-table-column>
-              <el-table-column
-                prop="orgId"
-                label="机构编码">
-              </el-table-column>
-              <el-table-column
-                prop="orgText"
-                label="机构名称">
-              </el-table-column>
+            <div v-if="tableData.length===0" class="lazyImg"><span class="lazyText">暂无数据</span></div>
+            <el-table v-else :data="tableData" header-row-class-name="table-header" style="width: 100%">
+              <el-table-column type="index"  label="序号" width="120"> </el-table-column>
+              <el-table-column prop="orgId" label="机构编码"></el-table-column>
+              <el-table-column prop="orgText" label="机构名称"> </el-table-column>
               <el-table-column label="操作" width="200">
                 <template slot-scope="scope">
                   <el-button size="mini" type="text"
@@ -102,7 +90,7 @@
         </el-form>
         <div slot="footer" class="dialog-footer">
           <el-button @click.native="editOrgInformationDialogCancel('editForm')">取消</el-button>
-          <el-button type="primary" @click.native="editOrgInformationDialogAddFn(editOrgInformationForm)">提交</el-button>
+          <el-button class="btnIsBlue" type="primary" @click.native="editOrgInformationDialogAddFn(editOrgInformationForm)">提交</el-button>
         </div>
       </el-dialog>
     </div>

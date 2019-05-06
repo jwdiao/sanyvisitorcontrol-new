@@ -1,9 +1,6 @@
 <template>
   <div class="container">
    <!-- <p class="common-breadcrumb">外部员工管理</p> -->
-
-
-
         <div class="treeBox" >
           <el-tree
             :data="dataTree"
@@ -43,10 +40,10 @@
                 </el-select>
               </el-form-item>
               <el-form-item>
-                <el-button type="primary" style="width: 100px;" @click="onSubmit">查询</el-button>
+                <el-button class="btnIsBlue" type="primary" style="width: 100px;" @click="onSubmit">查询</el-button>
               </el-form-item>
               <el-form-item>
-                <el-button type="primary" @click="uploadTemplate">下载模板</el-button>
+                <el-button class="btnIsBlue" type="primary" @click="uploadTemplate">下载模板</el-button>
               </el-form-item>
               <el-form-item>
                 <!--<el-button type="primary">数据导入</el-button>-->
@@ -55,8 +52,8 @@
                            :on-change="beforeUpload" :on-exceed="handleExceed"
                            :on-remove="removeDoc"
                            :http-request="uploadSectionFile" :auto-upload="false">
-                  <el-button id="upload-document" slot="trigger" type="primary" v-show="isShow">数据导入</el-button>
-                  <el-button style="width: 100px;" type="primary" @click="submitUpload" v-show="!isShow">确定</el-button>
+                  <el-button class="btnIsBlue" id="upload-document" slot="trigger" type="primary" v-show="isShow">数据导入</el-button>
+                  <el-button class="btnIsBlue" style="width: 100px;" type="primary" @click="submitUpload" v-show="!isShow">确定</el-button>
                 </el-upload>
 
               </el-form-item>
@@ -68,48 +65,33 @@
                            :on-remove="removeImages"
                            :before-upload="onBeforeUploadImage"
                            :http-request="uploadSectionImageFile" :auto-upload="false">
-                  <el-button id="upload-images" slot="trigger" type="primary" v-show="isShowImage">照片导入</el-button>
-                  <el-button style="width: 100px;" type="primary" @click="submitUploadImages" v-show="!isShowImage">确定</el-button>
+                  <el-button class="btnIsBlue" id="upload-images" slot="trigger" type="primary" v-show="isShowImage">照片导入</el-button>
+                  <el-button class="btnIsBlue" style="width: 100px;" type="primary" @click="submitUploadImages" v-show="!isShowImage">确定</el-button>
                 </el-upload>
 
               </el-form-item>
               <el-form-item>
-                <el-button type="primary" @click="handleAdd" style="width: 100px;">新增</el-button>
+                <el-button class="btnIsBlue" type="primary" @click="handleAdd" style="width: 100px;">新增</el-button>
               </el-form-item>
               <el-form-item>
                 <el-button type="danger" style="background: #ff404a;width: 100px;" @click="deleteContentItemSubmit">删除</el-button>
               </el-form-item>
               <el-form-item>
-                <el-button type="primary" @click="batchAuthoriaztion">批量授权</el-button>
+                <el-button class="btnIsBlue" type="primary" @click="batchAuthoriaztion">批量授权</el-button>
               </el-form-item>
           </el-form>
           <div class="common-table">
-            <el-table stripe height="590px"
+            <div v-if="tableData.length===0" class="lazyImg"><span class="lazyText">暂无数据</span></div>
+            <el-table v-else stripe height="570px"
               :data="tableData"
               header-row-class-name="table-header" @selection-change="handleSelectionChangeDelete"
-              style="width: 100%">
+            style="width: 100%">
               <el-table-column type="selection" label="选择" width="80"></el-table-column>
-              <el-table-column
-                type="index"
-                label="序号"
-                width="80">
-              </el-table-column>
-              <el-table-column
-                prop="sanyBasicShrOrg.orgText"
-                label="归属部门">
-              </el-table-column>
-              <el-table-column
-                prop="userName"
-                label="姓名">
-              </el-table-column>
-              <el-table-column
-                prop="telephone"
-                label="电话号码">
-              </el-table-column>
-              <el-table-column
-                prop="idCard" width="200"
-                label="身份证号">
-              </el-table-column>
+              <el-table-column type="index" label="序号" width="80"></el-table-column>
+              <el-table-column prop="sanyBasicShrOrg.orgText" label="归属部门"> </el-table-column>
+              <el-table-column prop="userName" label="姓名"> </el-table-column>
+              <el-table-column prop="telephone" label="电话号码"></el-table-column>
+              <el-table-column prop="idCard" width="200" label="身份证号"></el-table-column>
               <!--0325将下发状态更改为是否授权-->
               <el-table-column prop="isFa" label="是否授权">
                 <template slot-scope="scope">
@@ -253,9 +235,9 @@
                 :before-remove="onBeforeRemoveImage"
                 :on-exceed="handleExceedUpload" :limit="1"
               >
-                <div><el-button size="small" type="primary" v-show="formDataAdd.photo==='本地上传'" >点击本地上传</el-button></div>
+                <div><el-button class="btnIsBlue" size="small" type="primary" v-show="formDataAdd.photo==='本地上传'" >点击本地上传</el-button></div>
               </el-upload>
-              <div><el-button style="position: absolute;top: 38px; left: 0px;"
+              <div><el-button style="position: absolute;top: 38px; left: 0px;" class="btnIsBlue"
                               size="small" type="primary" v-show="formDataAdd.photo==='拍照上传'"
                               @click="handlePhotoUpload()">点击拍照上传</el-button></div>
              <!-- <el-dialog :visible.sync="dialogVisibleBendiUpload">
@@ -280,7 +262,7 @@
         </el-form>
         <div slot="footer" class="dialog-footer">
           <el-button @click.native="editOuterWorkerManageCancel()">取消</el-button>
-          <el-button type="primary" @click.native="editOuterWorkerManageDialogAddFn(outWorkerEditForm)">提交</el-button>
+          <el-button class="btnIsBlue" type="primary" @click.native="editOuterWorkerManageDialogAddFn(outWorkerEditForm)">提交</el-button>
         </div>
       </el-dialog>
     </div>
@@ -331,7 +313,7 @@
           <el-form-item label="出生日期">
             <el-date-picker
               v-model="selectDateValue" disabled
-              type="date" placeholder="请选择出生年月"
+              type="date" placeholder="出生年月日"
               format="yyyy-MM-dd"
               value-format="yyyy-MM-dd"></el-date-picker>
           </el-form-item>
@@ -376,9 +358,9 @@
                 :on-remove="handlePictureCardRemove"
                 :on-exceed="handleExceedUpload" :limit="1"
               >
-                <div><el-button size="small" type="primary" v-show="formDataAdd.photo==='本地上传'" >点击本地上传</el-button></div>
+                <div><el-button class="btnIsBlue" size="small" type="primary" v-show="formDataAdd.photo==='本地上传'" >点击本地上传</el-button></div>
               </el-upload>
-              <div><el-button style="position: absolute;top: 38px; left: 0px;"
+              <div><el-button style="position: absolute;top: 38px; left: 0px;" class="btnIsBlue"
                 size="small" type="primary" v-show="formDataAdd.photo==='拍照上传'"
                 @click="handlePhotoUpload()">点击拍照上传</el-button></div>
             </div>
@@ -408,7 +390,7 @@
       </div>
       <span slot="footer" class="dialog-footer">
       <el-button @click="handleDialogCancle">取 消</el-button>
-      <el-button type="primary" @click="handleDialogConfirm">确 定</el-button>
+      <el-button class="btnIsBlue" type="primary" @click="handleDialogConfirm">确 定</el-button>
     </span>
     </el-dialog>
     <!--拍照上传弹窗start-->
@@ -430,7 +412,7 @@
         </div>
         <span slot="footer" class="dialog-footer">
           <el-button @click="dialogVisible = false">取 消</el-button>
-          <el-button type="primary" @click="handleConfirmCamera">确 定</el-button>
+          <el-button class="btnIsBlue" type="primary" @click="handleConfirmCamera">确 定</el-button>
         </span>
       </el-dialog>
     </div>
@@ -621,6 +603,7 @@ export default {
           meetDemand: '' // 满足要求
         },
         tableData: [], //主页数据列表数组
+        newData:[],
         currentPage: 1,
         pageSize:20,
         total:0,
@@ -642,8 +625,16 @@ export default {
       var dataname = ''
       this.getSelectParkItem(dataname)
       this.roleCode = sessionStorage.getItem('roleCode')
-    },
 
+    },
+    watch:{
+      tableData:{
+        deep:true,
+        handler: (tableData) => {
+          console.log('newDataVal:',tableData)
+        }
+      }
+    },
     methods: {
 
       // flag不是1的树状菜单被禁用
@@ -678,7 +669,9 @@ export default {
       async getSearchListFun(isImgUrl,imgVerify,userName,orgId,pageNum,pageSize){
         const res = await reqSearchList(isImgUrl,imgVerify,userName,orgId,pageNum,pageSize)
         if(res.data.code === 200){
-          this.tableData = res.data.data.list
+          this.$nextTick(()=>{
+            this.tableData = res.data.data.list
+          })
           this.total = res.data.data.total
           console.log('主列表返回的list:',this.tableData)
         }
@@ -1611,7 +1604,7 @@ export default {
 			padding-top:20px
 		}
 		.right_container{
-			flex:1;
+      -webkit-box-flex:1;
       /deep/ .el-form .el-form-item{
         margin-left: 15px;
       }

@@ -18,15 +18,26 @@ export default {
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
-<style lang="scss">
+<style lang="scss" scoped>
 	.header_container{
-    background-color: #EFF2F7;
+    /*background-color: #EFF2F7;*/
+    background-color: #DEE3E9;
 		height: 60px;
 	  display: flex;
 		//justify-content: space-between;
 		align-items: center;
 		padding-left: 20px;
     font-size: 26px;
+    /deep/ .el-breadcrumb{
+      /deep/ .el-breadcrumb__item{
+        /deep/ .el-breadcrumb__inner{
+          font-size: 14px;
+          font-weight: bold !important;
+          color: #33475d !important;
+        }
+      }
+    }
+
 	}
 	.avator{
 		width:36px;
@@ -37,4 +48,6 @@ export default {
 	.el-dropdown-menu__item{
         text-align: center;
     }
+
+
 </style>

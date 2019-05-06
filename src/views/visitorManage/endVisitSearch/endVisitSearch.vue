@@ -20,12 +20,13 @@
         ></el-date-picker>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" style="width: 100px" @click="onSubmit">查询</el-button>
+        <el-button class="btnIsBlue" type="primary" style="width: 100px" @click="onSubmit">查询</el-button>
       </el-form-item>
     </el-form>
     <!--主列表-->
     <div class="common-table">
-      <el-table header-row-class-name="table-header" stripe  border  style="width: 100%" height="650"
+      <div v-if="tableData.length===0" class="lazyImg"><span class="lazyText">暂无数据</span></div>
+      <el-table v-else header-row-class-name="table-header" stripe  border  style="width: 100%" height="650"
                 ref="multipleTable" tooltip-effect="dark"
                 @selection-change="handleSelectionChange"
                 :data="tableData">
@@ -36,13 +37,13 @@
         <el-table-column prop="endTime" label="实际结束时间"  width="160">  </el-table-column>
         <el-table-column prop="vistorNum" label="访客人数" width="100">  </el-table-column>
         <!--<el-table-column prop="isVip" label="访客类型" width="100">  </el-table-column>-->
-        <el-table-column prop="isCar" label="是否驾车" width="120"> </el-table-column>
-        <el-table-column prop="carNum" label="驾车数量" width="120"> </el-table-column>
+        <el-table-column prop="isCar" label="是否驾车" width="100"> </el-table-column>
+        <el-table-column prop="carNum" label="驾车数量" width="100"> </el-table-column>
         <el-table-column prop="visitorStatus" label="访问状态"> </el-table-column>
         <!--<el-table-column prop="auditingType" label="审核通过类型"> </el-table-column>-->
         <!--<el-table-column prop="recordType" label="录入类型"> </el-table-column>-->
-        <el-table-column prop="operaterCode" label="操作人工号"> </el-table-column>
-        <el-table-column prop="operaterName" label="操作人姓名"> </el-table-column>
+        <el-table-column prop="operaterCode" label="操作人工号" width="120"> </el-table-column>
+        <el-table-column prop="operaterName" label="操作人姓名" width="120"> </el-table-column>
         <el-table-column prop="che" label="查看">
           <template slot-scope="scope">
             <el-button size="mini" type="text"
@@ -51,47 +52,48 @@
         </el-table-column>
       </el-table>
     </div>
+    <!--查看信息-->
     <div class="endVisitSearch">
       <el-dialog title="访客信息"
                  :visible.sync="visitorInfomation"
                  :close-on-click-modal="false"
-                 class="edit-form"
+                 class="edit-form" width="1000px"
                  :before-close="handleClose">
-        <el-form :v-model="editForm" label-width="80px" ref="editForm"><!--:v-model="editForm"-->
+        <el-form :v-model="editForm" ref="editForm"><!--:v-model="editForm"-->
           <div class="endVisitSearchDialog" style="display: flex;">
-            <el-form-item label="到访日期" prop="planBeginTime">
+            <el-form-item label="到访日期" prop="planBeginTime" style="flex: 1">
               <el-input  v-model="editForm.planBeginTime" :disabled="true" auto-complete="off"></el-input>
             </el-form-item>
-            <el-form-item label="拜访时间" prop="visitingTime">
+            <el-form-item label="拜访时间" prop="visitingTime" style="flex: 1">
               <el-input v-model="editForm.visitingTime" :disabled="true" auto-complete="off"></el-input>
             </el-form-item>
-            <el-form-item label="来访人员数量" prop="vistorNum">
+            <el-form-item label="来访人员数量" prop="vistorNum" style="flex: 1">
               <el-input v-model="editForm.vistorNum" :disabled="true" auto-complete="off"></el-input>
             </el-form-item>
           </div>
           <div class="endVisitSearchDialog" style="display: flex;">
-            <el-form-item label="实际开始时间" prop="beginTime">
+            <el-form-item label="实际开始时间" prop="beginTime" style="flex: 1">
               <el-input  v-model="editForm.beginTime" :disabled="true" auto-complete="off"></el-input>
             </el-form-item>
-            <el-form-item label="实际结束时间" prop="endTime">
+            <el-form-item label="实际结束时间" prop="endTime" style="flex: 1">
               <el-input v-model="editForm.endTime" :disabled="true" auto-complete="off"></el-input>
             </el-form-item>
 
-            <el-form-item label="访客类型" prop="visitorTableDataIsVip">
+            <el-form-item label="访客类型" prop="visitorTableDataIsVip" style="flex: 1">
               <el-input  v-model="visitorTableDataIsVip" :disabled="true" auto-complete="off"></el-input>
             </el-form-item>
           </div>
           <div class="endVisitSearchDialog" style="display: flex;">
-            <el-form-item label="是否驾车" prop="isCar">
+            <el-form-item label="是否驾车" prop="isCar" style="width: 33.3%">
               <el-input v-model="editForm.isCar" :disabled="true" auto-complete="off"></el-input>
             </el-form-item>
-            <el-form-item label="驾车数量" prop="carNum">
+            <el-form-item label="驾车数量" prop="carNum" style="width: 33.3%">
               <el-input  v-model="editForm.carNum" :disabled="true" auto-complete="off"></el-input>
             </el-form-item>
           </div>
 
           <div class="endVisitSearchDialog" style="display: flex;">
-            <el-form-item label="拜访原因" prop="visitReason" style="width: 94%;">
+            <el-form-item label="拜访原因" prop="visitReason" style="width: 100%;">
               <el-input class="visitReasonTextarea" disabled
                         type="textarea" :rows="2" placeholder="请输入拜访原因"
                         v-model="visitReason">
@@ -135,6 +137,7 @@
         </div>
       </el-dialog>
     </div>
+    <!--查看图片-->
     <div class="checkPictureInformation">
       <el-dialog title="图片信息"
                  :visible.sync="checkPictureInformationVisible"

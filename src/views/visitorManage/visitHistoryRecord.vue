@@ -25,25 +25,25 @@
         </el-date-picker>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" @click="onSearch">数据查询</el-button>
+        <el-button class="btnIsBlue" type="primary" @click="onSearch">查询</el-button>
       </el-form-item>
     </el-form>
-    <div class="common-table">
-      <el-table header-row-class-name="table-header"  border  style="width: 100%"
-        :data="tableData">
+    <div class="common-table" style="text-align: center">
+      <div v-if="tableData.length===0" class="lazyImg"><span class="lazyText">暂无数据</span></div>
+      <el-table v-else  header-row-class-name="table-header"  border  style="width: 100%" :data="tableData">
         <el-table-column type="index" label="序号" width="50" align="left" header-align="left"></el-table-column>
         <el-table-column prop="planBeginTime" label="到访日期" width="180" align="left" header-align="left">  </el-table-column>
-        <el-table-column prop="visitingTime" label="拜访时间"  width="180" align="left" header-align="left">  </el-table-column>
-        <el-table-column prop="beginTime" label="实际开始时间"  width="160" align="right" header-align="center">  </el-table-column>
-        <el-table-column prop="endTime" label="实际结束时间"  width="160" align="right" header-align="center">  </el-table-column>
+        <el-table-column prop="visitingTime" label="拜访时间"  width="100" align="left" header-align="left">  </el-table-column>
+        <el-table-column prop="beginTime" label="实际开始时间"  width="160" align="left" header-align="left">  </el-table-column>
+        <el-table-column prop="endTime" label="实际结束时间"  width="160" align="left" header-align="left">  </el-table-column>
         <el-table-column prop="vistorNum" label="访客人数" width="130" align="left" header-align="left">  </el-table-column>
-        <el-table-column prop="isCar" label="是否驾车" width="120" align="left"> </el-table-column>
-        <el-table-column prop="carNum" label="驾车数量" width="120" align="left" header-align="left"> </el-table-column>
+        <el-table-column prop="isCar" label="是否驾车" width="80" align="left"> </el-table-column>
+        <el-table-column prop="carNum" label="驾车数量" width="80" align="left" header-align="left"> </el-table-column>
         <el-table-column prop="visitorStatus" label="访问状态" width="120" align="left"> </el-table-column>
         <!--<el-table-column prop="auditingType" label="审核类型" align="center"> </el-table-column>-->
         <!--<el-table-column prop="recordType" label="记录类型" align="center"> </el-table-column>-->
-        <el-table-column prop="operaterCode" label="操作人工号" align="left" header-align="left"> </el-table-column>
-        <el-table-column prop="operaterName" label="操作人姓名" align="left"> </el-table-column>
+        <el-table-column prop="operaterCode" label="操作人工号"  width="130" align="left" header-align="left"> </el-table-column>
+        <el-table-column prop="operaterName" label="操作人姓名" width="130" align="left"> </el-table-column>
         <el-table-column label="查看" align="left">
           <template slot-scope="scope">
             <el-button size="mini" type="text"

@@ -95,7 +95,7 @@
          <div class="tempVisitInputClass" >
            <el-form-item label="拜访原因" >
              <el-input
-               style="width: 480%;"
+               style="width: 475%;"
                type="textarea"
                :rows="4"
                placeholder="请输入原因"
@@ -105,7 +105,7 @@
          </div>
          <div>
            <el-form-item>
-             <el-button type="primary" @click="handleInputPersonNum" style="width: 100px">新增</el-button> &nbsp;&nbsp;
+             <el-button class="btnIsBlue" type="primary" @click="handleInputPersonNum" style="width: 100px">新增</el-button> &nbsp;&nbsp;
              <el-tooltip content="点击新增，增加来访人员列表数量" placement="top">
                <img src="../../../src/assets/images/imageSize.png" style="vertical-align: middle" alt="">
              </el-tooltip>
@@ -172,13 +172,13 @@
               </td>-->
              <td>
                <div>
-                 <el-button
+                 <el-button class="btnIsBlue"
                    v-show="!item.imgUrl"
                    size="mini" type="primary"
                    @click="handlePhotoUploadStart(index)">开始拍照</el-button>
                </div>
                <div>
-                 <el-button
+                 <el-button class="btnIsBlue"
                    v-show="item.imgUrl"
                    size="mini" type="primary"
                    @click="handlePhotoUpload(index)">重新拍照</el-button>
@@ -219,7 +219,7 @@
            </div>
            <span slot="footer" class="dialog-footer">
           <el-button @click="dialogVisible = false">取 消</el-button>
-          <el-button type="primary" @click="handleConfirmCamera">确 定</el-button>
+          <el-button class="btnIsBlue" type="primary" @click="handleConfirmCamera">确 定</el-button>
         </span>
          </el-dialog>
        </div>
@@ -256,7 +256,7 @@
        </el-dialog>
        <!-- 查看照片end -->
        <div class="marginTop20" style="text-align: center">
-         <el-button type="primary" @click="handleSave" style="width: 200px;">保存</el-button>
+         <el-button class="btnIsBlue" type="primary" @click="handleSave" style="width: 200px;">保存</el-button>
        </div>
      </div>
 </template>
@@ -288,7 +288,7 @@
         }],
         isVip:'一般访客',
         isVipOptions: [{ // 访客是否VIP
-          label: 'VIP',
+          label: 'Vip',
           value: '1',
         }, {
           label: '一般访客',
@@ -678,6 +678,7 @@
           visitingTime:'',//拜访时间
           vistorNum: '', // 来访人数量
           isCar: '', // 是否驾车
+          isVip:0,//一般访客
           carNum: 0, // 驾车数量
           reason: '', // 拜访原因
         }
@@ -850,7 +851,7 @@
       width:5%;
     }
     th:nth-child(2) {
-      width: 10%;
+      width: 12%;
     }
     th:nth-child(3) {
       width: 5%;
@@ -862,7 +863,7 @@
       width: 20%;
     }
     th:nth-child(6) {
-      width: 15%;
+      width: 13.5%;
     }
     th:nth-child(7) {
       width: 10%;
@@ -912,6 +913,7 @@
   .tempVisitInput_form {
     /deep/ .el-form-item{
       margin-left: 15px;
+      margin-right: 0;
     }
   }
 

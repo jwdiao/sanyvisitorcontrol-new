@@ -15,7 +15,7 @@
         <el-input v-model="bookVisitArr.num" clearable placeholder="被访人工号"></el-input>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" style="width: 100px" @click="onSubmit">查询</el-button>
+        <el-button class="btnIsBlue" type="primary" style="width: 100px" @click="onSubmit">查询</el-button>
       </el-form-item>
       <!--<el-form-item>
         <el-button type="primary" @click="recordingClick">登记</el-button>
@@ -26,14 +26,15 @@
     </el-form>
     <!--主列表-->
     <div class="common-table">
-      <el-table header-row-class-name="table-header" stripe  border  style="width: 100%" height="650"
+      <div v-if="visitTableListData.length===0" class="lazyImg"><span class="lazyText">暂无数据</span></div>
+      <el-table v-else header-row-class-name="table-header" stripe  border  style="width: 100%" height="650"
                 ref="multipleTable" tooltip-effect="dark"
                 @selection-change="handleSelectionChange"
         :data="visitTableListData">
         <!--<el-table-column type="selection" label="选择" width="50"></el-table-column>-->
         <el-table-column type="index" label="序号" width="50"></el-table-column>
         <el-table-column prop="planBeginTime" label="到访日期" width="160">  </el-table-column>
-        <el-table-column prop="employerName" label="被访人姓名"> </el-table-column>
+        <el-table-column prop="employerName" label="被访人姓名" width="100"> </el-table-column>
         <el-table-column prop="visitingTime" label="拜访时间"  width="100">  </el-table-column>
         <el-table-column prop="vistorNum" label="访客人数" width="95">  </el-table-column>
         <el-table-column prop="isVip" label="访客类型" width="95">  </el-table-column>
@@ -43,8 +44,8 @@
         <el-table-column prop="submitStatus" label="审核状态"> </el-table-column>
         <!--<el-table-column prop="auditingType" label="审核类型"> </el-table-column>-->
         <!--<el-table-column prop="recordType" label="录入类型"> </el-table-column>-->
-        <el-table-column prop="operaterCode" label="操作人工号"> </el-table-column>  <!---->
-        <el-table-column prop="userName" label="操作人姓名"> </el-table-column>  <!---->
+        <el-table-column prop="operaterCode" label="操作人工号" width="100"> </el-table-column>  <!---->
+        <el-table-column prop="userName" label="操作人姓名" width="100"> </el-table-column>  <!---->
         <el-table-column prop="isSub" label="登记状态"> </el-table-column>  <!--s-->
 
        <!-- <el-table-column prop="checkSubmit" label="审核确认" width="140">

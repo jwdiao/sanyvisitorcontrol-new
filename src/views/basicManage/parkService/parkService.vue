@@ -11,17 +11,18 @@
         <el-input v-model="parkServiceName" placeholder="园区名称"></el-input>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" @click="onSubmit" style="width: 100px;">查询</el-button>
+        <el-button class="btnIsBlue" type="primary" @click="onSubmit" style="width: 100px;">查询</el-button>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" @click="newAddParkSubmit">新增园区</el-button>
+        <el-button class="btnIsBlue" type="primary" @click="newAddParkSubmit">新增园区</el-button>
       </el-form-item>
       <el-form-item>
         <el-button class="deleteBtn" type="danger" @click="deleteParkSubmit" style="width: 100px;background: #ff404a;color: #fff;border: 1px solid #ff404a">删除</el-button>
       </el-form-item>
     </el-form>
     <div class="common-table">
-      <el-table :data="parkTableData" fit align="left" stripe header-row-class-name="table-header" style="width: 100%;" height="650"
+      <div v-if="parkTableData.length===0" class="lazyImg"><span class="lazyText">暂无数据</span></div>
+      <el-table v-else :data="parkTableData" fit align="left" stripe header-row-class-name="table-header" style="width: 100%;" height="650"
                 ref="multipleTable" tooltip-effect="dark"
                 @selection-change="handleSelectionChange">
         <el-table-column type="selection" label="选择" width="80"></el-table-column>
@@ -78,7 +79,7 @@
         </el-form>
         <div slot="footer" class="dialog-footer">
           <el-button @click.native="editParkDialogCancel('editForm')">取消</el-button>
-          <el-button type="primary" @click.native="editParkDialogAddFn(editForm)">提交</el-button>
+          <el-button class="btnIsBlue" type="primary" @click.native="editParkDialogAddFn(editForm)">提交</el-button>
         </div>
       </el-dialog>
     </div>
@@ -119,7 +120,7 @@
         </el-form>
         <div slot="footer" class="dialog-footer">
           <el-button @click.native="NewParkDialogCancel('editForm')">取消</el-button>
-          <el-button type="primary" @click.native="NewParkDialogAddFn('editForm')">提交</el-button>
+          <el-button class="btnIsBlue" type="primary" @click.native="NewParkDialogAddFn('editForm')">提交</el-button>
         </div>
       </el-dialog>
     </div>
