@@ -1,6 +1,6 @@
 
 <template>
-  <div class="container" style="display:flex;flex-direction: column; width:100%;overflow: hiddne;">
+  <div class="container" style="display:flex;flex-direction: column; width:100%;overflow: hidden;">
     <!--表头-->
 	 <div style="width:100%;">
 			<el-form
@@ -48,12 +48,13 @@
 	  </div>
     <!--主列表-->
      <div class="common-table" >
-       <div v-if="carTableData.length===0" class="lazyImg"><span class="lazyText">暂无数据</span></div>
-      <el-table :data="carTableData" fit align="left" stripe header-row-class-name="table-header" style="width: 100%;" height="550"
+       <div v-if="loadingStatus" class="lazyImg"><span class="lazyText">数据加载中</span></div>
+       <div v-if="noDataStatus" class="lazyImg"><span class="lazyText">暂无数据</span></div>
+      <el-table v-if="!loadingStatus" v-show="!noDataStatus" v-loading="loadingSwitch" :data="carTableData"  fit align="left" stripe header-row-class-name="table-header" style="width: 100%;" height="550"
                 ref="multipleTable" tooltip-effect="dark"
                 @selection-change="handleSelectionChange">
         <el-table-column type="selection" label="选择" width="50"></el-table-column>
-        <el-table-column type="index" label="序号" width="80"></el-table-column>
+        <el-table-column prop="number" label="序号" width="80"></el-table-column>
         <el-table-column prop="workno" label="员工工号">
           <template slot-scope="scope">
             <span style="margin-left: 10px">{{ scope.row.userNo }}</span>
@@ -89,7 +90,7 @@
     </div>
     <!--编辑车辆-->
     <div class="editParkDialog" @click="handleAllEditChange">
-      <el-dialog title="园区车辆管理"
+      <el-dialog title="园区车辆管理" v-dialogDrag
                  :visible.sync="editParkDialogVisible"
                  :close-on-click-modal="false"
                  class="edit-form"
@@ -130,7 +131,7 @@
             </el-form-item>
           </div>
           <div class="parkServiceDialog" style="display: flex;">
-            <el-form-item label="员工手机号" prop="phoneNo" style="width:48%;">
+            <el-form-item label="手机号" prop="phoneNo" style="width:48%;">
               <el-input v-model="editForm.phoneNo" disabled auto-complete="off" clearable></el-input>
             </el-form-item>
 
@@ -149,7 +150,7 @@
     </div>
     <!--新增车辆-->
     <div class="editParkDialog" @click="handleAllChange">
-      <el-dialog title="园区车辆管理"
+      <el-dialog title="园区车辆管理" v-dialogDrag
                  :visible.sync="NewParkDialogVisible"
                  :close-on-click-modal="false"
                  class="edit-form"
@@ -214,7 +215,7 @@
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
         :current-page="currentPage"
-        :page-sizes="[20, 30, 500, 100]"
+        :page-sizes="[20, 30, 50, 100]"
         :page-size="pageSize"
         layout="total, sizes, prev, pager, next, jumper"
         :total="total">
@@ -242,6 +243,9 @@
     name: "Template",
     data() {
       return {
+        loadingSwitch:false,//加载 中
+        loadingStatus:true,//初始化显示数据加载中
+        noDataStatus:false,//显示暂无数据,初始化不显示
         parkCarManageName:'',//查询姓名
         parkCarManageNum:'',//查询工号
         parkCarManageCarNum:'',//查询车牌号
@@ -341,6 +345,11 @@
       const {parkCarManageName,parkCarManageCarNum,parkCarManageNum,currentPage,pageSize} = this
       this.getCarManageList(parkCarManageCarNum,parkCarManageName,parkCarManageNum,currentPage,pageSize)
     },
+    watch:{
+      carTableData(){
+        this.loadingSwitch = false
+      }
+    },
 
     methods: {
       /**
@@ -350,10 +359,10 @@
        */
       async getCarManageList (carNo,userName,userNo,pageNum,pageSize){
         const res = await reqSearchCarsList(carNo,userName,userNo,pageNum,pageSize)
-        if(res.data.code === 200){
+        if(!res || !res.data.code === 200) return
           var  carArr = res.data.data.list
           this.total = res.data.data.total
-          carArr.forEach(item=>{
+          carArr.forEach((item,index)=>{
             if(item.carType=== 0){
               item.carType = '其他车'
             }else if(item.carType===1){
@@ -361,19 +370,28 @@
             }else if(item.carType===2){
               item.carType = '大车'
             }
+            item.number = (this.currentPage-1)*this.pageSize+(index+1)
           })
           this.carTableData = carArr
-          console.log('carTableData:',this.carTableData)
-        }
+          //数据懒加载显示
+          this.loadingStatus = false
+          if(this.carTableData.length === 0){
+            this.noDataStatus = true
+          }else{
+            this.noDataStatus = false
+          }
+          // console.log('carTableData:',this.carTableData)
       },
       /**
        * 方法名：parkCarManageOnSubmit
        * 参数：无
-       * 描述：查询操作按钮
+       * 描述：点击查询按钮
        */
       parkCarManageOnSubmit(){
-        const {parkCarManageName,parkCarManageCarNum,parkCarManageNum,currentPage,pageSize} = this
-        this.getCarManageList(parkCarManageCarNum,parkCarManageName,parkCarManageNum,currentPage,pageSize)
+        const {parkCarManageName,parkCarManageCarNum,parkCarManageNum,pageSize} = this
+        this.currentPage = 1
+        this.loadingSwitch = true
+        this.getCarManageList(parkCarManageCarNum,parkCarManageName,parkCarManageNum,this.currentPage,pageSize)
       },
       /**
        * 方法名：deleteCarsSubmit
@@ -833,14 +851,18 @@
       },
       //分页操作
       handleSizeChange(val){
+        this.loadingSwitch = true
         const {parkCarManageName,parkCarManageCarNum,parkCarManageNum,currentPage} = this
         this.pageSize = val
         this.getCarManageList(parkCarManageCarNum,parkCarManageName,parkCarManageNum,currentPage,this.pageSize)
+
       },
       handleCurrentChange(val) {
+        this.loadingSwitch = true
         const {parkCarManageName,parkCarManageCarNum,parkCarManageNum,pageSize} = this
         this.currentPage = val
         this.getCarManageList(parkCarManageCarNum,parkCarManageName,parkCarManageNum,this.currentPage,pageSize)
+
       },
       //下载模板
       uploadTemplateParkCarManage(){

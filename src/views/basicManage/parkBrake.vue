@@ -28,8 +28,9 @@
         </el-form-item>
       </el-form>
       <div class="common-table">
-        <div v-if="tableDataBrake.length===0" class="lazyImg"><span class="lazyText">暂无数据</span></div>
-        <el-table v-else
+        <div v-if="loadingStatus" class="lazyImg"><span class="lazyText">数据加载中</span></div>
+        <div v-if="noDataStatus" class="lazyImg"><span class="lazyText">暂无数据</span></div>
+        <el-table v-if="!loadingStatus" v-show="!noDataStatus"
           :data="tableDataBrake" stripe
           header-row-class-name="table-header" @selection-change="handleSelectionChange"
           style="width: 100%" height="650">
@@ -48,7 +49,7 @@
       </div>
      <!--编辑弹窗-->
      <div class="editParkDialog">
-       <el-dialog title="闸机信息"
+       <el-dialog title="闸机信息" v-dialogDrag
                   :visible.sync="editBrakeDialogVisible"
                   :close-on-click-modal="false"
                   class="edit-form" width="800px"
@@ -88,7 +89,7 @@
        </el-dialog>
      </div>
      <!--新增弹窗-->
-     <el-dialog title="园区闸机"
+     <el-dialog title="园区闸机" v-dialogDrag
                 :visible.sync="addFormVisible"
                 :close-on-click-modal="false"
                 class="edit-form" width="800px"
@@ -189,6 +190,8 @@
           ]
         },
         tableDataBrake: [], //主列表展示
+        loadingStatus:true,//初始化显示数据加载中
+        noDataStatus:false,//显示暂无数据,初始化不显示
         addFormVisible:false,
         brakeTypeOptions:[],//闸机类型下拉选项
         editBrakeTypeOption:[],//编辑闸机类型下拉选项
@@ -235,10 +238,15 @@
       //异步请求查询数据
       async searchBrakeFun(ParkerItemName,currentPage,pageSize){
         const res = await reqSearchBrakeList(ParkerItemName,currentPage,pageSize)
-        if(res.data.code === 200){
+        if(!res || !res.data.code === 200) return
           this.tableDataBrake = res.data.data.list
+          //数据懒加载显示
+          this.loadingStatus = false
+          if(this.tableDataBrake.length === 0){
+            this.noDataStatus = true
+            return
+          }
           this.total = res.data.data.total
-        }
       },
       handleSizeChange(val) {
         this.pageSize = val
@@ -338,7 +346,7 @@
         const res = await reqParkServiceList(username)
         if(res.data.code === 200){
           var newResultArr = res.data.data
-          console.log('newResultArr:',newResultArr)
+          // console.log('newResultArr:',newResultArr)
           for (var i = 0; i < newResultArr.length; i++) {
             var porterObj = {}
             porterObj.value = newResultArr[i].parkCode
@@ -348,7 +356,7 @@
             this.ParkerListOptions.push(porterObj)
           }
         }
-        console.log(this.ParkerListOptions)
+        // console.log(this.ParkerListOptions)
       },
       /*函数：getBrakeType
        参数：

@@ -38,8 +38,9 @@
               </el-form-item>
           </el-form>
           <div class="common-table">
-            <div v-if="tableData.length===0" class="lazyImg"><span class="lazyText">暂无数据</span></div>
-            <el-table v-else :data="tableData" header-row-class-name="table-header" style="width: 100%">
+            <div v-if="loadingStatus" class="lazyImg"><span class="lazyText">数据加载中</span></div>
+            <div v-if="noDataStatus" class="lazyImg"><span class="lazyText">暂无数据</span></div>
+            <el-table v-if="!loadingStatus" v-show="!noDataStatus" :data="tableData" header-row-class-name="table-header" style="width: 100%">
               <el-table-column type="index"  label="序号" width="120"> </el-table-column>
               <el-table-column prop="orgId" label="机构编码"></el-table-column>
               <el-table-column prop="orgText" label="机构名称"> </el-table-column>
@@ -71,7 +72,7 @@
 
     <!--编辑-->
     <div class="editParkDialog">
-      <el-dialog title="机构信息"
+      <el-dialog title="机构信息" v-dialogDrag
                  :visible.sync="editOrgInformationDialogVisible"
                  :close-on-click-modal="false"
                  class="edit-form"
@@ -128,6 +129,8 @@ export default {
           orgText: '' // 本级机构名称
         },
         tableData: [],
+        loadingStatus:true,//初始化显示数据加载中
+        noDataStatus:false,//显示暂无数据,初始化不显示
         pagination: {
           pageNum: 1,
           pageSize: 10,
@@ -145,7 +148,11 @@ export default {
           this.outTreeData = JSON.parse(res.data.data.outTreeJson)
           let listObj = res.data.data.outTrees
           this.tableData = listObj.list
-          console.log('aaaa:',this.listObj)
+          //数据懒加载显示
+          this.loadingStatus = false
+          if(this.tableData.length === 0){
+            this.noDataStatus = true
+          }
           this.pagination = {
             pageNum: listObj.pageNum,
             pageSize: listObj.pageSize,

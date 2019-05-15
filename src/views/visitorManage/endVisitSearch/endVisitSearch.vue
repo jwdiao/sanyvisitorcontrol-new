@@ -25,12 +25,13 @@
     </el-form>
     <!--主列表-->
     <div class="common-table">
-      <div v-if="tableData.length===0" class="lazyImg"><span class="lazyText">暂无数据</span></div>
-      <el-table v-else header-row-class-name="table-header" stripe  border  style="width: 100%" height="650"
-                ref="multipleTable" tooltip-effect="dark"
+      <div v-if="loadingStatus" class="lazyImg"><span class="lazyText">数据加载中</span></div>
+      <div v-if="noDataStatus" class="lazyImg"><span class="lazyText">暂无数据</span></div>
+      <el-table v-if="!loadingStatus" v-show="!noDataStatus" header-row-class-name="table-header" stripe  border  style="width: 100%" height="650"
+                ref="multipleTable" tooltip-effect="dark" v-loading="loadingSwitch"
                 @selection-change="handleSelectionChange"
                 :data="tableData">
-        <el-table-column type="index" label="序号" width="50"></el-table-column>
+        <el-table-column prop="number" label="序号" width="50"></el-table-column>
         <el-table-column prop="planBeginTime" label="到访日期" width="180">  </el-table-column>
         <el-table-column prop="visitingTime" label="拜访时间"  width="120">  </el-table-column>
         <el-table-column prop="beginTime" label="实际开始时间" width="160">  </el-table-column>
@@ -54,7 +55,7 @@
     </div>
     <!--查看信息-->
     <div class="endVisitSearch">
-      <el-dialog title="访客信息"
+      <el-dialog title="访客信息" v-dialogDrag
                  :visible.sync="visitorInfomation"
                  :close-on-click-modal="false"
                  class="edit-form" width="1000px"
@@ -106,8 +107,8 @@
               <el-table-column type="index" label="序号" width="50"></el-table-column>
               <el-table-column prop="visitorName" label="拜访人姓名" width="100">  </el-table-column>
               <el-table-column prop="phone" label="电话号码"  width="120">  </el-table-column>
-              <el-table-column prop="visitorId" label="身份证号" >  </el-table-column>
-              <el-table-column prop="carNo" label="车牌号码">  </el-table-column>
+              <el-table-column prop="visitorId" label="身份证号" width="170" >  </el-table-column>
+              <el-table-column prop="carNo" label="车牌号码" width="100">  </el-table-column>
               <el-table-column prop="beginTime" label="实际开始时间"  >  </el-table-column>
               <el-table-column prop="endTime" label="实际结束时间" >  </el-table-column>
               <el-table-column prop="pictureName" label="图片名称" width="100">
@@ -139,12 +140,12 @@
     </div>
     <!--查看图片-->
     <div class="checkPictureInformation">
-      <el-dialog title="图片信息"
+      <el-dialog title="图片信息" v-dialogDrag
                  :visible.sync="checkPictureInformationVisible"
                  :close-on-click-modal="false"
                  class="edit-form"
                  :before-close="handleClosePictures">
-              <img :src="checkImgUrl" alt="">
+              <img :src="checkImgUrl" alt="" style="width: 100%">
         <div slot="footer" class="dialog-footer">
           <el-button @click.native="handleCancelPictures('editForm')">取消</el-button>
         </div>
@@ -167,10 +168,14 @@
 
 <script>
   import {reqCheckDetailList,reqEndVisitList} from '../../../api'
+  import {isInnerIPFn}from '../../../util/isInnerIP'
   export default {
     name: "Template",
     data() {
       return {
+        loadingSwitch:false,//加载中
+        loadingStatus:true,//初始化显示数据加载中
+        noDataStatus:false,//显示暂无数据,初始化不显示
         visitDateStart:'',
         visitDateEnd:'',
         editForm:[],
@@ -199,7 +204,12 @@
         currentPage: 1,//当前页
         totalPage:0,//总页数
         pageSize:20,//每页显示多少条
-
+        visitorTableDataIsVip:'一般访客',
+      }
+    },
+    watch:{
+      tableData(){
+        this.loadingSwitch = false
       }
     },
     mounted(){
@@ -214,10 +224,17 @@
       * */
       async getEndVisitList(pageNo,pageSize,query){
         const res = await reqEndVisitList(pageNo,pageSize,query)
-        if(res.data.code === 200){
+        if(!res ||!res.data.code===200) return
           this.tableData = res.data.data.list
           this.totalPage = res.data.data.total
+          //数据懒加载显示
+          this.loadingStatus = false
+          if(this.tableData.length === 0){
+            this.noDataStatus = true
+            return
+          }
           for (var i = 0; i < this.tableData.length; i++) {
+          this.tableData[i].number = (this.currentPage-1)*this.pageSize+(i+1)
             this.tableData[i].isCar === '0'? this.tableData[i].isCar= '否':this.tableData[i].isCar= '是'
             if(this.tableData[i].isVip === 0){
               this.tableData[i].isVip = '一般访客'
@@ -251,7 +268,6 @@
               this.tableData[i].recordType= '门岗录入'
             }
           }
-        }
       },
 
       onSubmit() {
@@ -259,6 +275,7 @@
         const{pageSize,visitDateStart,visitDateEnd} = this
         this.currentPage = 1
         this.getEndVisitList(this.currentPage,pageSize,{startTime:visitDateStart,endTime:visitDateEnd})
+        this.loadingSwitch = true
       },
       handleDateStart(val){
         this.visitDateStart = val
@@ -270,11 +287,13 @@
         const{pageSize,visitDateStart,visitDateEnd} = this
         this.currentPage = val
         this.getEndVisitList(this.currentPage,pageSize,{startTime:visitDateStart,endTime:visitDateEnd})
+        this.loadingSwitch = true
       },
       handleSizeChange(val){
         const{currentPage,visitDateStart,visitDateEnd} = this
         this.pageSize = val
         this.getEndVisitList(currentPage,this.pageSize,{startTime:visitDateStart,endTime:visitDateEnd})
+        this.loadingSwitch = true
       },
       handleEdit(index, row) {
         console.log(index, row);
@@ -321,7 +340,14 @@
       //查看图片
       checkPicture(index,row){
         this.checkPictureInformationVisible = true
-        this.checkImgUrl = row.imgUrl
+        //根据内外网访问图片  isInnerIp:true为内网 false：外网
+        const isInnerIp = isInnerIPFn().isInnerIp
+        console.log('isInnerIp:',isInnerIp)
+        if(isInnerIp){
+          this.checkImgUrl = `http://10.19.8.21:8181${row.imgUrl.slice(22)}`
+        }else{
+          this.checkImgUrl = `http://222.240.233.67:8181${row.imgUrl.slice(22)}`
+        }
       },
       handleCancelPictures(){
         this.checkPictureInformationVisible = false

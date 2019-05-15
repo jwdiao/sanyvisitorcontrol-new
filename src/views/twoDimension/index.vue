@@ -25,7 +25,6 @@
     },
 
     mounted(){
-
       // this.imgUrlUpload = `http://${window.location.href}.png`
       // this.imgUrlUpload = `http://222.240.233.67/erweima/9d845f01770f468e991afd26921d481c.png`
       //0329修改

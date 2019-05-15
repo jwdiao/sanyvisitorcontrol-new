@@ -153,6 +153,9 @@ export const reqrRegIDCard = (idCard) =>http.post(`/visitorcontrol/SanyBussVisit
 export const reqParkCarManageTakeEffect = (id,plateNo) =>http.post(`/user/SanyBasicShrUser/carRecharge`,{id,plateNo})
 //0415园区车辆管理---新增、编辑车牌号验证--接口
 export const reqCarsNumberIsRepeat = (carNo) =>http.post(`/user/SanyBasicShrUser/selectBussParkCarByCarNo`,{carNo})
+//0508临时拜访录入---车牌号验证--接口
+export const reqCarsNumber = (carNo) =>http.post(`/visitorcontrol/SanyBussVisitor/selectVisitorsByCarNo`,{carNo})
+
 
 
 

@@ -21,8 +21,9 @@
       </el-form-item>
     </el-form>
     <div class="common-table">
-      <div v-if="parkTableData.length===0" class="lazyImg"><span class="lazyText">暂无数据</span></div>
-      <el-table v-else :data="parkTableData" fit align="left" stripe header-row-class-name="table-header" style="width: 100%;" height="650"
+      <div v-if="loadingStatus" class="lazyImg"><span class="lazyText">数据加载中</span></div>
+      <div v-if="noDataStatus" class="lazyImg"><span class="lazyText">暂无数据</span></div>
+      <el-table v-if="!loadingStatus" v-show="!noDataStatus" :data="parkTableData" fit align="left" stripe header-row-class-name="table-header" style="width: 100%;" height="650"
                 ref="multipleTable" tooltip-effect="dark"
                 @selection-change="handleSelectionChange">
         <el-table-column type="selection" label="选择" width="80"></el-table-column>
@@ -52,7 +53,7 @@
     </div>
       <!--编辑-->
     <div class="editParkDialog">
-      <el-dialog title="园区信息"
+      <el-dialog title="园区信息" v-dialogDrag
                  :visible.sync="editParkDialogVisible"
                  :close-on-click-modal="false"
                  class="edit-form"
@@ -85,7 +86,7 @@
     </div>
      <!--新增园区-->
     <div class="editParkDialog">
-      <el-dialog title="园区信息"
+      <el-dialog title="园区信息" v-dialogDrag
                  :visible.sync="NewParkDialogVisible"
                  :close-on-click-modal="false"
                  class="edit-form"
@@ -147,6 +148,8 @@
     name: "Template",
     data() {
       return {
+        loadingStatus:true,//初始化显示数据加载中
+        noDataStatus:false,//显示暂无数据,初始化不显示
         addParkTextContent:{
           AddPparkAddress:'',// 新增公园地址
           addParkName:'', // 新增公园名称
@@ -221,11 +224,15 @@
        */
       async getParkList (parkName,pageNum,pageSize){
         const res = await reqParkServiceLists(parkName,pageNum,pageSize)
-        if(res.data.code === 200){
+        if(!res || !res.data.code === 200) return
           this.parkTableData = res.data.data.list
           this.total = res.data.data.total
-          // console.log('res:',res.data.data)
-        }
+          //数据懒加载显示
+          this.loadingStatus = false
+          if(this.parkTableData.length === 0){
+            this.noDataStatus = true
+            return
+          }
       },
       /**
        * 方法名：onSubmit

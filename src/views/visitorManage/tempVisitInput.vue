@@ -84,6 +84,17 @@
                </el-option>
              </el-select>
            </el-form-item>
+         <!--20190515-->
+         <el-form-item label="访客园区">
+           <el-select v-model="visitorPark" placeholder="请选择" @change="visitorParkChange">
+             <el-option
+               v-for="item in visitorParkOptions"
+               :key="item.value"
+               :label="item.label"
+               :value="item.value">
+             </el-option>
+           </el-select>
+         </el-form-item>
          <div class="tempVisitInputClass" >
 
            <!--<span style="position:absolute;top: 65px;left: 410px;color: #f56c6c;">*</span>-->
@@ -157,15 +168,19 @@
              </td>
              <td style="position: relative">
                <!--regIsIDCard-->
-               <el-input v-model="item.visitorId" :class="{regIsNull:item.visitorId===''　&&　isShowIDCard　?true:false}" placeholder="请输入身份证号" @keyup.native="isRepeatCardID" @blur="blurIdCard(item.visitorId)" @change="regID(item.visitorId,index)"></el-input>
-               <span style="position:absolute;top: 22px;left: 0px;color: #f56c6c;">*</span>
+               <!--<el-input v-model="item.visitorId" :class="{regIsNull:item.visitorId===''　&&　isShowIDCard　?true:false}" placeholder="请输入身份证号" @keyup.native="isRepeatCardID" @blur="blurIdCard(item.visitorId)" @change="regID(item.visitorId,index)"></el-input>-->
+               <el-input v-model="item.visitorId" placeholder="请输入身份证号" @keyup.native="isRepeatCardID" @blur="blurIdCard(item.visitorId)" @change="regID(item.visitorId,index)"></el-input>
+               <!--<span style="position:absolute;top: 22px;left: 0px;color: #f56c6c;">*</span>-->
                <!--isShowIDCard-->
-               <div v-if="isShowIDCard" v-show="item.visitorId===''?true:false" style="color: #F56C6C;text-align: left;position: absolute;top: 60px;left: 8px;" >请输入身份证号</div>
+               <!--<div v-if="isShowIDCard" v-show="item.visitorId===''?true:false" style="color: #F56C6C;text-align: left;position: absolute;top: 60px;left: 8px;" >请输入身份证号</div>-->
              </td>
              <td style="position: relative">
-               <!-- regIsNull:item.carNo===''　&&　isShowCarNo　?true:false -->
-               <el-input v-model="item.carNo" :disabled="formInline.sanyBussVisitor.isCar === '0' ? true : false"  :class="{regIsNull:item.carNo==='' && formInline.sanyBussVisitor.isCar === '1'?true:false}"  placeholder="请输入车牌号" @blur="blurCarNo" @change="regCarNo(item.carNo,index)"></el-input>
+               <!--<el-input v-model="item.carNo" :disabled="formInline.sanyBussVisitor.isCar === '0' ? true : false"  :class="{regIsNull:item.carNo==='' && formInline.sanyBussVisitor.isCar === '1'?true:false}"  placeholder="请输入车牌号" @blur="blurCarNo" @change="regCarNo(item.carNo,index)"></el-input>
                <div v-show="item.carNo==='' && formInline.sanyBussVisitor.isCar === '1' ? true : false" style="color: #F56C6C;text-align: left;position: absolute;top: 60px;left: 8px;" >请输入车牌号</div>
+               -->
+               <el-input v-model="item.carNo" :disabled="formInline.sanyBussVisitor.isCar === '0' ? true : false"  :class="{regIsNull:isHavecarNo}"  placeholder="请输入车牌号" @blur="blurCarNo" @change="regCarNo(item.carNo,index)"></el-input>
+               <div v-show="isHavecarNo" style="color: #F56C6C;text-align: left;position: absolute;top: 60px;left: 8px;" >请输入车牌号</div>
+
              </td>
              <!-- <td>
                 <el-input v-model="item.countCard" placeholder="二维码次数"></el-input>
@@ -210,8 +225,8 @@
            :before-close="handleClose">
            <div class="fatheramalltitle">
              <input type="hidden" value="" id="photoUrl" />
-             <!--<iframe width="100%" height="470" frameborder="0" src="http://10.19.8.22:8081/sanyvisitorcontrol/photo/photo.html" id="myframe" name="myframe" />-->
-             <iframe width="100%" height="470" frameborder="0" src="http://10.19.8.21:8181/sanyvisitorcontrol/photo/photo.html" id="myframe" name="myframe" />
+             <!--<iframe width="100%" height="470" frameborder="0" src="http://10.19.8.21:8181/sanyvisitorcontrol/photo/photo.html" id="myframe" name="myframe" />-->
+             <iframe width="100%" height="470" frameborder="0" :src=imgUrlIP id="myframe" name="myframe" />
              <!--<iframe width="100%" height="400" frameborder="0" src="http://localhost/sanyvisitorcontrol/photo/photo.html" id="myframe" name="myframe" />-->
              <el-tooltip content="必须点击拍照后再确定，否则将保存默认图片显示区内图片" placement="top" class="small-title">
                <img src="../../../src/assets/images/imageSize.png" style="vertical-align: middle" alt="">
@@ -251,12 +266,12 @@
                   :close-on-click-modal="false"
                   class="edit-form">
          <div class="inputText" style="display: flex;justify-content: center;align-items: center;overflow: hidden;">
-           <img :src="lookCurrentImgUrl" alt="" style="max-width:100%;">
+           <img :src="lookCurrentImgUrl" alt="" style="width:100%;">
          </div>
        </el-dialog>
        <!-- 查看照片end -->
        <div class="marginTop20" style="text-align: center">
-         <el-button class="btnIsBlue" type="primary" @click="handleSave" style="width: 200px;">保存</el-button>
+         <el-button class="btnIsBlue" type="primary" @click="handleSave" :disabled="saveDelay" style="width: 200px;">保存</el-button>
        </div>
      </div>
 </template>
@@ -267,13 +282,15 @@
   getNamesByLikeRequest,
   fileUploadForOutEmployersPhotoRequest
 } from '../../api/businessManageApi'
- import {reqAddVisitorSuccessReq,reqrRegIDCard} from '../../api'
+ import {reqAddVisitorSuccessReq,reqrRegIDCard,reqCarsNumber} from '../../api'
  import {checkPhone,checkIDCard,checkCarCard} from '../../util/regExp'
+ import {isInnerIPFn} from '../../util/isInnerIP'
 // import http from '../../../../sanyreport/src/api/http';
   export default {
     name: "tempVisitInput",
     data() {
       return {
+        saveDelay:false, // 初始化保存按钮可以点击，当点击一次后需要等待1s再次点击，20190507
         isTelephonetrue:false,//验证手机号是否可以点击确定
         isIDCardtrue:false,//验证身份证是否可以点击确定
         deleteDisabled:false,//删除按钮是否可以点击
@@ -293,6 +310,11 @@
         }, {
           label: '一般访客',
           value: '0',
+        }],
+        visitorPark:'回龙观园区',
+        visitorParkOptions:[{
+          label: '回龙观园区',
+          value: '1',
         }],
         visitingTimeOptions:[{
           label: '上午',
@@ -320,6 +342,7 @@
         isShowIDCard:false,////是否显示提示身份证
         isShowCarNo:false,////是否显示车牌号
         isShowGender:false,//是否显示性别
+        isHavecarNo:false,//当选择驾车时，多个人员同时访问时，车牌号必须至少包含有一个车牌
         rules: {
           planBeginTime: [
             { required: true, message: '请选择开始时间', trigger: 'blur' },
@@ -327,9 +350,7 @@
           // planEndTime: [
           //   { required: true, message: '请选择结束时间', trigger: 'blur' }
           // ]
-
         },
-
         formInline: {
           sanyBussVisitor: {
             planBeginTime: '', // 拜访开始时间
@@ -357,10 +378,20 @@
         dialogVisible: false, // 拍照上传弹窗
         dialogVisibleImg: false, // 查看照片
         currentUploadIndex: 0,
-        lookCurrentImgUrl: ''
+        lookCurrentImgUrl: '',
+        imgUrlIP:'http://10.19.8.21:8181/sanyvisitorcontrol/photo/photo.html',//初始化为内网ip
+        timer: null,      //保存时函数规定时间内只允许点击一次
       }
     },
     mounted() {
+      //根据内外网访问拍照路径  isInnerIp:true为内网 false：外网
+      const isInnerIp = isInnerIPFn().isInnerIp
+      // console.log('isInnerIp:',isInnerIp)
+      if(isInnerIp){
+        this.imgUrlIP = 'http://10.19.8.21:8181/sanyvisitorcontrol/photo/photo.html'
+      }else{
+        this.imgUrlIP = 'http://222.240.233.67:8181/sanyvisitorcontrol/photo/photo.html'
+      }
     },
     methods: {
       // 获取被拜访人列表 start
@@ -474,7 +505,14 @@
       handleLookImg(index) {
         this.dialogVisibleImg = true;
         this.currentUploadIndex = index;
-        this.lookCurrentImgUrl = this.formInline.sanyBussVisitorDetailsList[this.currentUploadIndex].imgUrl
+        //根据内外网访问图片  isInnerIp:true为内网 false：外网
+        const isInnerIp = isInnerIPFn().isInnerIp
+        console.log('isInnerIp:',isInnerIp)
+        if(isInnerIp){
+          this.lookCurrentImgUrl = `http://10.19.8.21:8181${this.formInline.sanyBussVisitorDetailsList[this.currentUploadIndex].imgUrl.slice(22)}`
+        }else{
+          this.lookCurrentImgUrl = `http://222.240.233.67:8181${this.formInline.sanyBussVisitorDetailsList[this.currentUploadIndex].imgUrl.slice(22)}`
+        }
         console.log('lookCurrentImgUrl:',this.lookCurrentImgUrl)
       },
       //车辆数量   是：1 否：0
@@ -499,6 +537,14 @@
         this.isVip = obj.label
         this.formInline.sanyBussVisitor.isVip =Number(obj.value)
         console.log('this.formInline.sanyBussVisitor.isVip:',this.formInline.sanyBussVisitor.isVip)
+      },
+      //园区选择20190515
+      visitorParkChange(val){
+        let obj = {};
+        obj = this.visitorParkOptions.find((item)=>{
+          return item.value === val;
+        });
+        this.visitorPark = obj.label
       },
       // 输入车辆数,小于人员数
       handleInputCarNum() {
@@ -535,6 +581,12 @@
       },
       // 保存
       handleSave() {
+        // 初始化保存按钮可以点击，当点击一次后需要等待3s再次点击，20190507
+        this.saveDelay = true
+        clearTimeout(timer)
+        var timer = setTimeout(()=>{
+          this.saveDelay = false
+        },3000)
         console.log(' this.isTelephonetrue:', this.isTelephonetrue)
         const {employerName} = this.formInline.sanyBussVisitor
         //0330修改includes，注释下面遍历方法
@@ -548,6 +600,14 @@
           this.$refs.tempVisitInputID.validate(async (valid) => {
             if (!valid) return;
             const {sanyBussVisitorDetailsList} = this.formInline
+            //添加多个时，判断车牌号是否包含有至少一个 //20190508
+            var carNoArr = []
+            sanyBussVisitorDetailsList.forEach(item=>{
+              if(item.carNo!==''){
+                carNoArr.push(item.carNo)
+              }
+            })
+            console.log('carNo:',carNoArr)
             for (var i = 0; i <  sanyBussVisitorDetailsList.length; i++) {
               console.log('sanyBussVisitorDetailsList:',sanyBussVisitorDetailsList[i].gender)
               if(sanyBussVisitorDetailsList[i].visitorName === ''){
@@ -561,13 +621,20 @@
                 this.regIsNull= true
                 this.isShowPhone= true
                 return
-              }else if(sanyBussVisitorDetailsList[i].visitorId === ''){
+              }
+              //20190515注释
+              /*else if(sanyBussVisitorDetailsList[i].visitorId === ''){
                 this.regIsIDCard= true
                 this.isShowIDCard= true
                 return
-              }else if(sanyBussVisitorDetailsList[i].carNo === '' && this.formInline.sanyBussVisitor.isCar === '1'){
+              // }else if(sanyBussVisitorDetailsList[i].carNo === '' && this.formInline.sanyBussVisitor.isCar === '1'){
+              }*/
+              else if(carNoArr.length===0 && this.formInline.sanyBussVisitor.isCar === '1'){     //20190508
+                this.isHavecarNo = true
                 this.$message({type:'error',message:'请输入车牌号'})//当是驾车时，不输入车牌号就返回
                 return
+              }else{
+                this.isHavecarNo = false
               }
             }
             if(this.isTelephonetrue){
@@ -639,7 +706,14 @@
           }
         })*/
       },
-
+     //函数防抖---几秒内只生效最后一次点击
+      /*handleSave(){
+        let that = this
+        clearTimeout(that.timer)
+         that.timer = setTimeout(()=>{
+           console.log('0000000000000000000:') //业务逻辑
+        },1000)
+      },*/
       // 新增请求数据接口
       async addApplyRequestData(param) {
         const res = await addApplyRequest1(param);
@@ -702,8 +776,33 @@
 
       },
       //车牌号验证
-      regCarNo(val){
+      async regCarNo(val,index){
+
         this.checkCarCardBoolean = checkCarCard(val,this)
+        let carIdArr = []
+        this.formInline.sanyBussVisitorDetailsList.forEach(item=>{
+          carIdArr.push(item.carNo)
+        })
+        carIdArr.splice(index,1)
+        let indexNum = carIdArr.includes(val)
+        // console.log('indexNum:',indexNum)
+        // console.log('cardIdArr:',cardIdArr)
+        if(indexNum===true){
+          this.formInline.sanyBussVisitorDetailsList[index].carNo = ''
+          this.$message({type:'error',message:'输入的身份证重复，请重新输入'})
+        }
+        //20190508增加车牌号后台验证
+        const res = await reqCarsNumber(val)
+        if(res.data.code!==200){
+          this.formInline.sanyBussVisitorDetailsList[index].carNo = ''
+          this.$message({type:'error',message:res.data.msg})
+          return
+        }
+        //当输入车牌号后，警示框消失
+        if(val!==''){
+          this.isHavecarNo = false
+        }
+
       },
       async regID(val,index){
         this.isIDCardtrue = checkIDCard(val,this)

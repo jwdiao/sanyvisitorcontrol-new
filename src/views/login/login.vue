@@ -14,6 +14,17 @@
           <i></i>
           <el-input type="password" v-model="loginData.password" placeholder="请输入密码" @keyup.native="isClickFun" @keyup.enter.native="login()"></el-input>
         </el-form-item>
+      <!--  <el-form-item class="bookpark">
+          <i class="bookparkicon"></i>
+          <el-select v-model="loginData.bookPark" placeholder="请选择预约园区" @change="changeVisitPark">
+            <el-option
+              v-for="item in visitParkOptions"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value">
+            </el-option>
+          </el-select>
+        </el-form-item>-->
          <div class="login_forgetPwd">
           <span @click="handleForgetPwd">设置密码</span>
         </div>
@@ -27,8 +38,8 @@
 
 <script>
 import CryptoJS from 'crypto-js'
-import { LoginRequest } from '../../api/loginApi'
-// import {regRoleCodeIsMengang} from '../../api'
+import { LoginRequest,reqBookParkArr } from '../../api/loginApi'
+// import {regRoleCodeIsMengang,} from '../../api'
 import { mapActions } from 'vuex'
 import {isInnerIPFn} from '../../util/isInnerIP'
 import axios from 'axios'
@@ -38,9 +49,11 @@ export default {
     return {
       isInnerIpNum:'',//访问地址ip
       isClickLogin:false,//登录是否点击
+      visitParkOptions:[],//预约园区数组
       loginData: {
 				username: '',
-				password: ''
+				password: '',
+        bookPark:'回龙观园区'
 			},
 			rules: {
 				username: [
@@ -48,16 +61,19 @@ export default {
 				],
 				password: [
 					{ required: true, message: '请输入密码', trigger: 'blur' }
-				]
+				],
+
 			}
     }
   },
   created(){},
   mounted(){
     // 判断是内网，外网  20190505
-    const BaseUrlReq = isInnerIPFn()
+    const BaseUrlReq = isInnerIPFn().BASE_URL
     axios.defaults.baseURL = BaseUrlReq
     console.log('BaseUrlReq000:',BaseUrlReq)
+    //初始化预约园区20190513
+   // this.getBookPark()
   },
 
   methods: {
@@ -86,7 +102,7 @@ export default {
     async login () {
 			this.$refs.loginForm.validate(async (valid) => {
 				if (!valid) return;
-				const {username, password} = this.loginData
+				const {username, password,bookPark} = this.loginData
         let loginStatus = false;
 
         /**
@@ -98,7 +114,8 @@ export default {
 
 				const formData = {
 					loginAccount: username,
-          loginPwd: password
+          loginPwd: password,
+          parkCode:bookPark,
           // loginPwd: this.encryptByDES(password,username) // 密码加密，后期放开
 				}
           this.loginMethods(formData)
@@ -143,6 +160,32 @@ export default {
     handleForgetPwd () {
       this.$router.push('/resetpwd')
     },
+
+    //预约园区
+    changeVisitPark(val){
+      let obj = {};
+      obj = this.visitParkOptions.find((item)=>{
+        return item.value === val;
+      });
+      this.loginData.bookPark = val
+    },
+    //请求后台预约园区list
+    async getBookPark(){
+      const res = await reqBookParkArr()
+      if(!res && !res.data.code===200){
+        return
+      }
+      let newBoookList = res.data.data
+      this.loginData.bookPark = newBoookList[1].parkCode
+      newBoookList.forEach(item=>{
+        let newListObj = {}
+        newListObj.value = item.parkCode
+        newListObj.label = item.parkName
+        this.visitParkOptions.push(newListObj)
+      })
+    },
+
+
   }
 }
 </script>
@@ -187,6 +230,9 @@ export default {
   /deep/ .el-form .el-form-item:nth-child(2) i{
     background: #fff url("../../assets/images/login_password.png") no-repeat 10px center;
   }
+  /deep/ .el-form .el-form-item .bookparkicon{
+    background: #fff url("../../assets/images/bookpark.png") no-repeat 10px center;
+  }
   &_forgetPwd{
     color:#fff;font-size:12px;text-align: right;
     span{
@@ -194,6 +240,12 @@ export default {
     }
   }
 }
+  .bookpark{
+   /deep/ .el-input__inner{
+      width: 298px!important;
+    }
+  }
+
 </style>
 <style>
   .loginForm .el-form-item .el-input .el-input__inner{padding-left:45px;}

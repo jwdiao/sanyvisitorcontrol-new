@@ -6,8 +6,22 @@
 
   // const BASE_URL = 'http://10.19.8.22:8100' // 线上地址
   // const BASE_URL = 'http://222.240.233.67:9010' // 线上地址（外网）20190505
+//20190514默认内外网地址
+import {isInnerIPFn} from '../util/isInnerIP'
+const isInnerIp = isInnerIPFn().isInnerIp
+console.log('BaseUrlReq000:',isInnerIp)
+let BASE_URL = ''
+if(isInnerIp){
+  BASE_URL = 'http://10.19.8.21:9010'
+}else{
+   BASE_URL = 'http://222.240.233.67:9010'
+}
 
-  const BASE_URL = 'http://10.19.8.21:9010' // 线上地址   20190430
+
+
+  // const BASE_URL = 'http://10.19.8.21:9010' // 线上地址   20190430
+
+
 // const BASE_URL = 'http://10.19.7.69:8083' // 测试地址
 // const BASE_URL = 'http://10.88.195.89:8083' // 高杰
 // const BASE_URL = 'http://10.88.195.81:8100' // 于群

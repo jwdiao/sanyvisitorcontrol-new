@@ -198,5 +198,21 @@ export default {
 .fontFamily{
 	vertical-align: unset;
 }
+.fillcontain{
+  background: #002040!important;
+}
+  /deep/ .el-submenu__title{
+    background: #002040!important;
+  }
+  /deep/ .indexMenu{
+    background: #002040!important;
+  }
+  /deep/ .el-menu-item{
+    background: #002040!important;
+  }
+  /deep/ .el-menu-item:hover{
+    background: rgba(000,32,64,0.3)!important;
+  }
+
 </style>
 

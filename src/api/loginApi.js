@@ -7,3 +7,5 @@ export const LoginRequest = async (param) => $http.post(`/user/SanyBasicShrUser/
 export const resetPwd = (param) => $http.post(`/user/SanyBasicShrUser/updateLoginPwd`,param)
 //退出登录
 export const logOutRequest = () => $http.post(`/user/SanyBasicShrUser/logout`)
+//0513登录页面---预约园区--接口 djw
+export const reqBookParkArr = () =>$http.post(`/visitorcontrol/sanyBasicPark/getParkList`,{parkName:''})

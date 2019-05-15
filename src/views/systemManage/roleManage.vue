@@ -1,8 +1,9 @@
 <template>
 	<div>
 		<div class="common-table marginTop20">
-      <div v-if="tableData.length===0" class="lazyImg"><span class="lazyText">暂无数据</span></div>
-				<el-table v-else
+      <div v-if="loadingStatus" class="lazyImg"><span class="lazyText">数据加载中</span></div>
+      <div v-if="noDataStatus" class="lazyImg"><span class="lazyText">暂无数据</span></div>
+				<el-table v-if="!loadingStatus" v-show="!noDataStatus"
 				:data="tableData"
 				header-row-class-name="table-header"
 				style="width: 100%">
@@ -33,6 +34,8 @@
 		data() {
 			return {
 				tableData:[],
+        loadingStatus:true,//初始化显示数据加载中
+        noDataStatus:false,//显示暂无数据,初始化不显示
 				pageSize:10,
 				pageTotal:0,
 				currentPage:0
@@ -53,10 +56,15 @@
 					pageSize:this.pageSize,
 					pageNum:this.currentPage
 				})
-				if(res && res.data.code === 200){
+				if(!res || !res.data.code === 200) return
 					this.tableData = res.data.data.list;
 					this.pageTotal = res.data.data.total;
-				}
+          //数据懒加载显示
+          this.loadingStatus = false
+          if(this.tableData.length === 0){
+            this.noDataStatus = true
+            return
+          }
 			}
 		}
 	}

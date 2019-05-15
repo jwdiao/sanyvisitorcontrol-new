@@ -1,7 +1,7 @@
 <template>
   <div class="resetpwd">
     <section class="form_contianer">
-      <p class="resetpwd_tip">修改密码</p>
+      <p class="resetpwd_tip">设置密码</p>
       <el-form ref="loginForm" :model="loginData" :rules="rules">
 
         <!--<el-form-item prop="usernum">
@@ -196,6 +196,9 @@ export default {
        return
      }
     },
+  },
+  destroyed:{
+    clearInterval
   }
 }
 </script>

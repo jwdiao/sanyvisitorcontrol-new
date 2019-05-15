@@ -21,13 +21,14 @@
     </el-form>
     <!--主列表-->
     <div class="common-table">
-      <div v-if="tableData.length===0" class="lazyImg"><span class="lazyText">暂无数据</span></div>
-      <el-table v-else header-row-class-name="table-header"  border  style="width: 100%" @selection-change="handleSelectionChange"
-        :data="tableData">
+      <div v-if="loadingStatus" class="lazyImg"><span class="lazyText">数据加载中</span></div>
+      <div v-if="noDataStatus" class="lazyImg"><span class="lazyText">暂无数据</span></div>
+      <el-table v-if="!loadingStatus" v-show="!noDataStatus" header-row-class-name="table-header"  border  style="width: 100%" @selection-change="handleSelectionChange"
+        :data="tableData" v-loading="loadingSwitch">
 
         <!--<el-table-column type="selection" label="选择" width="50"></el-table-column>-->
-        <el-table-column type="index" label="序号" width="50" align="left" header-align="left"></el-table-column>
-        <el-table-column prop="planBeginTime" label="到访日期" width="200" align="left" header-align="left">  </el-table-column>
+        <el-table-column prop="number" label="序号" width="50" align="left" header-align="left"></el-table-column>
+        <el-table-column prop="planBeginTime" label="到访日期" width="100" align="left" header-align="left">  </el-table-column>
         <el-table-column prop="visitingTime" label="拜访时间"  align="left" header-align="left">  </el-table-column>
         <el-table-column prop="vistorNum" label="访客人数"  align="left" header-align="left">  </el-table-column>
         <el-table-column prop="isVip" label="访客类型"  align="left" header-align="left">  </el-table-column>
@@ -37,7 +38,7 @@
         <el-table-column prop="submitStatus" label="单据状态"  align="left"> </el-table-column>
         <!--<el-table-column prop="auditingType" label="审核类型" width="110" align="center"> </el-table-column>-->
        <!-- <el-table-column prop="recordType" label="录入类型" width="95" align="center"> </el-table-column>-->
-        <el-table-column prop="userName" label="操作人" align="left" header-align="left"> </el-table-column>
+        <el-table-column prop="userName" label="操作人" align="left" header-align="left" width="110"> </el-table-column>
         <!--<el-table-column prop="reviewNumAndName" label="审核人" align="left" header-align="left"> </el-table-column>-->
         <!--<el-table-column prop="reviewTime" label="审核时间" width="160" align="left" header-align="left"> </el-table-column>-->
         <el-table-column prop="downStatus" label="登记状态" align="left" header-align="left"> </el-table-column>
@@ -58,12 +59,15 @@
             <el-button size="mini" type="text"
                         v-show="scope.row.submitStatus==='审核通过' && scope.row.downStatus==='未登记'"
                        @click="handleInvalid(scope.$index, scope.row)">作废 </el-button>
+            <el-button size="mini" type="text"
+                        v-show="scope.row.submitStatus==='审核通过' && scope.row.downStatus==='未登记'"
+                       @click="handleDengJi(scope.$index, scope.row)">登记 </el-button>
             <!--<el-button size="mini" type="text"
                         v-show="scope.row.submitStatus!=='审核通过' && scope.row.downStatus!=='已下发'"
                        @click="handleDownSubPhoto(scope.$index, scope.row)" style="margin-left: 0px">下发照片 </el-button>-->
-            <el-button size="mini" type="text"
+           <!-- <el-button size="mini" type="text"
                         v-show="scope.row.submitStatus==='审核通过' && scope.row.visitorStatus==='访问中'"
-                       @click="handleEnd(scope.$index, scope.row)">手动结束 </el-button>
+                       @click="handleEnd(scope.$index, scope.row)">手动结束 </el-button>-->
 
           </template>
         </el-table-column>
@@ -86,7 +90,7 @@
     <AddVisitorDialog :visible="dialogVisible" @confirmadddialog="handleConfirmDialog" @cancleadddialog="handleCancleDialog"></AddVisitorDialog>
     <!-- 信息维护弹窗 -->
     <div class="common_lookInfoDialog">
-      <el-dialog title="我的访客信息"
+      <el-dialog title="我的访客信息" v-dialogDrag
         :visible.sync="visitorInfomation"
         :close-on-click-modal="false"
         class="edit-form"
@@ -131,14 +135,14 @@
           <el-table header-row-class-name="table-header" border
                     :data="editForm.sanyBussVisitorDetailsList">
             <el-table-column type="index" label="序号" width="50"></el-table-column>
-            <el-table-column prop="visitorName" label="拜访人姓名" width="100" >  </el-table-column>
-            <el-table-column prop="phone" label="电话号码" >  </el-table-column>
-            <el-table-column prop="visitorId" label="身份证号" >  </el-table-column>
-            <el-table-column prop="carNo" label="车牌号码"></el-table-column>
+            <el-table-column prop="visitorName" label="拜访人姓名" width="110" >  </el-table-column>
+            <el-table-column prop="phone" label="电话号码" width="115">  </el-table-column>
+            <el-table-column prop="visitorId" label="身份证号" width="170">  </el-table-column>
+            <el-table-column prop="carNo" label="车牌号码" width="110"></el-table-column>
            <!-- <el-table-column prop="beginTime" label="进入时间"  >  </el-table-column>
             <el-table-column prop="endTime" label="离开时间" >  </el-table-column>-->
-            <el-table-column prop="isSub" label="登记状态" width="100" >  </el-table-column>
-            <el-table-column label="上传" >
+            <el-table-column prop="isSub" label="登记状态" width="80" >  </el-table-column>
+            <el-table-column label="上传" width="143">
 
               <template slot-scope="scope">
                 <el-upload
@@ -160,13 +164,13 @@
 
               </template>
             </el-table-column>
-            <el-table-column prop="imgUrl" label="图片名称" width="100">
+            <el-table-column prop="imgUrl" label="图片名称" width="90">
               <template slot-scope="scope">
                 <el-button size="mini" type="text" v-show="scope.row.imgUrl"
                             @click="checkPicture(scope.$index, scope.row)">查看图片</el-button>
               </template>
             </el-table-column>
-            <el-table-column label="操作" width="100">
+            <el-table-column label="操作" width="90">
               <template slot-scope="scope">
                 <el-button size="mini" type="text"
                             @click="handleSendMessagesInformation(scope.$index, scope.row)">发送信息</el-button>
@@ -192,12 +196,12 @@
     <!-- 查看信息弹窗 -->
     <!-- 查看照片 -->
     <div class="checkPictureInformation">
-      <el-dialog title="图片信息"
+      <el-dialog title="图片信息" v-dialogDrag
         :visible.sync="checkPictureInformationVisible"
         :close-on-click-modal="false"
         class="edit-form">
         <div style="display: flex;justify-content: center;align-items: center;overflow: hidden;">
-            <img :src="currentImg" alt="" style="max-width:100%;">
+            <img :src="currentImg" alt="" style="width:100%;">
         </div>
       </el-dialog>
     </div>
@@ -218,8 +222,9 @@
   } from '../../../api/businessManageApi'
 import {
   reqSendMessages,reqSubPhotoes,reqRUploadImage,reqSendMessageSingle,
+  regNormalRegister,
 }from '../../../api'
-
+import {isInnerIPFn} from '../../../util/isInnerIP'
   // import {date}from '../../../util/dateFormat'
   import {date}from '../../../util/dateFormatEasy'
   import AddVisitorDialog from './addVisitorDialog'
@@ -234,6 +239,9 @@ import {
     data() {
       return {
         tableData: [],
+        loadingSwitch:false,//加载 中
+        loadingStatus:true,//初始化显示数据加载中
+        noDataStatus:false,//显示暂无数据,初始化不显示
         editFormFirstIsVip:'',//访客类型---0422---提取下表的第一条
         qrCode:'',//二维码地址
         reImageId:'',//信息维护--重新上传id
@@ -264,6 +272,11 @@ import {
       // 访客历史记录列表
       this.getAllVisitorData(this.currentPage,this.pageSize,this.visitorName)
     },
+    watch:{
+      tableData(){
+        this.loadingSwitch = false
+      }
+    },
     methods: {
       async getAllVisitorData(pageNum, pageSize, visitorName) {
         let visitorNameQuery;
@@ -273,11 +286,11 @@ import {
           visitorNameQuery = visitorName
         }
         const res = await getVisitorAllByVisitorNameRequest(pageNum, pageSize, visitorNameQuery);
-        if (!res || !res.data || !res.data.code === '200') return;
+        if (!res || !res.data || !res.data.code === '200')   return
         const {list, total} = res.data.data
         var qrCodeList = res.data.data.list
         this.totalNum = total
-        this.tableData = list.map((item) => {
+        this.tableData = list.map((item,index) => {
           var visitorStatus = item.visitorStatus // 访问状态
           if (visitorStatus === '01') {
             visitorStatus = '待访问'
@@ -334,7 +347,7 @@ import {
             downStatus = '照片部分合规'
           }*/
           var visitingTime = item.visitingTime
-          console.log('item.visitingtime:',visitingTime)
+          // console.log('item.visitingtime:',visitingTime)
           if(visitingTime === '01'){
             visitingTime = '上午'
           }else if(visitingTime === '02'){
@@ -374,9 +387,33 @@ import {
             phone:item.phone, // 手机号
             documentNo:item.documentNo,//预约码
             userName:item.userName,
+            number:(this.currentPage-1)*this.pageSize+(index+1)
           }
           console.log('isVip:',isVip)
         })
+        //数据懒加载显示
+        this.loadingStatus = false
+        if(this.totalNum === 0){
+          this.noDataStatus = true
+        }else{
+          this.noDataStatus = false
+        }
+        //20190515通过车牌号搜索
+     /*   var idList = list.map((item,index)=>{
+          return item.id
+        })
+        var carArrTotal = []
+        for (var i = 0; i < idList.length; i++) {
+          const resCarNo = await getVisitorDetailsRequest(idList[i]);
+          if(!resCarNo&&!resCarNo.data.code===200) return
+            var carNoItemArr = resCarNo.data.data.sanyBussVisitorDetailsList
+          var carNoArr = carNoItemArr.map((item)=>{
+            return item.carNo
+            carArrTotal.push(carNoArr)
+          })
+          console.log('carNoArr:',carNoArr)
+
+        }*/
       },
       // 每页多少条改变回调
       handleSizeChange(val) {
@@ -384,17 +421,20 @@ import {
         this.pageSize = val
         this.currentPage = 1;
         this.getAllVisitorData(this.currentPage, this.pageSize, this.visitorName)
+        this.loadingSwitch = true
       },
       // 当前页改变回调
       handleCurrentChange(val) {
         // console.log(`当前页: ${val}`);
         this.currentPage = val
         this.getAllVisitorData(this.currentPage, this.pageSize, this.visitorName)
+        this.loadingSwitch = true
       },
       // 查询
       async handleSearchByName() {
         this.currentPage = 1
         this.getAllVisitorData(this.currentPage,this.pageSize,this.visitorName);
+        this.loadingSwitch = true
       },
 
       // 查看信息
@@ -526,6 +566,35 @@ import {
         }).catch(() => {
 
         });
+      },
+      //点击列表中登记按钮
+      handleDengJi(index,row){
+        this.$confirm('确定登记?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          //向后台发送请求
+          var idArrItem= row.id
+          //this.subSendImage(idArrItem)
+          this.getRegister(idArrItem)
+        }).catch(() => {
+          this.$message({
+            type: 'info',
+            message: '已取消登记'
+          });
+        });
+      },
+      //登记向后台请求数据
+      async getRegister(visitorId){
+        const res = await regNormalRegister(visitorId)
+        if(res&&res.data.code===200){
+          this.$message({type:'success',message:res.data.data})
+          //刷新列表
+          this.getAllVisitorData(this.currentPage,this.pageSize,this.visitorName)
+        }else{
+          this.$message({type:'error',message:res.data.msg})
+        }
       },
       // 手动结束
       handleEnd(index, row) {
@@ -717,7 +786,14 @@ import {
       checkPicture(index, row){
         this.checkPictureInformationVisible = true
         this.currentUploadIndex = index
-        this.currentImg = this.editForm.sanyBussVisitorDetailsList[this.currentUploadIndex].imgUrl
+        //根据内外网访问图片  isInnerIp:true为内网 false：外网
+        const isInnerIp = isInnerIPFn().isInnerIp
+        console.log('isInnerIp:',isInnerIp)
+        if(isInnerIp){
+          this.currentImg = `http://10.19.8.21:8181${this.editForm.sanyBussVisitorDetailsList[this.currentUploadIndex].imgUrl.slice(22)}`
+        }else{
+          this.currentImg = `http://222.240.233.67:8181${this.editForm.sanyBussVisitorDetailsList[this.currentUploadIndex].imgUrl.slice(22)}`
+        }
         console.log('查看图片row',row)
       },
       //重新上传照片

@@ -26,17 +26,18 @@
     </el-form>
     <!--主列表-->
     <div class="common-table">
-      <div v-if="visitTableListData.length===0" class="lazyImg"><span class="lazyText">暂无数据</span></div>
-      <el-table v-else header-row-class-name="table-header" stripe  border  style="width: 100%" height="650"
-                ref="multipleTable" tooltip-effect="dark"
+      <div v-if="loadingStatus" class="lazyImg"><span class="lazyText">数据加载中</span></div>
+      <div v-if="noDataStatus" class="lazyImg"><span class="lazyText">暂无数据</span></div>
+      <el-table v-if="!loadingStatus" v-show="!noDataStatus" header-row-class-name="table-header" stripe  border  style="width: 100%" height="650"
+                ref="multipleTable" tooltip-effect="dark" v-loading="loadingSwitch"
                 @selection-change="handleSelectionChange"
         :data="visitTableListData">
         <!--<el-table-column type="selection" label="选择" width="50"></el-table-column>-->
-        <el-table-column type="index" label="序号" width="50"></el-table-column>
+        <el-table-column prop="number" label="序号" width="50"></el-table-column>
         <el-table-column prop="planBeginTime" label="到访日期" width="160">  </el-table-column>
-        <el-table-column prop="employerName" label="被访人姓名" width="100"> </el-table-column>
+        <el-table-column prop="employerName" label="被访人姓名" width="110"> </el-table-column>
         <el-table-column prop="visitingTime" label="拜访时间"  width="100">  </el-table-column>
-        <el-table-column prop="vistorNum" label="访客人数" width="95">  </el-table-column>
+        <el-table-column prop="vistorNum" label="访客人数" width="80">  </el-table-column>
         <el-table-column prop="isVip" label="访客类型" width="95">  </el-table-column>
         <el-table-column prop="isCar" label="是否驾车" width="80"> </el-table-column>
         <el-table-column prop="carNum" label="驾车数量" width="80"> </el-table-column>
@@ -45,7 +46,7 @@
         <!--<el-table-column prop="auditingType" label="审核类型"> </el-table-column>-->
         <!--<el-table-column prop="recordType" label="录入类型"> </el-table-column>-->
         <el-table-column prop="operaterCode" label="操作人工号" width="100"> </el-table-column>  <!---->
-        <el-table-column prop="userName" label="操作人姓名" width="100"> </el-table-column>  <!---->
+        <el-table-column prop="userName" label="操作人姓名" width="110"> </el-table-column>  <!---->
         <el-table-column prop="isSub" label="登记状态"> </el-table-column>  <!--s-->
 
        <!-- <el-table-column prop="checkSubmit" label="审核确认" width="140">
@@ -75,7 +76,7 @@
     </div>
       <!--信息维护-->
     <div class="bookVisitSearch">
-      <el-dialog title="预约访客信息"
+      <el-dialog title="预约访客信息" v-dialogDrag
                  :visible.sync="bookVisitorInfomation"
                  :close-on-click-modal="false"
                  class="edit-form"
@@ -117,8 +118,8 @@
               <el-table-column type="index" label="序号" width="50"></el-table-column>
               <el-table-column prop="visitorName" label="拜访人姓名" width="100">  </el-table-column>
               <el-table-column prop="phone" label="电话号码"  width="120">  </el-table-column>
-              <el-table-column prop="visitorId" label="身份证号" >  </el-table-column>
-              <el-table-column prop="carNo" label="车牌号码">  </el-table-column>
+              <el-table-column prop="visitorId" label="身份证号"  width="180" >  </el-table-column>
+              <el-table-column prop="carNo" label="车牌号码" width="100">  </el-table-column>
               <el-table-column prop="isSub" label="登记状态">  </el-table-column>
               <!--<el-table-column label="上传" >
                 <template slot-scope="scope">
@@ -178,13 +179,13 @@
     </div>
     <!--查看图片信息-->
     <div class="checkPictureInformation">
-      <el-dialog title="图片信息"
+      <el-dialog title="图片信息" v-dialogDrag
                  :visible.sync="checkPictureInformationBookVisible"
                  :close-on-click-modal="false"
                  class="edit-form"
                  :before-close="handleClosePictures">
                  <div class="inputText" style="display: flex;justify-content: center;align-items: center;overflow: hidden;">
-                    <img :src="checkImgUrl" alt="" style="max-width:100%;">
+                    <img :src="checkImgUrl" alt="" style="width:100%;">
                 </div>
       </el-dialog>
     </div>
@@ -207,10 +208,14 @@
 <script>
   import {reqRightForm,reqCheckDetailList,reqSubPhotoes,reqRUploadImage,regNormalRegister,reqSendMessageSingle} from '../../../api'
   import {confirmVisitRequest,invalidVisitRequest,fileUploadRequest} from '../../../api/businessManageApi'
+  import {isInnerIPFn}from '../../../util/isInnerIP'
   export default {
     name: "Template",
     data() {
       return {
+        loadingSwitch:false,//加载中
+        loadingStatus:true,//初始化显示数据加载中
+        noDataStatus:false,//显示暂无数据,初始化不显示
         reImageId:'',//重新上传id
         totalNumber:0, //分页总数
         currentPage:1,  //当前页
@@ -237,6 +242,11 @@
       const {currentPage,pageSize} = this
       this.getBookVisitorInforFun(currentPage,pageSize,{visitedName:'',visitedNo:''})
     },
+    watch:{
+      visitTableListData(){
+        this.loadingSwitch = false
+      }
+    },
     methods: {
       /*函数名：getBookVisitorInforFun
        参数：pageNum,pageSize,query(输入框输入有内容)
@@ -244,11 +254,19 @@
      * */
      async getBookVisitorInforFun(pageNum,pageSize,query){
         const res = await reqRightForm(pageNum,pageSize,query)
-        if(res.data.code === 200){
+       if(!res || !res.data.code===200) return
           const resultData = res.data.data
           this.totalNumber = resultData.total
           this.visitTableListData = resultData.list
+       //数据懒加载显示
+          this.loadingStatus = false
+          if(this.visitTableListData.length === 0){
+            this.noDataStatus = true
+            return
+          }
+
           for (var i = 0; i < this.visitTableListData.length; i++) {
+            this.visitTableListData[i].number = (this.currentPage-1)*this.pageSize+(i+1)
             this.visitTableListData[i].isCar === '0'? this.visitTableListData[i].isCar= '否':this.visitTableListData[i].isCar= '是'
             if(this.visitTableListData[i].isVip === 0){
               this.visitTableListData[i].isVip = '一般访客'
@@ -301,7 +319,6 @@
               this.visitTableListData[i].isSub = '照片部分合规'
             }*/
           }
-        }
       },
       /*函数名：onSubmit
         参数：
@@ -312,6 +329,7 @@
         let {currentPage,pageSize} = this
         currentPage = 1
         this.getBookVisitorInforFun(currentPage,pageSize,{visitedName:user,visitedNo:num})
+        this.loadingSwitch = true
       },
       //点击登记按钮逻辑
       recordingClick(){
@@ -411,7 +429,14 @@
         console.log('查看图片：',row)
         this.checkPictureInformationBookVisible = true
         // this.checkImgUrl = this.checkImgUrlData
-        this.checkImgUrl = row.imgUrl
+        //根据内外网访问图片  isInnerIp:true为内网 false：外网
+        const isInnerIp = isInnerIPFn().isInnerIp
+        console.log('isInnerIp:',isInnerIp)
+        if(isInnerIp){
+          this.checkImgUrl = `http://10.19.8.21:8181${row.imgUrl.slice(22)}`
+        }else{
+          this.checkImgUrl = `http://222.240.233.67:8181${row.imgUrl.slice(22)}`
+        }
       },
       //发送短信
       sendMessage(index,row){
@@ -466,12 +491,14 @@
         let {currentPage,pageSize} = this
         pageSize = val
         this.getBookVisitorInforFun(currentPage,pageSize,{visitedName:user,visitedNo:num})
+        this.loadingSwitch = true
       },
       handleCurrentChange(val) {
         const{user,num} = this.bookVisitArr
         let {currentPage,pageSize} = this
         currentPage = val
         this.getBookVisitorInforFun(currentPage,pageSize,{visitedName:user,visitedNo:num})
+        this.loadingSwitch = true
       },
       //登记按钮
       subPhotoBtn(index,row){

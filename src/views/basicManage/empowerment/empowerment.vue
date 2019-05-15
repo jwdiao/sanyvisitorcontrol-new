@@ -15,8 +15,9 @@
       </el-form-item>
     </el-form>
     <div class="common-table">
-      <div v-if="empowermentTableData.length===0" class="lazyImg"><span class="lazyText">暂无数据</span></div>
-      <el-table v-else header-row-class-name="table-header" stripe style="width: 100%" ref="multipleTable" tooltip-effect="dark" height="650"
+      <div v-if="loadingStatus" class="lazyImg"><span class="lazyText">数据加载中</span></div>
+      <div v-if="noDataStatus" class="lazyImg"><span class="lazyText">暂无数据</span></div>
+      <el-table v-if="!loadingStatus" v-show="!noDataStatus" header-row-class-name="table-header" stripe style="width: 100%" ref="multipleTable" tooltip-effect="dark" height="650"
                 @selection-change="handleSelectionChange"
                 :data="empowermentTableData">
         <el-table-column type="index" label="序号" width="100"></el-table-column>
@@ -30,7 +31,7 @@
           </template>
         </el-table-column>
       </el-table>
-      <el-dialog title="园区信息"
+      <el-dialog title="园区信息" v-dialogDrag
                  :visible.sync="addFormVisible"
                  :close-on-click-modal="false"
 								 @close="closeDialog"
@@ -94,6 +95,8 @@
     name: "Template",
     data() {
       return {
+        loadingStatus:true,//初始化显示数据加载中
+        noDataStatus:false,//显示暂无数据,初始化不显示
         visitDate:'',
         organizatioName:'',
         editForm:[],
@@ -132,10 +135,15 @@
       //查询主列表
       async searchList(organizatioName,pageNum,pageSize){
         const res = await reqParkServiceLists(organizatioName,pageNum,pageSize)
-        if(res.data.code === 200){
+        if(!res || !res.data.code === 200) return
           this.empowermentTableData = res.data.data.list
           this.total = res.data.data.total
-        }
+          //数据懒加载显示
+          this.loadingStatus = false
+          if(this.empowermentTableData.length === 0){
+            this.noDataStatus = true
+            return
+          }
       },
 
 

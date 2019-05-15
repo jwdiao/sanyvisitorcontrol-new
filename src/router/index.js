@@ -5,6 +5,7 @@ import Router from 'vue-router'
 Vue.use(Router)
 
 const router = new Router({
+  // mode:'history',
   routes: [
     {
       path: '/',
@@ -20,12 +21,12 @@ const router = new Router({
       name: 'resetpwd',
       component: () => import('../views/login/resetpwd.vue')
     },
-		{
-		  path: '/twodimension/:id',
-		  // path: '/twodimension',
-		  name: 'twodimension',
-		  component: () => import('../views/twoDimension/index.vue')
-		},
+    {
+      // path: '/twodimension/:id',
+      path: '/twodimension',
+      name: 'twodimension',
+      component: () => import('../views/twoDimension/index.vue')
+    },
     {
       path: '/layout',
       name: 'layout',

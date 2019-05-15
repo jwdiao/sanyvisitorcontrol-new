@@ -29,9 +29,12 @@
       </el-form-item>
     </el-form>
     <div class="common-table" style="text-align: center">
-      <div v-if="tableData.length===0" class="lazyImg"><span class="lazyText">暂无数据</span></div>
-      <el-table v-else  header-row-class-name="table-header"  border  style="width: 100%" :data="tableData">
-        <el-table-column type="index" label="序号" width="50" align="left" header-align="left"></el-table-column>
+      <div v-if="loadingStatus" class="lazyImg"><span class="lazyText">数据加载中</span></div>
+      <div v-if="noDataStatus" class="lazyImg"><span class="lazyText">暂无数据</span></div>
+      <el-table v-if="!loadingStatus" v-show="!noDataStatus"
+                header-row-class-name="table-header"  v-loading="loadingSwitch"
+                border  style="width: 100%" :data="tableData">
+        <el-table-column prop="number" label="序号" width="50" align="left" header-align="left"></el-table-column>
         <el-table-column prop="planBeginTime" label="到访日期" width="180" align="left" header-align="left">  </el-table-column>
         <el-table-column prop="visitingTime" label="拜访时间"  width="100" align="left" header-align="left">  </el-table-column>
         <el-table-column prop="beginTime" label="实际开始时间"  width="160" align="left" header-align="left">  </el-table-column>
@@ -66,7 +69,7 @@
     </div>
     <!-- 查看信息弹窗 -->
     <div class="common_lookInfoDialog">
-      <el-dialog title="拜访历史记录"
+      <el-dialog title="拜访历史记录" v-dialogDrag
         :visible.sync="visitorInfomation"
         :close-on-click-modal="false"
         class="edit-form" width="1000px"
@@ -115,10 +118,10 @@
           <el-table header-row-class-name="table-header" border
                     :data="editForm.sanyBussVisitorDetailsList">
             <el-table-column type="index" label="序号" width="50"></el-table-column>
-            <el-table-column prop="visitorName" label="拜访人姓名">  </el-table-column>
-            <el-table-column prop="phone" label="电话号码">  </el-table-column>
-            <el-table-column prop="visitorId" label="身份证号" >  </el-table-column>
-            <el-table-column prop="carNo" label="车牌号码"></el-table-column>
+            <el-table-column prop="visitorName" label="拜访人姓名" width="110">  </el-table-column>
+            <el-table-column prop="phone" label="电话号码" width="115">  </el-table-column>
+            <el-table-column prop="visitorId" label="身份证号" width="170" >  </el-table-column>
+            <el-table-column prop="carNo" label="车牌号码" width="110"></el-table-column>
             <el-table-column prop="beginTime" label="实际开始时间"  >  </el-table-column>
             <el-table-column prop="endTime" label="实际结束时间" >  </el-table-column>
             <el-table-column prop="imgUrl" label="图片名称">
@@ -143,12 +146,12 @@
     <!-- 查看信息弹窗end -->
     <!-- 查看照片 -->
     <div class="checkPictureInformation">
-      <el-dialog title="图片信息"
+      <el-dialog title="图片信息" v-dialogDrag
                  :visible.sync="checkPictureInformationVisible"
                  :close-on-click-modal="false"
                  class="edit-form">
         <div style="display: flex;justify-content: center;align-items: center;overflow: hidden;">
-            <img :src="currentImg" alt="" style="max-width:100%;">
+            <img :src="currentImg" alt="" style="width:100%;">
         </div>
       </el-dialog>
     </div>
@@ -161,10 +164,14 @@
     getVisitorHistoryRequest,
     getVisitorDetailsRequest
   } from '../../api/businessManageApi'
+  import {isInnerIPFn} from '../../util/isInnerIP'
   export default {
     name: "VisitorHistoryRecord",
     data() {
       return {
+        loadingSwitch:false,//加载中
+        loadingStatus:true,//初始化显示数据加载中
+        noDataStatus:false,//显示暂无数据,初始化不显示
         startTime: '', // 开始时间
         endTime: '', // 结束时间
         pickerOptionsStart: {
@@ -188,7 +195,13 @@
         },
         visitorInfomation: false, // 弹窗是否显示
         checkPictureInformationVisible: false, // 查看照片
-        currentImg: ''
+        currentImg: '',
+        editFormIsVip : '一般访客',
+      }
+    },
+    watch:{
+      tableData(){
+        this.loadingSwitch = false
       }
     },
     mounted () {
@@ -197,7 +210,7 @@
     methods: {
       async getVisitorHistoryData(pageNum, pageSize, beginTime, endTime) {
         const res = await getVisitorHistoryRequest(pageNum, pageSize, beginTime, endTime);
-        console.log('获取的所有列表：',res)
+        // console.log('获取的所有列表：',res)
         // debugger;
         if (!res || !res.data || res.data.code !== 200) {
           this.$message({
@@ -209,7 +222,7 @@
         const {list, total} = res.data.data
 
         this.totalNum = total
-        this.tableData = list.map((item) => {
+        this.tableData = list.map((item,index) => {
           var visitorStatus = item.sanyBussVisitor.visitorStatus // 访问状态
           if (visitorStatus === '01') {
             visitorStatus = '待访问'
@@ -261,23 +274,33 @@
             recordType: recordType, // 录入类型（01：被访人录入02：访客机录入03：门岗录入'）
             operaterCode: item.sanyBussVisitor.operaterCode, // 操作人工号
             operaterName: item.operaterName, // 操作人姓名
+            number:(this.currentPage-1)*this.pageSize+(index+1)
           }
         })
+        // console.log('this.tableData:',this.tableData)
+        //懒加载显示
+        this.loadingStatus = false
+        if(this.tableData.length === 0){
+          this.noDataStatus = true
+        }
       },
       handleSizeChange(val) {
         // console.log(`yy: ${val}`);
         this.pageSize = val
         this.currentPage = 1;
         this.getVisitorHistoryData(this.currentPage, this.pageSize, this.startTime, this.endTime)
+        this.loadingSwitch = true
       },
       handleCurrentChange(val) {
         // console.log(`当前页: ${val}`);
         this.currentPage = val
-        this.getAllVisitorData(this.currentPage, this.pageSize, this.startTime, this.endTime)
+        this.getVisitorHistoryData(this.currentPage, this.pageSize, this.startTime, this.endTime)
+        this.loadingSwitch = true
       },
       onSearch() {
         this.currentPage = 1;
         this.getVisitorHistoryData(this.currentPage, this.pageSize, this.startTime, this.endTime)
+        this.loadingSwitch = true
       },
       // 查看信息
       lookInfo(index, row) {
@@ -315,7 +338,14 @@
       // 查看图片
       checkPicture(index, row){
         this.checkPictureInformationVisible = true
-        this.currentImg = row.imgUrl
+        //根据内外网访问图片  isInnerIp:true为内网 false：外网
+        const isInnerIp = isInnerIPFn().isInnerIp
+        console.log('isInnerIp:',isInnerIp)
+        if(isInnerIp){
+          this.currentImg = `http://10.19.8.21:8181${row.imgUrl.slice(22)}`
+        }else{
+          this.currentImg = `http://222.240.233.67:8181${row.imgUrl.slice(22)}`
+        }
       },
     }
   }

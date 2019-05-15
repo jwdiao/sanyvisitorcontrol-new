@@ -15,6 +15,7 @@
         </div>
 
         <div class="right_container" >
+      <!--搜索区域-->
           <el-form
             :inline="true"
             :model="formInline"
@@ -80,14 +81,16 @@
                 <el-button class="btnIsBlue" type="primary" @click="batchAuthoriaztion">批量授权</el-button>
               </el-form-item>
           </el-form>
+      <!--列表区域-->
           <div class="common-table">
-            <div v-if="tableData.length===0" class="lazyImg"><span class="lazyText">暂无数据</span></div>
-            <el-table v-else stripe height="570px"
-              :data="tableData"
+            <div v-if="loadingStatus" class="lazyImg"><span class="lazyText">数据加载中</span></div>
+            <div v-if="noDataStatus" class="lazyImg"><span class="lazyText">暂无数据</span></div>
+            <el-table v-if="!loadingStatus" v-show="!noDataStatus" stripe height="570px"
+              :data="tableData" v-loading="loadingSwitch"
               header-row-class-name="table-header" @selection-change="handleSelectionChangeDelete"
             style="width: 100%">
               <el-table-column type="selection" label="选择" width="80"></el-table-column>
-              <el-table-column type="index" label="序号" width="80"></el-table-column>
+              <el-table-column prop="number" label="序号" width="80"></el-table-column>
               <el-table-column prop="sanyBasicShrOrg.orgText" label="归属部门"> </el-table-column>
               <el-table-column prop="userName" label="姓名"> </el-table-column>
               <el-table-column prop="telephone" label="电话号码"></el-table-column>
@@ -150,7 +153,7 @@
 
     <!--操作---编辑-->
     <div class="addVisitorDialog">
-      <el-dialog title="员工管理信息" width="1120px"
+      <el-dialog title="员工管理信息" width="1120px"  v-dialogDrag
                  :visible.sync="editOuterWorkerManageList"
                  :close-on-click-modal="false"
                  :before-close="editOuterWorkerManageDialogClose">
@@ -198,7 +201,7 @@
               <el-select v-model="editRoleName" @change="editSelectAddRole" placeholder="请选择">
                 <el-option
                   v-for="(item,index) in editSelectRoleOptions"
-                  :key="index"
+                  :key="index+'a'"
                   :label="item.label"
                   :value="item.value">
                 </el-option>
@@ -208,7 +211,7 @@
               <el-select v-model="editParkName" @change="editSelectAddGuishuPark" placeholder="请选择"  :disabled="isDisabledParkSelect">
                 <el-option
                   v-for="(item,index) in editSelectParkOptions"
-                  :key="index"
+                  :key="index+'b'"
                   :label="item.label"
                   :value="item.value">
                 </el-option>
@@ -269,7 +272,7 @@
     <!-- 新增弹窗 -->
     <!--<AddDialog :visible="isShowAddDialog" />-->
     <el-dialog
-      title="园区员工管理"
+      title="园区员工管理"  v-dialogDrag
       :close-on-click-modal="false"
       :visible.sync="dialogVisibles"
       @close="handleDialogClose"
@@ -321,7 +324,7 @@
             <el-select v-model="selectRoleName" @change="selectAddRole" placeholder="请选择">
               <el-option
                 v-for="(item,index) in selectRoleOptions"
-                :key="index"
+                :key="index+'c'"
                 :label="item.label"
                 :value="item.value">
               </el-option>
@@ -331,7 +334,7 @@
             <el-select v-model="selectGuishuParkName" @change="selectAddGuishuPark" :disabled="isDisabledParkSelect" placeholder="请选择">
               <el-option
                 v-for="(item,index) in selectParkOptions"
-                :key="index"
+                :key="index+'d'"
                 :label="item.label"
                 :value="item.value">
               </el-option>
@@ -396,7 +399,7 @@
     <!--拍照上传弹窗start-->
     <div class="tempVisitInput_camera">
       <el-dialog
-        title="提示"
+        title="提示"  v-dialogDrag
         :visible.sync="dialogVisible"
         width="1100px"
         :close-on-click-modal="false"
@@ -418,12 +421,12 @@
     </div>
     <!--拍照上传弹窗end-->
     <!-- 查看图片 -->
-    <el-dialog title="图片信息"
+    <el-dialog title="图片信息" v-dialogDrag
                :visible.sync="dialogVisibleImg"
                :close-on-click-modal="false"
                class="edit-form">
       <div class="inputText" style="display: flex;justify-content: center;align-items: center;overflow: hidden;">
-        <img :src="photoImageUrl" alt="" style="max-width:100%;">
+        <img :src="photoImageUrl" alt="" style="width:100%;">
       </div>
       <div slot="footer" class="dialog-footer">
         <el-button @click.native="dialogVisibleImg=false">取消</el-button>
@@ -461,10 +464,14 @@ import {
   regTelephone,
 }from '../../../api'
 import {checkPhone,checkIDCard} from '../../../util/regExp.js'
+import {isInnerIPFn} from '../../../util/isInnerIP'
 export default {
   name: 'ExternalStaffManage',
     data() {
       return {
+        loadingSwitch:false,//加载 中
+        loadingStatus:true,//初始化显示数据加载中
+        noDataStatus:false,//显示暂无数据,初始化不显示
         isRegexg:false,//验证信息
         EditFormUserNo:'',
         editFormUserTelephone:'',
@@ -628,11 +635,8 @@ export default {
 
     },
     watch:{
-      tableData:{
-        deep:true,
-        handler: (tableData) => {
-          console.log('newDataVal:',tableData)
-        }
+      tableData(){
+        this.loadingSwitch = false
       }
     },
     methods: {
@@ -655,10 +659,10 @@ export default {
         const res = await reqOuterTrees()
           if(res.data.code === 200){
           var dataTreeNew = JSON.parse(res.data.data)
-				  console.log(dataTreeNew[0]);
+				  // console.log(dataTreeNew[0]);
           this.dataTree.push(dataTreeNew[0])
 
-          console.log('resTree:',this.dataTree)
+          // console.log('resTree:',this.dataTree)
           }
           this.defaultData = this.dataTree[0].id  //默认tree状结构展开
       },
@@ -668,13 +672,22 @@ export default {
     * */
       async getSearchListFun(isImgUrl,imgVerify,userName,orgId,pageNum,pageSize){
         const res = await reqSearchList(isImgUrl,imgVerify,userName,orgId,pageNum,pageSize)
-        if(res.data.code === 200){
-          this.$nextTick(()=>{
-            this.tableData = res.data.data.list
-          })
-          this.total = res.data.data.total
-          console.log('主列表返回的list:',this.tableData)
+        if(!res || !res.data.code === 200) return
+        if(res.data.data.list === null){
+          this.tableData =[]
+        }else{
+          this.tableData = res.data.data.list
+          for (var i = 0; i < this.tableData.length; i++) {
+            this.tableData[i].number = (this.currentPage-1)*this.pageSize+(i+1)
+          }
         }
+          this.total = res.data.data.total
+          //数据懒加载显示
+          this.loadingStatus = false
+          if(this.tableData.length === 0){
+            this.noDataStatus = true
+          }
+          // console.log('主列表返回的list:',this.tableData)
       },
       /*函数名：beforeUpload
       参数：
@@ -977,7 +990,7 @@ export default {
             return item.orgId
           })
         this.getSearchListFun(enterPhoto,meetDemand,username,this.orgId,currentPage,pageSize)
-
+        this.loadingSwitch = true
       },
       handleSizeChange(val) {
         const{enterPhoto,meetDemand,username} = this.formInline
@@ -987,7 +1000,7 @@ export default {
           return item.orgId
         })
         this.getSearchListFun(enterPhoto,meetDemand,username,this.orgId,currentPage,this.pageSize)
-
+        this.loadingSwitch = true
       },
       handleCurrentChange(val) {
         const{enterPhoto,meetDemand,username} = this.formInline
@@ -997,14 +1010,21 @@ export default {
           return item.orgId
         })
         this.getSearchListFun(enterPhoto,meetDemand,username,this.orgId,this.currentPage,this.pageSize)
-
+        this.loadingSwitch = true
 
       },
       handleLookPhoto(index, row) {
         this.dialogVisibleImg = true
-        this.photoImageUrl = row.imgUrlUpload
-        console.log('imageUrl:',this.photoImageUrl);
-
+        //根据内外网访问图片  isInnerIp:true为内网 false：外网
+        const isInnerIp = isInnerIPFn().isInnerIp
+        console.log('isInnerIp:',isInnerIp)
+        if(this.photoImageUrl){
+          if(isInnerIp){
+            this.photoImageUrl = `http://10.19.8.21:8181${row.imgUrlUpload.slice(22)}`
+          }else{
+            this.photoImageUrl = `http://222.240.233.67:8181${row.imgUrlUpload.slice(22)}`
+          }
+        }
       },
       handleLookCardPhoto(index, row) {
         console.log(index, row);
