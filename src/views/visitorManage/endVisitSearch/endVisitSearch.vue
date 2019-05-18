@@ -189,7 +189,7 @@
         },
         pickerOptionsEnd:{
           disabledDate:(time) =>{
-            return time.getTime() < new Date(this.visitDateStart).getTime() - 3600*1000*24 || time.getTime() > Date.now();
+            return time.getTime() < new Date(this.visitDateStart).getTime() || time.getTime() > Date.now();
           }
         },
         visitReason:'',   //拜访原因
@@ -232,6 +232,8 @@
           if(this.tableData.length === 0){
             this.noDataStatus = true
             return
+          }else{
+            this.noDataStatus = false
           }
           for (var i = 0; i < this.tableData.length; i++) {
           this.tableData[i].number = (this.currentPage-1)*this.pageSize+(i+1)

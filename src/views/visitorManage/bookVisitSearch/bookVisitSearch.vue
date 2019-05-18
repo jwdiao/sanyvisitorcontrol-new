@@ -1,3 +1,8 @@
+<!--
+修改日志：
+20190516加车牌号和访客姓名检索
+
+-->
 <template>
   <div class="">
    <!-- <p class="common-breadcrumb">预约访客查询</p> -->
@@ -13,6 +18,12 @@
       </el-form-item>
       <el-form-item label="被访人工号">
         <el-input v-model="bookVisitArr.num" clearable placeholder="被访人工号"></el-input>
+      </el-form-item>
+      <el-form-item label="访客姓名">
+        <el-input v-model="bookVisitArr.vname" clearable placeholder="访客姓名"></el-input>
+      </el-form-item>
+      <el-form-item label="车牌号">
+        <el-input v-model="bookVisitArr.carNo" clearable placeholder="访客车牌号"></el-input>
       </el-form-item>
       <el-form-item>
         <el-button class="btnIsBlue" type="primary" style="width: 100px" @click="onSubmit">查询</el-button>
@@ -225,7 +236,9 @@
         checkImgUrlData:'',//查看图片地址(临时储存)
         bookVisitArr: {
           user: '',
-          num: ''
+          num: '',
+          vname:'',     //20190516加车牌号和访客姓名检索
+          carNo:''
         },
         multipleTable:[],
         visitReason:'',
@@ -240,7 +253,7 @@
     },
     mounted(){
       const {currentPage,pageSize} = this
-      this.getBookVisitorInforFun(currentPage,pageSize,{visitedName:'',visitedNo:''})
+      this.getBookVisitorInforFun(currentPage,pageSize,{visitedName:'',visitedNo:'',vname:'',carNo:''})
     },
     watch:{
       visitTableListData(){
@@ -263,6 +276,8 @@
           if(this.visitTableListData.length === 0){
             this.noDataStatus = true
             return
+          }else{
+            this.noDataStatus = false
           }
 
           for (var i = 0; i < this.visitTableListData.length; i++) {
@@ -325,10 +340,10 @@
         描述：点击查询逻辑
       * */
       onSubmit() {
-        const{user,num} = this.bookVisitArr
+        const{user,num,vname,carNo} = this.bookVisitArr
         let {currentPage,pageSize} = this
         currentPage = 1
-        this.getBookVisitorInforFun(currentPage,pageSize,{visitedName:user,visitedNo:num})
+        this.getBookVisitorInforFun(currentPage,pageSize,{visitedName:user,visitedNo:num,vname,carNo})
         this.loadingSwitch = true
       },
       //点击登记按钮逻辑
@@ -345,10 +360,10 @@
         }).then(() => {
          this.getVisitRequestFn(row.id,this.source)
         setTimeout(()=>{
-          const{user,num} = this.bookVisitArr
+          const{user,num,vname,carNo} = this.bookVisitArr
           let {currentPage,pageSize} = this
           currentPage = 1
-          this.getBookVisitorInforFun(currentPage,pageSize,{visitedName:user,visitedNo:num})
+          this.getBookVisitorInforFun(currentPage,pageSize,{visitedName:user,visitedNo:num,vname,carNo})
         },500)
 
 
@@ -494,10 +509,10 @@
         this.loadingSwitch = true
       },
       handleCurrentChange(val) {
-        const{user,num} = this.bookVisitArr
+        const{user,num,vname,carNo} = this.bookVisitArr
         let {currentPage,pageSize} = this
         currentPage = val
-        this.getBookVisitorInforFun(currentPage,pageSize,{visitedName:user,visitedNo:num})
+        this.getBookVisitorInforFun(currentPage,pageSize,{visitedName:user,visitedNo:num,vname,carNo})
         this.loadingSwitch = true
       },
       //登记按钮
@@ -529,7 +544,7 @@
           })
           //重新渲染页面
           const {currentPage,pageSize} = this
-          this.getBookVisitorInforFun(currentPage,pageSize,{visitedName:'',visitedNo:''})
+          this.getBookVisitorInforFun(currentPage,pageSize,{visitedName:'',visitedNo:'',vname:'',carNo:''})
         }else{
           this.$message({
             type:'error',
@@ -544,7 +559,7 @@
           this.$message({type:'success',message:res.data.data})
           //刷新列表
           const {currentPage,pageSize} = this
-          this.getBookVisitorInforFun(currentPage,pageSize,{visitedName:'',visitedNo:''})
+          this.getBookVisitorInforFun(currentPage,pageSize,{visitedName:'',visitedNo:'',vname:'',carNo:''})
         }else{
           this.$message({type:'error',message:res.data.msg})
         }
@@ -600,6 +615,10 @@
   }
   /deep/ .el-dialog__header{
     border-bottom: 1px solid #DCDFE6;
+  }
+  /deep/ .el-form-item{
+    margin-right: 15px;
+    margin-left: 0px;
   }
 </style>
 <style>

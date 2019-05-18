@@ -47,6 +47,18 @@
           </el-table-column>
         </el-table>
       </div>
+     <div class="marginTop10 text-right">
+       <el-pagination
+         background
+         @size-change="handleSizeChange"
+         @current-change="handleCurrentChange"
+         :current-page="currentPage"
+         :page-sizes="[20, 30, 50, 100]"
+         :page-size='pageSize'
+         layout="total, sizes, prev, pager, next, jumper"
+         :total="total">
+       </el-pagination>
+     </div>
      <!--编辑弹窗-->
      <div class="editParkDialog">
        <el-dialog title="闸机信息" v-dialogDrag
@@ -129,18 +141,7 @@
          <el-button class="btnIsBlue" type="primary" @click.native="handleAddDataFn('editForm')">提交</el-button>
        </div>
      </el-dialog>
-      <div class="marginTop10 text-right">
-        <el-pagination
-          background
-          @size-change="handleSizeChange"
-          @current-change="handleCurrentChange"
-          :current-page="currentPage"
-          :page-sizes="[20, 30, 50, 100]"
-          :page-size='pageSize'
-          layout="total, sizes, prev, pager, next, jumper"
-          :total="total">
-        </el-pagination>
-      </div>
+
    </div>
 </template>
 
@@ -240,13 +241,16 @@
         const res = await reqSearchBrakeList(ParkerItemName,currentPage,pageSize)
         if(!res || !res.data.code === 200) return
           this.tableDataBrake = res.data.data.list
+          this.total = res.data.data.total
           //数据懒加载显示
           this.loadingStatus = false
           if(this.tableDataBrake.length === 0){
             this.noDataStatus = true
             return
+          } else{
+          this.noDataStatus = false
           }
-          this.total = res.data.data.total
+
       },
       handleSizeChange(val) {
         this.pageSize = val

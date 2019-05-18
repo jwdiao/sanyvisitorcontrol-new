@@ -426,7 +426,7 @@
                :close-on-click-modal="false"
                class="edit-form">
       <div class="inputText" style="display: flex;justify-content: center;align-items: center;overflow: hidden;">
-        <img :src="photoImageUrl" alt="" style="width:100%;">
+        <img :src="photoImageUrl" alt="" style="width:300px;">
       </div>
       <div slot="footer" class="dialog-footer">
         <el-button @click.native="dialogVisibleImg=false">取消</el-button>
@@ -686,6 +686,8 @@ export default {
           this.loadingStatus = false
           if(this.tableData.length === 0){
             this.noDataStatus = true
+          }else {
+          this.noDataStatus = false
           }
           // console.log('主列表返回的list:',this.tableData)
       },
@@ -1017,7 +1019,9 @@ export default {
         this.dialogVisibleImg = true
         //根据内外网访问图片  isInnerIp:true为内网 false：外网
         const isInnerIp = isInnerIPFn().isInnerIp
-        console.log('isInnerIp:',isInnerIp)
+        this.photoImageUrl = row.imgUrlUpload
+        // console.log('isInnerIp:',isInnerIp)
+        // console.log('this.photoImageUrl:',this.photoImageUrl)
         if(this.photoImageUrl){
           if(isInnerIp){
             this.photoImageUrl = `http://10.19.8.21:8181${row.imgUrlUpload.slice(22)}`

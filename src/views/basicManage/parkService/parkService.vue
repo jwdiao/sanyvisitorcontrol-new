@@ -232,6 +232,8 @@
           if(this.parkTableData.length === 0){
             this.noDataStatus = true
             return
+          }else{
+            this.noDataStatus = false
           }
       },
       /**

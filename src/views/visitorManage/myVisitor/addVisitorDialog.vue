@@ -601,7 +601,11 @@ export default {
         messageArr.push(messageObj)
       })
       console.log('messageArr:',messageArr)
-       this.addVisitorSuccess(messageArr)
+      console.log('carNum：',carNum)
+      if(carNum === 0){ //20190516当访客有车辆时，不发送短信，没有开车时发送短信，  0：没有车
+        this.addVisitorSuccess(messageArr)
+      }
+
 
       // 新增完之后清空
       this.formInline.sanyBussVisitor = {

@@ -181,7 +181,7 @@
         },
         pickerOptionsEnd:{
           disabledDate:(time) =>{
-            return time.getTime() > Date.now()|| time.getTime() < new Date(this.startTime).getTime() + 3600*1000*24
+            return time.getTime() > Date.now()|| time.getTime() < new Date(this.startTime).getTime()
           }
         },
         tableData: [],
@@ -282,6 +282,8 @@
         this.loadingStatus = false
         if(this.tableData.length === 0){
           this.noDataStatus = true
+        }else{
+          this.noDataStatus = false
         }
       },
       handleSizeChange(val) {

@@ -742,7 +742,11 @@
           messageArr.push(messageObj)
         })
         console.log('messageArr:',messageArr)
-        this.addVisitorSuccess(messageArr)
+        console.log('this.formInline.sanyBussVisitor.isCar:',this.formInline.sanyBussVisitor.isCar)
+        if(this.formInline.sanyBussVisitor.isCar === '0'){
+          this.addVisitorSuccess(messageArr)
+        }
+
 
 
         // 上传完之后清空
@@ -750,7 +754,7 @@
           planBeginTime: '', // 拜访开始时间
           // planEndTime: '', // 拜访结束时间
           visitingTime:'',//拜访时间
-          vistorNum: '', // 来访人数量
+          vistorNum: 1, // 来访人数量
           isCar: '', // 是否驾车
           isVip:0,//一般访客
           carNum: 0, // 驾车数量
