@@ -1,12 +1,17 @@
 <template>
 <div>
 <el-dialog
-  title="我的访客信息" v-dialogDrag
+  title="新增我的访客信息" v-dialogDrag
   :close-on-click-modal="false"
   :visible.sync="dialogVisibles"
   @close="handleDialogClose"
   width="1120px">
-    <div class="addVisitorDialog">
+    <div class="addVisitorDialog"
+         v-loading="loadingDialog"
+        element-loading-text="数据提交中"
+         element-loading-spinner = 'el-icon-loading'
+         element-loading-background="rgba(255,255,255,0.8)"
+    >
       <!-- 表单 -->
       <el-form :model="formInline.sanyBussVisitor" ref="editDateForm" :rules="rules"
         :inline="true"
@@ -144,7 +149,7 @@
               </td>
               <td style="position: relative">
                 <!--regIsNull-->
-                <el-input v-model="item.phone" :class="{regIsNull:item.phone==='' && isShowPhone ?true:false}" placeholder="请输入电话" @blur="blurPhone(item.phone)" @change="regTel(item.phone)"></el-input>
+                <el-input v-model="item.phone" :class="{regIsNull:item.phone==='' && isShowPhone ?true:false}" placeholder="请输入电话" @blur="blurPhone(item.phone)" @change="regTel(item.phone,index)"></el-input>
                 <span style="position:absolute;top: 22px;left: 0px;color: #f56c6c;">*</span>
                 <!--isShowPhone-->
                 <div v-if="isShowPhone" v-show="item.phone===''? true : false" style="color: #F56C6C;text-align: left;position: absolute;top: 60px;left: 8px;" >请输入电话</div>
@@ -242,18 +247,18 @@
     </span>
 </el-dialog>
 <!-- 查看图片 -->
-      <el-dialog title="图片信息" v-dialogDrag
-                 :visible.sync="dialogVisibleImg"
-                 :close-on-click-modal="false"
-                 class="edit-form">
-          <div class="inputText" style="display: flex;justify-content: center;align-items: center;overflow: hidden;">
-              <img :src="lookCurrentImgUrl" alt="" style="width:100%;">
-          </div>
-        <div slot="footer" class="dialog-footer">
-          <el-button @click.native="dialogVisibleImg=false">取消</el-button>
-        </div>
-      </el-dialog>
-      <!-- 查看图片end -->
+<el-dialog title="图片信息" v-dialogDrag
+           :visible.sync="dialogVisibleImg"
+           :close-on-click-modal="false"
+           class="edit-form">
+    <div class="inputText" style="display: flex;justify-content: center;align-items: center;overflow: hidden;">
+        <img :src="lookCurrentImgUrl" alt="" style="width:100%;">
+    </div>
+  <div slot="footer" class="dialog-footer">
+    <el-button @click.native="dialogVisibleImg=false">取消</el-button>
+  </div>
+</el-dialog>
+<!-- 查看图片end -->
 </div>
 </template>
 <script>
@@ -261,6 +266,7 @@ import {
   addApplyRequest,
   fileUploadRequest
 } from '../../../api/businessManageApi'
+import {reqBookParkArr} from '../../../api/loginApi'
 import {reqAddVisitorSuccessReq,reqrRegIDCard,reqCarsNumber} from '../../../api'
 import {checkPhone,checkIDCard,checkCarCard} from "../../../util/regExp";
 import {isInnerIPFn} from '../../../util/isInnerIP'
@@ -270,10 +276,14 @@ export default {
   watch: {
     visible (val) {
       this.dialogVisibles = val
+      this.visitorPark = '回龙观园区'
+      this.visitorParkCode = '01'
+      this.isVip = '一般访客'
     }
   },
   data () {
     return {
+      loadingDialog:false,//20190606弹窗加载中
       isSelected:false,//0401选择当天时，只能选择下午
       deleteDisabled:false,//删除按钮是否可点击
       regIsNull:false,//动态添加Class
@@ -306,10 +316,8 @@ export default {
         value: '0',
       }],
       visitorPark:'回龙观园区',
-      visitorParkOptions:[{
-        label: '回龙观园区',
-        value: '1',
-      }],
+      visitorParkCode:'01',
+      visitorParkOptions:[],
       visitingTimeOptions:[{
         label: '上午',
         value: '01',
@@ -364,7 +372,8 @@ export default {
     }
   },
   mounted () {
-
+    //获取访客访客园区
+    this.getVisitorPark()
   },
   methods: {
     handleClickUpload (index) {
@@ -445,6 +454,15 @@ export default {
         return item.value === val;
       });
       this.visitorPark = obj.label
+      this.visitorParkCode = obj.value
+      this.formInline.sanyBussVisitorDetailsList.forEach((item,index)=>{
+        if(item.carNo!==''){
+          this.regCarNo(item.carNo,index)
+        }
+        if(item.visitorId!==''){
+          this.regID(item.visitorId,index)
+        }
+      })
     },
     //车辆数量   是：1 否：0
     isCarNum(){
@@ -530,10 +548,10 @@ export default {
             this.$message({type:'error',message:'手机号码输入不正确'})
             return
         }
-        if(this.isIDCardtrue){
+      /*  if(this.isIDCardtrue){   //20190524注释
             this.$message({type:'error',message:'身份证号码输入不正确'})
             return
-        }
+        }*/
         if(this.checkCarCardBoolean){
           this.$message({type:'error',message:'车牌号码输入不正确'})
           return
@@ -544,8 +562,8 @@ export default {
         }else if(this.formInline.sanyBussVisitor.visitingTime === '全天'){
           this.formInline.sanyBussVisitor.visitingTime = '03'
         }
-        this.dialogVisibles = false
-        this.$emit('dialogvisible', this.dialogVisibles)
+        // this.dialogVisibles = false
+        // this.$emit('dialogvisible', this.dialogVisibles)
         // Source：1表示从我的访客信息[全部员工]页面过来的添加信息
         const {planBeginTime,visitingTime,vistorNum,isCar,isVip,carNum,reason} = this.formInline.sanyBussVisitor
         // const [{visitorName,gender,phone,visitorId,imgUrl,carNo,countCard}] = this.formInline.sanyBussVisitorDetailsList
@@ -553,10 +571,10 @@ export default {
         console.log('this.sanyBussVisitor:',this.formInline.sanyBussVisitor)
         console.log('this.sanyBussVisitorDetailsList:',this.formInline.sanyBussVisitorDetailsList)
 
-
+        this.loadingDialog = true
         this.formInline.source = 1
         this.addApplyRequestData(
-          planBeginTime,visitingTime,vistorNum,isCar,isVip,carNum,reason,
+          planBeginTime,visitingTime,vistorNum,isCar,isVip,carNum,reason,this.visitorParkCode,
           params,
           this.formInline.source
         )
@@ -566,13 +584,13 @@ export default {
     },
     // 新增请求数据接口
     async addApplyRequestData(
-      planBeginTime,visitingTime,vistorNum,isCar,isVip,carNum,reason,
+      planBeginTime,visitingTime,vistorNum,isCar,isVip,carNum,reason,visitorParkCode,
       // visitorName,gender,phone,visitorId,imgUrl,carNo,countCard,
       params,
       source
     ) {
       const res = await addApplyRequest(
-        planBeginTime,visitingTime,vistorNum,isCar,isVip,carNum,reason,
+        planBeginTime,visitingTime,vistorNum,isCar,isVip,carNum,reason,visitorParkCode,
         // visitorName,gender,phone,visitorId,imgUrl,carNo,countCard,
         params,
         source
@@ -585,6 +603,7 @@ export default {
         });
         return;
       }
+      this.loadingDialog = false
       /*this.$message({
         type: 'success',
         message: '新增成功'
@@ -598,15 +617,13 @@ export default {
         messageObj.telephone= item.telephone
         messageObj.uid= item.uid
         messageObj.verifCode= item.verifCode
+        messageObj.carNo= item.carNo    //20190528发短信时内容增加车牌号信息
         messageArr.push(messageObj)
       })
-      console.log('messageArr:',messageArr)
-      console.log('carNum：',carNum)
-      if(carNum === 0){ //20190516当访客有车辆时，不发送短信，没有开车时发送短信，  0：没有车
+      this.addVisitorSuccess(messageArr) //20190529访客有无车都发送短信
+     /* if(carNum === 0){ //20190516当访客有车辆时不发送短信，没有开车时发送短信，  carNum === 0：没有车
         this.addVisitorSuccess(messageArr)
-      }
-
-
+      }*/
       // 新增完之后清空
       this.formInline.sanyBussVisitor = {
         vistorNum: 1, // 来访人数量
@@ -626,7 +643,7 @@ export default {
         carNo: ''}]
       this.formInline.sanyBussVisitorCarList = []
       this.dialogVisibles = false
-      this.$emit('confirmadddialog', this.dialogVisibles)
+      // this.$emit('confirmadddialog', this.dialogVisibles)
     },
     //添加成功后调用的函数
     async addVisitorSuccess(messageArr){
@@ -684,10 +701,22 @@ export default {
       this.dialogVisibles = false
       this.$emit('confirmadddialog', this.dialogVisibles)
     },
-    regTel(val){
+    regTel(val,index){
       this.isTelephonetrue = checkPhone(val,this)
       console.log('isTelephone:',this.isTelephonetrue)
       val===''? this.regIsNull= true: this.regIsNull= false
+      //0401增加多个时不能有重复的cardID
+      let telArr = []
+      this.formInline.sanyBussVisitorDetailsList.forEach(item=>{
+        telArr.push(item.phone)
+      })
+      telArr.splice(index,1)
+      let indexNum = telArr.includes(val)
+      console.log(val)
+      if(indexNum===true){
+        this.formInline.sanyBussVisitorDetailsList[index].phone = ''
+        this.$message({type:'error',message:'您输入的手机号重复，请重新输入'})
+      }
     },
     async regID(val,index){
       this.isIDCardtrue = checkIDCard(val,this)
@@ -705,15 +734,16 @@ export default {
         this.$message({type:'error',message:'输入的身份证重复，请重新输入'})
       }
 
-      const res = await reqrRegIDCard(val)
+      const res = await reqrRegIDCard(val,this.visitorParkCode)
       if(res&&res.data.code!==200){
+        if(val==='') return
         this.$message({
           type:'error',
           message:res.data.msg
         })
         this.formInline.sanyBussVisitorDetailsList[index].visitorId = ''
       }
-      val===''? this.regIsIDCard= true: this.regIsIDCard= false
+      // val===''? this.regIsIDCard= true: this.regIsIDCard= false   //20190524
     },
     inputChangeName(visitorName){
        visitorName===''? this.regIsName= true: this.regIsName= false
@@ -729,8 +759,8 @@ export default {
       val===''? this.isShowPhone= true: this.isShowPhone= false
     },
     blurIdCard(val){
-      val===''? this.regIsIDCard= true: this.regIsIDCard= false
-      val===''? this.isShowIDCard= true: this.isShowIDCard= false
+      // val===''? this.regIsIDCard= true: this.regIsIDCard= false  //201905024
+      // val===''? this.isShowIDCard= true: this.isShowIDCard= false  //201905024
     },
     blurCarNo(val){
       // val = val.replace(/\s*/g,"")
@@ -753,7 +783,7 @@ export default {
         this.$message({type:'error',message:'输入的身份证重复，请重新输入'})
       }
       //20190508增加车牌号后台验证
-      const res = await reqCarsNumber(val)
+      const res = await reqCarsNumber(val,this.visitorParkCode)
       if(res.data.code!==200){
         this.formInline.sanyBussVisitorDetailsList[index].carNo = ''
         this.$message({type:'error',message:res.data.msg})
@@ -811,6 +841,20 @@ export default {
           this.isSelected = false
         }
       }
+    },
+    //20190520访客园区后台请求
+    async getVisitorPark(){
+      const res = await reqBookParkArr()
+      if(!res && !res.data.code===200){
+        return
+      }
+      let visitorArr = res.data.data
+      visitorArr.forEach(item => {
+        let visitorObj = {}
+        visitorObj.value = item.parkCode
+        visitorObj.label = item.parkName
+        this.visitorParkOptions.push(visitorObj)
+      })
     },
   }
 }
@@ -912,7 +956,12 @@ export default {
     margin-left: 0px;
   }
 }
-
+/deep/ .el-loading-text{
+  font-size: 20px;
+}
+/deep/ .el-loading-spinner i{
+  font-size: 20px;
+}
 
 </style>
 

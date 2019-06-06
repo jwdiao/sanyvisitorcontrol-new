@@ -1,7 +1,7 @@
 <!--
 修改日志：
 20190516加车牌号和访客姓名检索
-
+20190529发信息增加车牌号
 -->
 <template>
   <div class="">
@@ -11,7 +11,7 @@
       :inline="true"
       :model="bookVisitArr"
       size="medium"
-      class="marginTop20 common-form-inline"
+      class="marginTop20 common-form-inline searchInfo"
     >
       <el-form-item label="被访人姓名">
         <el-input v-model="bookVisitArr.user" clearable placeholder="被访人姓名"></el-input>
@@ -24,6 +24,17 @@
       </el-form-item>
       <el-form-item label="车牌号">
         <el-input v-model="bookVisitArr.carNo" clearable placeholder="访客车牌号"></el-input>
+      </el-form-item>
+      <!--20190524增加访客园区-->
+      <el-form-item label="访客园区">
+        <el-select v-model="bookVisitorPark" clearable @clear="clearVisitor" placeholder="请选择" @change="visitorParkChange">
+          <el-option
+            v-for="item in visitorParkOptions"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value">
+          </el-option>
+        </el-select>
       </el-form-item>
       <el-form-item>
         <el-button class="btnIsBlue" type="primary" style="width: 100px" @click="onSubmit">查询</el-button>
@@ -48,6 +59,7 @@
         <el-table-column prop="planBeginTime" label="到访日期" width="160">  </el-table-column>
         <el-table-column prop="employerName" label="被访人姓名" width="110"> </el-table-column>
         <el-table-column prop="visitingTime" label="拜访时间"  width="100">  </el-table-column>
+        <el-table-column prop="visitorName" label="访客姓名" width="80">  </el-table-column>
         <el-table-column prop="vistorNum" label="访客人数" width="80">  </el-table-column>
         <el-table-column prop="isVip" label="访客类型" width="95">  </el-table-column>
         <el-table-column prop="isCar" label="是否驾车" width="80"> </el-table-column>
@@ -59,7 +71,6 @@
         <el-table-column prop="operaterCode" label="操作人工号" width="100"> </el-table-column>  <!---->
         <el-table-column prop="userName" label="操作人姓名" width="110"> </el-table-column>  <!---->
         <el-table-column prop="isSub" label="登记状态"> </el-table-column>  <!--s-->
-
        <!-- <el-table-column prop="checkSubmit" label="审核确认" width="140">
           <template slot-scope="scope">
             <el-button size="mini" type="text" v-show='scope.row.recordType==="访客机录入"'
@@ -219,11 +230,15 @@
 <script>
   import {reqRightForm,reqCheckDetailList,reqSubPhotoes,reqRUploadImage,regNormalRegister,reqSendMessageSingle} from '../../../api'
   import {confirmVisitRequest,invalidVisitRequest,fileUploadRequest} from '../../../api/businessManageApi'
+  import {reqBookParkArr} from '../../../api/loginApi'
   import {isInnerIPFn}from '../../../util/isInnerIP'
   export default {
     name: "Template",
     data() {
       return {
+        visitorParkOptions:[],//20190524访客园区
+        bookVisitorPark:[],//20190524访客园区
+        bookVisitorParkCode:'',//20190524访客园区
         loadingSwitch:false,//加载中
         loadingStatus:true,//初始化显示数据加载中
         noDataStatus:false,//显示暂无数据,初始化不显示
@@ -253,10 +268,12 @@
     },
     mounted(){
       const {currentPage,pageSize} = this
-      this.getBookVisitorInforFun(currentPage,pageSize,{visitedName:'',visitedNo:'',vname:'',carNo:''})
+      this.getBookVisitorInforFun(currentPage,pageSize,{visitedName:'',visitedNo:'',vname:'',carNo:'',visitorParkCode:''})
+      //调用访客列表
+      this.getVisitorPark()
     },
     watch:{
-      visitTableListData(){
+      visitTableListData(val){
         this.loadingSwitch = false
       }
     },
@@ -334,6 +351,15 @@
               this.visitTableListData[i].isSub = '照片部分合规'
             }*/
           }
+          //20190528访客姓名
+
+        this.visitTableListData.forEach(item=>{
+          var visitorArr = []
+          item.sanyBussVisitorDetails.forEach(item2=>{
+            visitorArr.push(item2.visitorName)
+          })
+          item.visitorName = visitorArr.join(',')
+        })
       },
       /*函数名：onSubmit
         参数：
@@ -343,7 +369,7 @@
         const{user,num,vname,carNo} = this.bookVisitArr
         let {currentPage,pageSize} = this
         currentPage = 1
-        this.getBookVisitorInforFun(currentPage,pageSize,{visitedName:user,visitedNo:num,vname,carNo})
+        this.getBookVisitorInforFun(currentPage,pageSize,{visitedName:user,visitedNo:num,vname,carNo,visitorParkCode:this.bookVisitorParkCode})
         this.loadingSwitch = true
       },
       //点击登记按钮逻辑
@@ -363,7 +389,7 @@
           const{user,num,vname,carNo} = this.bookVisitArr
           let {currentPage,pageSize} = this
           currentPage = 1
-          this.getBookVisitorInforFun(currentPage,pageSize,{visitedName:user,visitedNo:num,vname,carNo})
+          this.getBookVisitorInforFun(currentPage,pageSize,{visitedName:user,visitedNo:num,vname,carNo,visitorParkCode:this.bookVisitorParkCode})
         },500)
 
 
@@ -466,6 +492,7 @@
           ItemObj.uid = row.id
           ItemObj.qrCode = row.qrCode
           ItemObj.verifCode = row.verifCode
+          ItemObj.carNo = row.carNo  //20190529发信息时增加车牌号
           messageDto.push(ItemObj)
           this.sendMessageSingle(messageDto)
 
@@ -484,8 +511,6 @@
             type:'success',
             message:'短信发送成功'
           })
-          //刷新页面
-          this.getAllVisitorData(this.currentPage,this.pageSize,this.visitorName)
         }else {
           this.$message({
             type:'error',
@@ -505,14 +530,14 @@
         const{user,num} = this.bookVisitArr
         let {currentPage,pageSize} = this
         pageSize = val
-        this.getBookVisitorInforFun(currentPage,pageSize,{visitedName:user,visitedNo:num})
+        this.getBookVisitorInforFun(currentPage,pageSize,{visitedName:user,visitedNo:num,visitorParkCode:this.bookVisitorParkCode})
         this.loadingSwitch = true
       },
       handleCurrentChange(val) {
         const{user,num,vname,carNo} = this.bookVisitArr
         let {currentPage,pageSize} = this
         currentPage = val
-        this.getBookVisitorInforFun(currentPage,pageSize,{visitedName:user,visitedNo:num,vname,carNo})
+        this.getBookVisitorInforFun(currentPage,pageSize,{visitedName:user,visitedNo:num,vname,carNo,visitorParkCode:this.bookVisitorParkCode})
         this.loadingSwitch = true
       },
       //登记按钮
@@ -544,7 +569,7 @@
           })
           //重新渲染页面
           const {currentPage,pageSize} = this
-          this.getBookVisitorInforFun(currentPage,pageSize,{visitedName:'',visitedNo:'',vname:'',carNo:''})
+          this.getBookVisitorInforFun(currentPage,pageSize,{visitedName:'',visitedNo:'',vname:'',carNo:'',visitorParkCode:""})
         }else{
           this.$message({
             type:'error',
@@ -559,7 +584,7 @@
           this.$message({type:'success',message:res.data.data})
           //刷新列表
           const {currentPage,pageSize} = this
-          this.getBookVisitorInforFun(currentPage,pageSize,{visitedName:'',visitedNo:'',vname:'',carNo:''})
+          this.getBookVisitorInforFun(currentPage,pageSize,{visitedName:'',visitedNo:'',vname:'',carNo:'',visitorParkCode:''})
         }else{
           this.$message({type:'error',message:res.data.msg})
         }
@@ -599,6 +624,32 @@
           console.log('重新上传照片0000000000000000000:',this.checkImgUrl)
         }
       },
+      //园区选择20190515
+      visitorParkChange(val){
+        let obj = {};
+        obj = this.visitorParkOptions.find((item)=>{
+          return item.value === val;
+        });
+        this.bookVisitorPark = obj.label
+        this.bookVisitorParkCode = obj.value
+      },
+      //20190520访客园区后台请求
+      async getVisitorPark(){
+        const res = await reqBookParkArr()
+        if(!res && !res.data.code===200){
+          return
+        }
+        let visitorArr = res.data.data
+        visitorArr.forEach(item => {
+          let visitorObj = {}
+          visitorObj.value = item.parkCode
+          visitorObj.label = item.parkName
+          this.visitorParkOptions.push(visitorObj)
+        })
+      },
+      clearVisitor(){
+        this.bookVisitorParkCode = ''
+      }
     }
   }
 </script>
@@ -619,6 +670,23 @@
   /deep/ .el-form-item{
     margin-right: 15px;
     margin-left: 0px;
+  }
+  /deep/ .searchInfo .el-form-item{
+    margin-left: 0px;
+    margin-right: 0px;
+  }
+  /deep/ .searchInfo .el-form-item:first-child{
+    margin-left: 20px;
+    margin-right: 0px;
+  }
+  /deep/ .searchInfo .el-date-editor{
+    width: 185px;
+  }
+  /deep/ .searchInfo .el-input{
+    width: 85%;
+  }
+  .btnIsBlue{
+    width: 100px;
   }
 </style>
 <style>

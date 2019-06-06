@@ -4,7 +4,7 @@
     <el-form
       :inline="true"
       size="medium"
-      class="marginTop20 common-form-inline"
+      class="marginTop20 common-form-inline historySearchInfo"
     >
       <el-form-item label="开始日期">
         <el-date-picker
@@ -24,6 +24,15 @@
           placeholder="选择日期">
         </el-date-picker>
       </el-form-item>
+      <el-form-item label="访客姓名">
+        <el-input v-model="visitorSearch.searchName" placeholder="请输入访客姓名"></el-input>
+      </el-form-item>
+      <el-form-item label="访客电话">
+        <el-input v-model="visitorSearch.searchPhone" placeholder="请输入访客电话"></el-input>
+      </el-form-item>
+      <el-form-item label="车牌号">
+        <el-input v-model="visitorSearch.searchCarNo" placeholder="请输入访客车牌号"></el-input>
+      </el-form-item>
       <el-form-item>
         <el-button class="btnIsBlue" type="primary" @click="onSearch">查询</el-button>
       </el-form-item>
@@ -31,7 +40,7 @@
     <div class="common-table" style="text-align: center">
       <div v-if="loadingStatus" class="lazyImg"><span class="lazyText">数据加载中</span></div>
       <div v-if="noDataStatus" class="lazyImg"><span class="lazyText">暂无数据</span></div>
-      <el-table v-if="!loadingStatus" v-show="!noDataStatus"
+      <el-table v-if="!loadingStatus" v-show="!noDataStatus" height="650"
                 header-row-class-name="table-header"  v-loading="loadingSwitch"
                 border  style="width: 100%" :data="tableData">
         <el-table-column prop="number" label="序号" width="50" align="left" header-align="left"></el-table-column>
@@ -39,7 +48,8 @@
         <el-table-column prop="visitingTime" label="拜访时间"  width="100" align="left" header-align="left">  </el-table-column>
         <el-table-column prop="beginTime" label="实际开始时间"  width="160" align="left" header-align="left">  </el-table-column>
         <el-table-column prop="endTime" label="实际结束时间"  width="160" align="left" header-align="left">  </el-table-column>
-        <el-table-column prop="vistorNum" label="访客人数" width="130" align="left" header-align="left">  </el-table-column>
+        <el-table-column prop="visitorName" label="访客姓名" width="150" align="left" header-align="left">  </el-table-column>
+        <el-table-column prop="vistorNum" label="访客人数" width="80" align="left" header-align="left">  </el-table-column>
         <el-table-column prop="isCar" label="是否驾车" width="80" align="left"> </el-table-column>
         <el-table-column prop="carNum" label="驾车数量" width="80" align="left" header-align="left"> </el-table-column>
         <el-table-column prop="visitorStatus" label="访问状态" width="120" align="left"> </el-table-column>
@@ -169,6 +179,9 @@
     name: "VisitorHistoryRecord",
     data() {
       return {
+        visitorSearch:{    //20190531检索条件
+          searchName:'',searchPhone:'',searchCarNo:''
+        },
         loadingSwitch:false,//加载中
         loadingStatus:true,//初始化显示数据加载中
         noDataStatus:false,//显示暂无数据,初始化不显示
@@ -200,16 +213,16 @@
       }
     },
     watch:{
-      tableData(){
+      tableData(val){
         this.loadingSwitch = false
       }
     },
     mounted () {
-      this.getVisitorHistoryData(this.currentPage,this.pageSize,this.startTime,this.endTime)
+      this.getVisitorHistoryData(this.currentPage,this.pageSize,this.startTime,this.endTime,'',"",'')
     },
     methods: {
-      async getVisitorHistoryData(pageNum, pageSize, beginTime, endTime) {
-        const res = await getVisitorHistoryRequest(pageNum, pageSize, beginTime, endTime);
+      async getVisitorHistoryData(pageNum, pageSize, beginTime, endTime,visitorName,phone,carNo) {
+        const res = await getVisitorHistoryRequest(pageNum, pageSize, beginTime, endTime,visitorName,phone,carNo);
         // console.log('获取的所有列表：',res)
         // debugger;
         if (!res || !res.data || res.data.code !== 200) {
@@ -220,7 +233,7 @@
           return;
         }
         const {list, total} = res.data.data
-
+          console.log('list:',list)
         this.totalNum = total
         this.tableData = list.map((item,index) => {
           var visitorStatus = item.sanyBussVisitor.visitorStatus // 访问状态
@@ -259,6 +272,12 @@
           } else if (isCar === '1') {
             isCar = '是'
           }
+          //20190528访客姓名
+          var visitorArr = []
+          item.sanyBussVisitorDetails.forEach(item=>{
+            visitorArr.push(item.visitorName)
+          })
+          var visitorName = visitorArr.join(',')
           return {
             id: item.sanyBussVisitor.id, // id
             planBeginTime: item.sanyBussVisitor.planBeginTime, // 计划拜访开始时间（到访日期0312）
@@ -274,7 +293,9 @@
             recordType: recordType, // 录入类型（01：被访人录入02：访客机录入03：门岗录入'）
             operaterCode: item.sanyBussVisitor.operaterCode, // 操作人工号
             operaterName: item.operaterName, // 操作人姓名
-            number:(this.currentPage-1)*this.pageSize+(index+1)
+            number:(this.currentPage-1)*this.pageSize+(index+1),
+            sanyBussVisitorDetails:item.sanyBussVisitorDetails,
+            visitorName:visitorName,
           }
         })
         // console.log('this.tableData:',this.tableData)
@@ -290,18 +311,21 @@
         // console.log(`yy: ${val}`);
         this.pageSize = val
         this.currentPage = 1;
-        this.getVisitorHistoryData(this.currentPage, this.pageSize, this.startTime, this.endTime)
+        const {searchName,searchPhone,searchCarNo} = this.visitorSearch
+        this.getVisitorHistoryData(this.currentPage, this.pageSize, this.startTime, this.endTime,searchName,searchPhone,searchCarNo)
         this.loadingSwitch = true
       },
       handleCurrentChange(val) {
         // console.log(`当前页: ${val}`);
         this.currentPage = val
-        this.getVisitorHistoryData(this.currentPage, this.pageSize, this.startTime, this.endTime)
+        const {searchName,searchPhone,searchCarNo} = this.visitorSearch
+        this.getVisitorHistoryData(this.currentPage, this.pageSize, this.startTime, this.endTime,searchName,searchPhone,searchCarNo)
         this.loadingSwitch = true
       },
       onSearch() {
         this.currentPage = 1;
-        this.getVisitorHistoryData(this.currentPage, this.pageSize, this.startTime, this.endTime)
+        const {searchCarNo,searchName,searchPhone} = this.visitorSearch
+        this.getVisitorHistoryData(this.currentPage, this.pageSize, this.startTime, this.endTime,searchName,searchPhone,searchCarNo)
         this.loadingSwitch = true
       },
       // 查看信息
@@ -367,6 +391,23 @@
     width: 88%;
   }
   /deep/ .endVisitSearchDialog .el-form-item .el-form-item__label{
+    width: 100px;
+  }
+  /deep/ .historySearchInfo .el-form-item{
+    margin-left: 0px!important;
+    margin-right: 0px!important;
+  }
+  /deep/ .historySearchInfo .el-form-item:first-child{
+    margin-left: 20px!important;
+    margin-right: 0px!important;
+  }
+  /deep/ .historySearchInfo .el-date-editor{
+    width: 185px!important;
+  }
+  /deep/ .historySearchInfo .el-input{
+    width: 85%!important;
+  }
+  .btnIsBlue{
     width: 100px;
   }
 

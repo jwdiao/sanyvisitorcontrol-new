@@ -1,6 +1,7 @@
 import $http from './http'
 import BASE_URL from './global'
-export const LoginRequest = async (param) => $http.post(`/user/SanyBasicShrUser/login`, param)
+export const LoginRequest = async (param) => $http.post(`/user/SanyBasicShrUser/login`, param) //普通账号登录接口20190531
+// export const LoginRequest = async (param) => $http.post(`/user/SanyBasicShrUser/visitorLogin`, param) //20190529域账号登录接口
 // export const LoginRequest = async (param) => $http.post(`/user/SanyBasicShrUser/login`, param)   // 增加内外网20190505
 // export const LoginRequest = async (param) => $http.post(`/SanyBasicShrUser/login`, param)    //20190430======================?
 //忘记找回密码

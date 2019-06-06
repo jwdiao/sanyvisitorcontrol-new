@@ -20,7 +20,7 @@
 			</el-form>
 		  </div>
 			 <div class="upload">
-			 	<el-upload
+			 	<el-upload disabled
 			 	class="upload-demo"
 			 	ref="upload"
 				:beforeUpload = "beforeAvatarUpload"
@@ -36,7 +36,7 @@
 			 	:http-request="uploadSectionFile"
 			 	enctype="multipart/form-data"
 			 	accept=".jpg,.png">
-				<el-button slot="trigger" size="small" type="primary" class="fileButton btnIsBlue" v-show="isFileBtnShow">
+				<el-button disabled slot="trigger" size="small" type="primary" class="fileButton btnIsBlue" v-show="isFileBtnShow">
 				      选择文件
 				</el-button>
 

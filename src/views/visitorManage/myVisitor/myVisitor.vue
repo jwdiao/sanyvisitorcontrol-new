@@ -9,6 +9,16 @@
       <el-form-item label="访客姓名">
         <el-input v-model="visitorName" placeholder="访客姓名"></el-input>
       </el-form-item>
+      <el-form-item label="访客园区">
+        <el-select v-model="visitorPark" clearable  @clear="clearVisitorPark" placeholder="请选择" @change="visitorParkChange">
+          <el-option
+            v-for="item in visitorParkOptions"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value">
+          </el-option>
+        </el-select>
+      </el-form-item>
       <el-form-item>
         <el-button class="btnIsBlue" type="primary" @click="handleSearchByName" style="width: 100px;">查询</el-button>
         <el-button class="btnIsBlue" type="primary" @click="handleAddVisitor">新增访客</el-button>
@@ -25,13 +35,14 @@
       <div v-if="noDataStatus" class="lazyImg"><span class="lazyText">暂无数据</span></div>
       <el-table v-if="!loadingStatus" v-show="!noDataStatus" header-row-class-name="table-header"  border  style="width: 100%" @selection-change="handleSelectionChange"
         :data="tableData" v-loading="loadingSwitch">
-
         <!--<el-table-column type="selection" label="选择" width="50"></el-table-column>-->
         <el-table-column prop="number" label="序号" width="50" align="left" header-align="left"></el-table-column>
         <el-table-column prop="planBeginTime" label="到访日期" width="100" align="left" header-align="left">  </el-table-column>
         <el-table-column prop="visitingTime" label="拜访时间"  align="left" header-align="left">  </el-table-column>
+        <el-table-column prop="FKName" label="访客姓名"  align="left" header-align="left">  </el-table-column>
         <el-table-column prop="vistorNum" label="访客人数"  align="left" header-align="left">  </el-table-column>
         <el-table-column prop="isVip" label="访客类型"  align="left" header-align="left">  </el-table-column>
+        <el-table-column prop="visitorParkName" label="访客园区"  align="left" header-align="left">  </el-table-column>
         <el-table-column prop="isCar" label="是否驾车"  align="left"> </el-table-column>
         <el-table-column prop="carNum" label="驾车数量"  align="left" header-align="left"> </el-table-column>
         <el-table-column prop="visitorStatus" label="访问状态"  align="left"> </el-table-column>
@@ -88,8 +99,10 @@
     </div>
     <!-- 新增弹窗 -->
     <AddVisitorDialog :visible="dialogVisible" @confirmadddialog="handleConfirmDialog" @cancleadddialog="handleCancleDialog"></AddVisitorDialog>
+    <!--编辑弹窗20190528-->
+    <EditVisitorDialog :rowList="rowList" :editVisible="editDialogVisible" @confirmadddialog="editConfirmDialog" @cancleadddialog="editCancleDialog" :editFormData="editFormData"></EditVisitorDialog>
     <!-- 信息维护弹窗 -->
-    <div class="common_lookInfoDialog">
+    <!--<div class="common_lookInfoDialog">
       <el-dialog title="我的访客信息" v-dialogDrag
         :visible.sync="visitorInfomation"
         :close-on-click-modal="false"
@@ -107,20 +120,23 @@
             <el-form-item label="来访人员数量">
               <el-input v-model="editForm.sanyBussVisitor.vistorNum" disabled></el-input>
             </el-form-item>
-            <!--<el-form-item label="实际开始时间">
+            &lt;!&ndash;<el-form-item label="实际开始时间">
               <el-input  v-model="editForm.sanyBussVisitor.beginTime" disabled></el-input>
             </el-form-item>
             <el-form-item label="实际结束时间">
               <el-input v-model="editForm.sanyBussVisitor.endTime" disabled></el-input>
-            </el-form-item>-->
+            </el-form-item>&ndash;&gt;
             <el-form-item label="是否驾车">
               <el-input v-model="editForm.sanyBussVisitor.isCar" disabled></el-input>
             </el-form-item>
-            <el-form-item label="驾车数量">
+            &lt;!&ndash;<el-form-item label="驾车数量">
               <el-input  v-model="editForm.sanyBussVisitor.carNum" disabled></el-input>
-            </el-form-item>
+            </el-form-item>&ndash;&gt;
             <el-form-item label="访客类型">
               <el-input  v-model="editFormFirstIsVip" disabled></el-input>
+            </el-form-item>
+            <el-form-item label="访客园区">
+              <el-input  v-model="visitorParkName" disabled></el-input>
             </el-form-item>
             <br />
             <el-form-item label="拜访原因" >
@@ -132,15 +148,15 @@
           </div>
         </el-form>
         <div class="common-table">
-          <el-table header-row-class-name="table-header" border
-                    :data="editForm.sanyBussVisitorDetailsList">
+          <el-table header-row-class-name="table-header" border :modal-append-to-body="false"
+                    :data="editForm.sanyBussVisitorDetailsList">&lt;!&ndash;@cell-dblclick="tabledbEdit"&ndash;&gt;
             <el-table-column type="index" label="序号" width="50"></el-table-column>
             <el-table-column prop="visitorName" label="拜访人姓名" width="110" >  </el-table-column>
             <el-table-column prop="phone" label="电话号码" width="115">  </el-table-column>
             <el-table-column prop="visitorId" label="身份证号" width="170">  </el-table-column>
             <el-table-column prop="carNo" label="车牌号码" width="110"></el-table-column>
-           <!-- <el-table-column prop="beginTime" label="进入时间"  >  </el-table-column>
-            <el-table-column prop="endTime" label="离开时间" >  </el-table-column>-->
+           &lt;!&ndash; <el-table-column prop="beginTime" label="进入时间"  >  </el-table-column>
+            <el-table-column prop="endTime" label="离开时间" >  </el-table-column>&ndash;&gt;
             <el-table-column prop="isSub" label="登记状态" width="80" >  </el-table-column>
             <el-table-column label="上传" width="143">
 
@@ -180,9 +196,9 @@
           </el-table>
         </div><br/>
         <span slot="footer" class="dialog-footer">
-      <!--<el-button v-show="isShowDownSubBtn" type="primary" @click="handleImageDownSub(editForm)">确 定</el-button>-->
+      &lt;!&ndash;<el-button v-show="isShowDownSubBtn" type="primary" @click="handleImageDownSub(editForm)">确 定</el-button>&ndash;&gt;
     </span>
-        <!--<div class="common-table">
+        &lt;!&ndash;<div class="common-table">
           <el-table header-row-class-name="table-header"  border
                     :data="editForm.sanyBussVisitorCarList">
             <el-table-column type="index" label="序号" width="100"></el-table-column>
@@ -190,9 +206,9 @@
             <el-table-column prop="beginTime" label="进入时间"></el-table-column>
             <el-table-column prop="endTime" label="离开时间"></el-table-column>
           </el-table>
-        </div>-->
+        </div>&ndash;&gt;
       </el-dialog>
-    </div>
+    </div>-->
     <!-- 查看信息弹窗 -->
     <!-- 查看照片 -->
     <div class="checkPictureInformation">
@@ -218,31 +234,37 @@
     manualEndRequest,
     getVisitorDetailsRequest,
     fileUploadRequest,
-
   } from '../../../api/businessManageApi'
 import {
   reqSendMessages,reqSubPhotoes,reqRUploadImage,reqSendMessageSingle,
   regNormalRegister,
 }from '../../../api'
+import {reqBookParkArr} from '../../../api/loginApi'
 import {isInnerIPFn} from '../../../util/isInnerIP'
   // import {date}from '../../../util/dateFormat'
   import {date}from '../../../util/dateFormatEasy'
   import AddVisitorDialog from './addVisitorDialog'
+  import EditVisitorDialog from './editVisitorDialog'
   import QRCode from 'qrcode'
 
   import { mapState } from 'vuex';
   export default {
     name: "Template",
     components: {
-      AddVisitorDialog
+      AddVisitorDialog,EditVisitorDialog
     },
     data() {
       return {
+        rowList:{},//20190601
+        visitorPark:'',//20190528访客园区
+        visitorParkCode:'',//20190528访客园区
+        visitorParkOptions:[],//20190528访客园区
         tableData: [],
         loadingSwitch:false,//加载 中
         loadingStatus:true,//初始化显示数据加载中
         noDataStatus:false,//显示暂无数据,初始化不显示
         editFormFirstIsVip:'',//访客类型---0422---提取下表的第一条
+        visitorParkName:'',//访客园区名称
         qrCode:'',//二维码地址
         reImageId:'',//信息维护--重新上传id
         currentPage: 1, // 当前页
@@ -259,6 +281,8 @@ import {isInnerIPFn} from '../../../util/isInnerIP'
           sanyBussVisitorCarList: [],
         },
         dialogVisible: false, // 新增弹窗是否显示
+        editDialogVisible:false,//编辑信息时显示弹窗
+        editFormData:[],    //编辑信息
         visitorInfomation: false, // 查看信息弹窗是否显示
         checkPictureInformationVisible: false, // 查看照片
         currentImg: '',
@@ -269,23 +293,28 @@ import {isInnerIPFn} from '../../../util/isInnerIP'
       }
     },
     mounted () {
+      console.log('000000000000000000000000000000000000000000')
       // 访客历史记录列表
-      this.getAllVisitorData(this.currentPage,this.pageSize,this.visitorName)
+      this.getAllVisitorData(this.currentPage,this.pageSize,this.visitorName,this.visitorParkCode)
+
+      //访客园区20190528
+      this.getVisitorPark()
     },
     watch:{
-      tableData(){
+      tableData(val){
         this.loadingSwitch = false
+        console.log('tableData:',val)
       }
     },
     methods: {
-      async getAllVisitorData(pageNum, pageSize, visitorName) {
+      async getAllVisitorData(pageNum, pageSize, visitorName,parkCode) {
         let visitorNameQuery;
         if (visitorName === '') {
           visitorNameQuery=== null
         } else {
           visitorNameQuery = visitorName
         }
-        const res = await getVisitorAllByVisitorNameRequest(pageNum, pageSize, visitorNameQuery);
+        const res = await getVisitorAllByVisitorNameRequest(pageNum, pageSize, visitorNameQuery,parkCode);
         if (!res || !res.data || !res.data.code === '200')   return
         const {list, total} = res.data.data
         var qrCodeList = res.data.data.list
@@ -353,7 +382,15 @@ import {isInnerIPFn} from '../../../util/isInnerIP'
           }else if(visitingTime === '02'){
             visitingTime = '下午'
           }else if(visitingTime === '03'){
-            visitingTime = '全天'          }
+            visitingTime = '全天'
+          }
+          //访客姓名渲染20190528
+          var visitorArr = []
+          item.sanyBussVisitorDetails.forEach(item2=>{
+            var visitorName = item2.visitorName
+            visitorArr.push(visitorName)
+          })
+          var FKName = visitorArr.join(',')
           // 审核人工号/姓名
           let auditingCode = item.auditingCode? item.auditingCode: ''
           let auditingName = item.auditingName? item.auditingName: ''
@@ -387,7 +424,12 @@ import {isInnerIPFn} from '../../../util/isInnerIP'
             phone:item.phone, // 手机号
             documentNo:item.documentNo,//预约码
             userName:item.userName,
-            number:(this.currentPage-1)*this.pageSize+(index+1)
+            number:(this.currentPage-1)*this.pageSize+(index+1),
+            visitorParkName:item.visitorParkName, //访客园区名称
+            visitorParkCode:item.visitorParkCode, //访客园区编号
+            sanyBussVisitorDetails:item.sanyBussVisitorDetails,//详细信息，20190528，读取访客姓名
+            FKName:FKName,//详细信息，20190528，读取访客姓名
+
           }
           console.log('isVip:',isVip)
         })
@@ -420,28 +462,32 @@ import {isInnerIPFn} from '../../../util/isInnerIP'
         // console.log(`每页多少条: ${val}`);
         this.pageSize = val
         this.currentPage = 1;
-        this.getAllVisitorData(this.currentPage, this.pageSize, this.visitorName)
+        this.getAllVisitorData(this.currentPage, this.pageSize, this.visitorName,this.visitorParkCode)
         this.loadingSwitch = true
       },
       // 当前页改变回调
       handleCurrentChange(val) {
         // console.log(`当前页: ${val}`);
         this.currentPage = val
-        this.getAllVisitorData(this.currentPage, this.pageSize, this.visitorName)
+        this.getAllVisitorData(this.currentPage, this.pageSize, this.visitorName,this.visitorParkCode)
         this.loadingSwitch = true
       },
       // 查询
       async handleSearchByName() {
         this.currentPage = 1
-        this.getAllVisitorData(this.currentPage,this.pageSize,this.visitorName);
+        this.getAllVisitorData(this.currentPage,this.pageSize,this.visitorName,this.visitorParkCode);
         this.loadingSwitch = true
       },
 
       // 查看信息
       handleLookInfo(index, row) {
         console.log('row:', row);
+        this.editDialogVisible = true   //编辑显示20190528
         this.visitorInfomation = true
         this.qrCode = row.qrCode
+        this.visitorParkName = row.visitorParkName
+        //20190601未登记时不能修改内容
+        this.rowList = row
         //是否显示信息维护确定按钮
         row.downStatus === '已登记' ?  this.isShowDownSubBtn = false : this.isShowDownSubBtn = true
         // 查看信息接口
@@ -458,6 +504,7 @@ import {isInnerIPFn} from '../../../util/isInnerIP'
           return
         }
         this.editForm = res.data.data
+        this.editFormData = res.data.data   //20180528
         this.editForm.sanyBussVisitor.isCar = this.editForm.sanyBussVisitor.isCar==='1'? '是':'否'
         if(this.editForm.sanyBussVisitor.isVip===1){
           this.editForm.sanyBussVisitor.isVip = 'Vip'
@@ -523,9 +570,9 @@ import {isInnerIPFn} from '../../../util/isInnerIP'
         }
       },
       // 无效/作废/手动结束请求接口
-      async InvalidCancelManualEndData (visitorId, requestName) {
+      async InvalidCancelManualEndData (visitorId,visitorParkCode, requestName) {
         let requestNames = requestName
-        const res = await requestNames(visitorId);
+        const res = await requestNames(visitorId,visitorParkCode);
         // console.log('无效数据：',res)
         if (res.data.code === 200) {
           this.$message({
@@ -533,7 +580,7 @@ import {isInnerIPFn} from '../../../util/isInnerIP'
             message: res.data.data
           });
           // 刷新一下数据
-          this.getAllVisitorData(this.currentPage, this.pageSize, this.visitorName)
+          this.getAllVisitorData(this.currentPage, this.pageSize, this.visitorName,'')
         } else {
           this.$message({
             type: 'success',
@@ -562,7 +609,7 @@ import {isInnerIPFn} from '../../../util/isInnerIP'
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
-          this.InvalidCancelManualEndData(row.id, cancelRequest)
+          this.InvalidCancelManualEndData(row.id,row.visitorParkCode, cancelRequest)
         }).catch(() => {
 
         });
@@ -591,7 +638,7 @@ import {isInnerIPFn} from '../../../util/isInnerIP'
         if(res&&res.data.code===200){
           this.$message({type:'success',message:res.data.data})
           //刷新列表
-          this.getAllVisitorData(this.currentPage,this.pageSize,this.visitorName)
+          this.getAllVisitorData(this.currentPage,this.pageSize,this.visitorName,'')
         }else{
           this.$message({type:'error',message:res.data.msg})
         }
@@ -643,7 +690,7 @@ import {isInnerIPFn} from '../../../util/isInnerIP'
             })
           //重新渲染页面
           this.currentPage = 1
-          this.getAllVisitorData(this.currentPage,this.pageSize,this.visitorName);
+          this.getAllVisitorData(this.currentPage,this.pageSize,this.visitorName,this.visitorParkCode);
         }else{
           this.$message({
             type:'error',
@@ -723,6 +770,7 @@ import {isInnerIPFn} from '../../../util/isInnerIP'
         ItemObj.uid = row.id
         ItemObj.qrCode = row.qrCode
         ItemObj.verifCode = row.verifCode
+        ItemObj.carNo = row.carNo
         messageDto.push(ItemObj)
         this.sendMessageSingle(messageDto)
         //
@@ -742,7 +790,7 @@ import {isInnerIPFn} from '../../../util/isInnerIP'
             message:'短信发送成功'
           })
           //刷新页面
-          this.getAllVisitorData(this.currentPage,this.pageSize,this.visitorName)
+          this.getAllVisitorData(this.currentPage,this.pageSize,this.visitorName,this.visitorParkCode)
         }else {
           this.$message({
             type:'error',
@@ -760,7 +808,7 @@ import {isInnerIPFn} from '../../../util/isInnerIP'
             message:'短信发送成功'
           })
           //刷新页面
-          this.getAllVisitorData(this.currentPage,this.pageSize,this.visitorName)
+          this.getAllVisitorData(this.currentPage,this.pageSize,this.visitorName,'')
         }else {
           this.$message({
             type:'error',
@@ -771,16 +819,28 @@ import {isInnerIPFn} from '../../../util/isInnerIP'
       // 新增访客弹窗出现
       handleAddVisitor() {
         this.dialogVisible = true
+
       },
       // 新增弹窗确定按钮事件
       handleConfirmDialog (val) {
         this.dialogVisible = val
         this.currentPage = 1
-        this.getAllVisitorData(this.currentPage, this.pageSize, this.visitorName)
+        console.log('888888888888888888888888888888888')
+        this.getAllVisitorData(this.currentPage, this.pageSize, this.visitorName,'')
+      },
+      // 编辑弹窗确定按钮事件
+      editConfirmDialog (val) {
+        this.dialogVisible = val
+        this.currentPage = 1
+        this.getAllVisitorData(this.currentPage, this.pageSize, this.visitorName,'')
       },
       // 新增弹窗取消按钮事件
       handleCancleDialog (val) {
         this.dialogVisible = val
+      },
+      // 编辑弹窗取消按钮事件20190528
+      editCancleDialog (val) {
+        this.editDialogVisible = val
       },
       // 查看图片
       checkPicture(index, row){
@@ -828,7 +888,7 @@ import {isInnerIPFn} from '../../../util/isInnerIP'
             message:'上传成功'
           })
           let {code,data,msg} = res.data;
-          console.log('imgUrl:',data)
+          // console.log('imgUrl:',data)
           this.editForm.sanyBussVisitorDetailsList[this.currentUploadIndex].imgUrl = data
         }
       },
@@ -838,6 +898,52 @@ import {isInnerIPFn} from '../../../util/isInnerIP'
         //确定图片下发请求
         var reLoadId =editForm.sanyBussVisitor.id
         this.subSendImage(reLoadId)
+      },
+      //信息维护--->双击编辑
+     /* tabledbEdit(row,column,cell,event){
+        // console.log('rowdb,column,cell,event:',row,column,cell,event)
+        if(column.label !== '序号'){
+          let value_event = event.target.innerHTML
+          event.target.innerHTML = ''
+          let cellInput = document.createElement('input')
+          cellInput.value = value_event
+          cellInput.setAttribute('class','input_sty')
+          cellInput.setAttribute('type','text')
+          cellInput.style.width = '98%'
+          var cellAbc = document.getElementsByClassName('cell')
+          cell.appendChild(cellInput)
+          cellInput.onblur = function () {
+            cell.removeChild(cellInput)
+            event.target.innerHTML = cellInput.value
+          }
+        }
+      },*/
+      //园区选择20190528
+      visitorParkChange(val){
+        let obj = {};
+        obj = this.visitorParkOptions.find((item)=>{
+          return item.value === val;
+        });
+        this.visitorPark = obj.label
+        this.visitorParkCode = obj.value
+      },
+      //20190520访客园区后台请求
+      async getVisitorPark(){
+        const res = await reqBookParkArr()
+        if(!res && !res.data.code===200){
+          return
+        }
+        let visitorArr = res.data.data
+        visitorArr.forEach(item => {
+          let visitorObj = {}
+          visitorObj.value = item.parkCode
+          visitorObj.label = item.parkName
+          this.visitorParkOptions.push(visitorObj)
+        })
+      },
+      //20190528访客园区点击clear
+      clearVisitorPark(){
+        this.visitorParkCode = ''
       },
     }
   }

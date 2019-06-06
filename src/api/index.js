@@ -104,14 +104,14 @@ export const reqlowerHair = (userNo) => http.post(`/user/SanyBasicShrUser/lowerH
 export const reqSubPhotoes = (visitorId) => http.post(`/visitorcontrol/SanyBussVisitor/sendImg`,{visitorId})
 // 访客管理---信息维护---重新上传照片接口
 export const reqRUploadImage = (formData,id) => http.postFileData(`/visitorcontrol/SanyBussVisitor/fileUploadForVisitorsUpdate?id=${id}`,formData);
-// 园区管理---园区车辆---查询
-export const reqSearchCarsList = (carNo,userName,userNo,pageNum,pageSize) => http.post(`/user/SanyBasicShrUser/selectBussParkCarByCondition`,{query:{carNo,userName,userNo},pageNum,pageSize});
-// 园区管理---园区车辆---新增
-export const reqAddCars = (userNo,userName,carType,carNo,remark,ownerId,phoneNo) => http.post(`/user/SanyBasicShrUser/insertBussParkCar`,{userNo,userName,carType,carNo,remark,ownerId,phoneNo});
-// 园区管理---园区车辆---编辑
-export const reqEditCars = (id,carNo,carType,remark,userName,userNo) => http.post(`/user/SanyBasicShrUser/modifyBussParkCar`,{id,carNo,carType,remark,userName,userNo});
-// 园区管理---园区车辆---删除
-export const reqDeleteCars = (id,carNo) => http.post(`/user/SanyBasicShrUser/removeBussParkCar`,{id,carNo});
+// 园区管理---园区车辆---查询20190521+parkCode
+export const reqSearchCarsList = (carNo,userName,userNo,parkCode,pageNum,pageSize) => http.post(`/user/SanyBasicShrUser/selectBussParkCarByCondition`,{query:{carNo,userName,userNo,parkCode},pageNum,pageSize});
+// 园区管理---园区车辆---新增---20190520加parkCode
+export const reqAddCars = (userNo,userName,carType,carNo,remark,ownerId,phoneNo,parkCode) => http.post(`/user/SanyBasicShrUser/insertBussParkCar`,{userNo,userName,carType,carNo,remark,ownerId,phoneNo,parkCode});
+// 园区管理---园区车辆---编辑---20190520+parkCode
+export const reqEditCars = (id,carNo,carType,remark,userName,userNo,parkCode) => http.post(`/user/SanyBasicShrUser/modifyBussParkCar`,{id,carNo,carType,remark,userName,userNo,parkCode});
+// 园区管理---园区车辆---删除 20190520
+export const reqDeleteCars = (id,carNo,parkCode) => http.post(`/user/SanyBasicShrUser/removeBussParkCar`,{id,carNo,parkCode});
 // 园区管理---园区车辆---数据导入
 export const reqUploadCarsFile = (formData) => http.postFileData(`/user/SanyBasicShrUser/importExcel`,formData);
 // 园区管理---园区员工管理---新增和编辑--验证员工工号（外部员工为手机号）
@@ -147,14 +147,18 @@ export const reqSendMessageSingle = (messageDto) =>http.post(`/visitorcontrol/Sa
 // export const reqSendMessageSingle = (messageDto) =>http.post(`http://10.19.8.21:8191/SanyBussVisitor/sendOneMessageSingle`,{messageDto})
 //0330我的访客信息---新增访客---点击确定后添加成功后调用发送短信--接口
 export const reqAddVisitorSuccessReq = (messageDto) =>http.post(`/visitorcontrol/SanyBussVisitor/sendOneMessageManyVisitors`,{messageDto})
-//0330我的访客信息---新增访客---验证身份证号/临时拜访录入--接口
-export const reqrRegIDCard = (idCard) =>http.post(`/visitorcontrol/SanyBussVisitor/selectVisitorsByIdCard`,{idCard})
-//0415园区车辆管理---生效--接口
-export const reqParkCarManageTakeEffect = (id,plateNo) =>http.post(`/user/SanyBasicShrUser/carRecharge`,{id,plateNo})
-//0415园区车辆管理---新增、编辑车牌号验证--接口
-export const reqCarsNumberIsRepeat = (carNo) =>http.post(`/user/SanyBasicShrUser/selectBussParkCarByCarNo`,{carNo})
-//0508临时拜访录入---车牌号验证--接口
-export const reqCarsNumber = (carNo) =>http.post(`/visitorcontrol/SanyBussVisitor/selectVisitorsByCarNo`,{carNo})
+//0330我的访客信息---新增访客---验证身份证号/临时拜访录入--接口20190521+parkCode
+export const reqrRegIDCard = (idCard,parkCode) =>http.post(`/visitorcontrol/SanyBussVisitor/selectVisitorsByIdCard`,{idCard,parkCode})
+//0415园区车辆管理---生效--接口20190520+parkCode
+export const reqParkCarManageTakeEffect = (id,plateNo,parkCode) =>http.post(`/user/SanyBasicShrUser/carRecharge`,{id,plateNo,parkCode})
+//0415园区车辆管理---新增、编辑车牌号验证--接口20190521+parkCode
+export const reqCarsNumberIsRepeat = (carNo,parkCode) =>http.post(`/user/SanyBasicShrUser/selectBussParkCarByCarNo`,{carNo,parkCode})
+//0508临时拜访录入---车牌号验证--接口20190521+parkCode
+export const reqCarsNumber = (carNo,parkCode) =>http.post(`/visitorcontrol/SanyBussVisitor/selectVisitorsByCarNo`,{carNo,parkCode})
+//0530我的访客信息---信息维护（修改、编辑）--接口
+export const reqModifyVisitorInfo = (mdata,params,source) =>http.post(`/visitorcontrol/SanyBussVisitor/modifyRegister`,
+  {sanyBussVisitor:mdata,sanyBussVisitorDetailsList:params,sanyBussVisitorCarList:[],source})
+
 
 
 

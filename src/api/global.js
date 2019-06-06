@@ -13,6 +13,7 @@ console.log('BaseUrlReq000:',isInnerIp)
 let BASE_URL = ''
 if(isInnerIp){
   BASE_URL = 'http://10.19.8.21:9010'
+  // BASE_URL = 'http://10.88.195.171:8100' //何正飞
 }else{
    BASE_URL = 'http://222.240.233.67:9010'
 }

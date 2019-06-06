@@ -10,11 +10,12 @@ import BASE_URL from './global'
  * visitorName 访客姓名
  *  */
 
-export const getVisitorAllByVisitorNameRequest = async (pageNum,pageSize,visitorName) => $http.post(`/visitorcontrol/SanyBussVisitor/getVisitorAllByVisitorName`, {
+export const getVisitorAllByVisitorNameRequest = async (pageNum,pageSize,visitorName,parkCode) => $http.post(`/visitorcontrol/SanyBussVisitor/getVisitorAllByVisitorName`, {
   'pageNum': pageNum,
   'pageSize': pageSize,
   'query': {
-    'visitorName': visitorName
+    'visitorName': visitorName,
+    'parkCode':parkCode
   }
 })
 
@@ -44,12 +45,12 @@ export const getVisitorAllByVisitorNameRequest = async (pageNum,pageSize,visitor
   }
 */
 export const addApplyRequest = async (
-  planBeginTime,visitingTime,vistorNum,isCar,isVip,carNum,reason,
+  planBeginTime,visitingTime,vistorNum,isCar,isVip,carNum,reason,visitorParkCode,
   params,
   source
 ) => $http.post(`/visitorcontrol/SanyBussVisitor/addApplyAndSendHaiKang`,
   {
-    sanyBussVisitor:{planBeginTime,visitingTime,vistorNum,isCar,isVip,carNum,reason},
+    sanyBussVisitor:{planBeginTime,visitingTime,vistorNum,isCar,isVip,carNum,reason,visitorParkCode},
     sanyBussVisitorDetailsList:params,
     sanyBussVisitorCarList:[],
     source
@@ -107,8 +108,8 @@ export const invalidVisitRequest = async (visitorId) => $http.post(`/visitorcont
  * 作废接口
  * visitorId：拜访主表id
  */
-export const cancelRequest = async (visitorId) => $http.post(`/visitorcontrol/SanyBussVisitor/cancel`,{
-  visitorId: visitorId
+export const cancelRequest = async (visitorId,visitorParkCode) => $http.post(`/visitorcontrol/SanyBussVisitor/cancel`,{
+  visitorId: visitorId,visitorParkCode
 })
 
 /**
@@ -130,12 +131,13 @@ export const manualEndRequest = async (visitorId) => $http.post(`/visitorcontrol
  * endTime 结束日期
  *  */
 
-export const getVisitorHistoryRequest = async (pageNum,pageSize,startTime,endTime) => $http.post(`/visitorcontrol/SanyBussVisitor/getVisitorHistory`, {
+export const getVisitorHistoryRequest = async (pageNum,pageSize,startTime,endTime,visitorName,phone,carNo) => $http.post(`/visitorcontrol/SanyBussVisitor/getVisitorHistory`, {
   pageNum: pageNum,
   pageSize: pageSize,
   query: {
     startTime:startTime,
-    endTime:endTime
+    endTime:endTime,
+    visitorName,phone,carNo,//20190531增加查询字段
   }
 })
 /**

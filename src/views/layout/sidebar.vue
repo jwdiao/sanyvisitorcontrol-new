@@ -124,7 +124,7 @@ export default {
       <el-submenu index="3" v-if="roleCode==='2' || roleCode==='4'">
         <!--hhtx-icon-test-->
         <template slot="title"><i class="fontFamily hhtx-yuanquguanli-"></i>园区管理</template>
-        <el-menu-item v-if="roleCode==='2'||roleCode==='4'" index="externalStaffManage">园区员工管理</el-menu-item> <!--门岗,系统管理员-->
+        <el-menu-item v-if="roleCode==='4'" index="externalStaffManage">园区员工管理</el-menu-item> <!--门岗,系统管理员,20190521改为只有系统管理员-->
         <el-menu-item v-if="roleCode==='2'||roleCode==='4'" index="parkCarManage">园区车辆管理</el-menu-item> <!--parkCarManage门岗,系统管理员-->
 
 
@@ -151,11 +151,17 @@ export default {
       </el-submenu>
 
 
-      <!-- <el-submenu index="5">
+       <el-submenu index="5" v-if="roleCode==='4'">
+        <template slot="title"><i class="fontFamily hhtx-yuanquguanli-"></i>物资访客管理</template>
+        <el-menu-item v-if="roleCode==='4'" index="MaterialManage">访客信息</el-menu-item><!--系统管理员-->
+      </el-submenu>
+<!--
+       <el-submenu index="6">
         <template slot="title"><i class="el-icon-message"></i>公共页面</template>
         <el-menu-item index="nopage">空页面</el-menu-item>
         <el-menu-item index="template">模板页面</el-menu-item>
-      </el-submenu> -->
+      </el-submenu>
+-->
     </el-menu>
   </el-aside>
 </template>

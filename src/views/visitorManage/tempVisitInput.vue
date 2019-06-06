@@ -161,7 +161,7 @@
              </td>
              <td style="position: relative">
                <!--regIsNull-->
-               <el-input v-model="item.phone" :class="{regIsNull:item.phone==='' &&　isShowPhone　?true:false}" placeholder="请输入电话" @blur="blurPhone(item.phone)"  @change="regTel(item.phone)"></el-input>
+               <el-input v-model="item.phone" :class="{regIsNull:item.phone==='' &&　isShowPhone　?true:false}" placeholder="请输入电话" @blur="blurPhone(item.phone)"  @change="regTel(item.phone,index)"></el-input>
                <span style="position:absolute;top: 22px;left: 0px;color: #f56c6c;">*</span>
                <!--isShowPhone-->
                <div v-if="isShowPhone" v-show="item.phone===''?true:false" style="color: #F56C6C;text-align: left;position: absolute;top: 60px;left: 8px;" >请输入电话</div>
@@ -283,6 +283,7 @@
   fileUploadForOutEmployersPhotoRequest
 } from '../../api/businessManageApi'
  import {reqAddVisitorSuccessReq,reqrRegIDCard,reqCarsNumber} from '../../api'
+ import {reqBookParkArr} from '../../api/loginApi'
  import {checkPhone,checkIDCard,checkCarCard} from '../../util/regExp'
  import {isInnerIPFn} from '../../util/isInnerIP'
 // import http from '../../../../sanyreport/src/api/http';
@@ -312,10 +313,8 @@
           value: '0',
         }],
         visitorPark:'回龙观园区',
-        visitorParkOptions:[{
-          label: '回龙观园区',
-          value: '1',
-        }],
+        visitorParkCode:'01',
+        visitorParkOptions:[],
         visitingTimeOptions:[{
           label: '上午',
           value: '01',
@@ -361,6 +360,7 @@
             isVip:0,//是否VIP
             carNum: 0, // 驾车数量
             reason: '', // 拜访原因
+            visitorParkCode:'01',//访客园区
           },
           sanyBussVisitorDetailsList: [
             {
@@ -392,6 +392,8 @@
       }else{
         this.imgUrlIP = 'http://222.240.233.67:8181/sanyvisitorcontrol/photo/photo.html'
       }
+      //访客园区
+      this.getVisitorPark()
     },
     methods: {
       // 获取被拜访人列表 start
@@ -545,6 +547,14 @@
           return item.value === val;
         });
         this.visitorPark = obj.label
+        this.formInline.sanyBussVisitor.visitorParkCode = obj.value
+        this.formInline.sanyBussVisitorDetailsList.forEach((item,index)=>{
+          if(item.carNo!==''){
+            this.regCarNo(item.carNo,index)
+          }else if(item.visitorId!==''){
+            this.regID(item.visitorId,index)
+          }
+        })
       },
       // 输入车辆数,小于人员数
       handleInputCarNum() {
@@ -641,10 +651,10 @@
               this.$message({type:'error',message:'手机号码输入不正确'})
               return
             }
-            if(this.isIDCardtrue){
+            /*if(this.isIDCardtrue){
               this.$message({type:'error',message:'身份证号码输入不正确'})
               return
-            }
+            }*/
             if(this.checkCarCardBoolean){
               this.$message({type:'error',message:'车牌号码输入不正确'})
               return
@@ -739,13 +749,15 @@
           messageObj.telephone= item.telephone
           messageObj.uid= item.uid
           messageObj.verifCode= item.verifCode
+          messageObj.carNo= item.carNo    //20190528发短信时内容增加车牌号信息
           messageArr.push(messageObj)
         })
         console.log('messageArr:',messageArr)
         console.log('this.formInline.sanyBussVisitor.isCar:',this.formInline.sanyBussVisitor.isCar)
-        if(this.formInline.sanyBussVisitor.isCar === '0'){
+        this.addVisitorSuccess(messageArr)//20190529不管有无车辆都发送信息
+        /*if(this.formInline.sanyBussVisitor.isCar === '0'){//有车辆时不发送信息
           this.addVisitorSuccess(messageArr)
-        }
+        }*/
 
 
 
@@ -771,10 +783,23 @@
         }
       },
       //前台验证-------start---------
-      regTel(val){
+      regTel(val,index){
         this.isTelephonetrue = checkPhone(val,this)
         console.log('tel:',this.isTelephonetrue)
         val===''? this.regIsNull= true: this.regIsNull= false
+        //0401增加多个时不能有重复的phone
+        let telArr = []
+        this.formInline.sanyBussVisitorDetailsList.forEach(item=>{
+          telArr.push(item.phone)
+        })
+        telArr.splice(index,1)
+        let indexNum = telArr.includes(val)
+        console.log(val)
+        if(indexNum===true){
+          this.formInline.sanyBussVisitorDetailsList[index].phone = ''
+          this.$message({type:'error',message:'您输入的手机号重复，请重新输入'})
+        }
+
       },
       isRepeatCardID(){
 
@@ -796,7 +821,7 @@
           this.$message({type:'error',message:'输入的身份证重复，请重新输入'})
         }
         //20190508增加车牌号后台验证
-        const res = await reqCarsNumber(val)
+        const res = await reqCarsNumber(val,this.formInline.sanyBussVisitor.visitorParkCode)
         if(res.data.code!==200){
           this.formInline.sanyBussVisitorDetailsList[index].carNo = ''
           this.$message({type:'error',message:res.data.msg})
@@ -823,8 +848,9 @@
           this.formInline.sanyBussVisitorDetailsList[index].visitorId = ''
           this.$message({type:'error',message:'输入的身份证重复，请重新输入'})
         }
-        const res = await reqrRegIDCard(val)
+        const res = await reqrRegIDCard(val,this.formInline.sanyBussVisitor.visitorParkCode)
         if(res&&res.data.code!==200){
+          if(val==='') return
           this.$message({
             type:'error',
             message:res.data.msg
@@ -901,6 +927,20 @@
             this.isSelected = false
           }
         }
+      },
+      //20190520访客园区后台请求
+      async getVisitorPark(){
+        const res = await reqBookParkArr()
+        if(!res && !res.data.code===200){
+          return
+        }
+        let visitorArr = res.data.data
+        visitorArr.forEach(item => {
+          let visitorObj = {}
+          visitorObj.value = item.parkCode
+          visitorObj.label = item.parkName
+          this.visitorParkOptions.push(visitorObj)
+        })
       },
     }
   }

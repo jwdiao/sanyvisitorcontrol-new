@@ -5,19 +5,28 @@
       :inline="true"
       :model="bookVisitArr"
       size="medium"
-      class="marginTop20 common-form-inline"
+      class="marginTop20 common-form-inline searchInfo"
     >
-      <el-form-item label="访问开始日期">
+      <el-form-item label="开始日期">
         <el-date-picker v-model="visitDateStart" type="date" placeholder="选择访问开始日期"
                         @change="handleDateStart" value-format="yyyy-MM-dd"
             :picker-options="pickerOptionsStart"
         ></el-date-picker>
       </el-form-item>
-      <el-form-item label="访问结束始日期">
+      <el-form-item label="结束始日期">
         <el-date-picker v-model="visitDateEnd" type="date" placeholder="选择访问结束始日期"
                         @change="handleDateEnd" value-format="yyyy-MM-dd"
             :picker-options="pickerOptionsEnd"
         ></el-date-picker>
+      </el-form-item>
+      <el-form-item label="访客姓名">
+        <el-input v-model="visitorSearch.visitorName" placeholder="请输入访客姓名"></el-input>
+      </el-form-item>
+      <el-form-item label="访客电话">
+        <el-input v-model="visitorSearch.phone" placeholder="请输入访客电话"></el-input>
+      </el-form-item>
+      <el-form-item label="车牌号">
+        <el-input v-model="visitorSearch.carNo" placeholder="请输入访客车牌号"></el-input>
       </el-form-item>
       <el-form-item>
         <el-button class="btnIsBlue" type="primary" style="width: 100px" @click="onSubmit">查询</el-button>
@@ -32,15 +41,16 @@
                 @selection-change="handleSelectionChange"
                 :data="tableData">
         <el-table-column prop="number" label="序号" width="50"></el-table-column>
-        <el-table-column prop="planBeginTime" label="到访日期" width="180">  </el-table-column>
-        <el-table-column prop="visitingTime" label="拜访时间"  width="120">  </el-table-column>
+        <el-table-column prop="planBeginTime" label="到访日期" width="120">  </el-table-column>
+        <el-table-column prop="visitingTime" label="拜访时间"  width="100">  </el-table-column>
         <el-table-column prop="beginTime" label="实际开始时间" width="160">  </el-table-column>
         <el-table-column prop="endTime" label="实际结束时间"  width="160">  </el-table-column>
-        <el-table-column prop="vistorNum" label="访客人数" width="100">  </el-table-column>
+        <el-table-column prop="visitorName" label="访客姓名">  </el-table-column>
+        <el-table-column prop="vistorNum" label="访客人数" width="80">  </el-table-column>
         <!--<el-table-column prop="isVip" label="访客类型" width="100">  </el-table-column>-->
         <el-table-column prop="isCar" label="是否驾车" width="100"> </el-table-column>
         <el-table-column prop="carNum" label="驾车数量" width="100"> </el-table-column>
-        <el-table-column prop="visitorStatus" label="访问状态"> </el-table-column>
+        <el-table-column prop="visitorStatus" label="访问状态" width="100"> </el-table-column>
         <!--<el-table-column prop="auditingType" label="审核通过类型"> </el-table-column>-->
         <!--<el-table-column prop="recordType" label="录入类型"> </el-table-column>-->
         <el-table-column prop="operaterCode" label="操作人工号" width="120"> </el-table-column>
@@ -173,6 +183,9 @@
     name: "Template",
     data() {
       return {
+        visitorSearch:{//20190601
+          visitorName:'',phone:'',carNo:''
+        },
         loadingSwitch:false,//加载中
         loadingStatus:true,//初始化显示数据加载中
         noDataStatus:false,//显示暂无数据,初始化不显示
@@ -214,7 +227,8 @@
     },
     mounted(){
       const{currentPage,pageSize,visitDateStart,visitDateEnd} = this
-      this.getEndVisitList(currentPage,pageSize,{startTime:visitDateStart,endTime:visitDateEnd})
+      const{visitorName,phone,carNo} = this.visitorSearch
+      this.getEndVisitList(currentPage,pageSize,{startTime:visitDateStart,endTime:visitDateEnd,visitorName,phone,carNo})
     },
     methods: {
       /*
@@ -223,7 +237,7 @@
       * 描述：初始化及查询调用
       * */
       async getEndVisitList(pageNo,pageSize,query){
-        const res = await reqEndVisitList(pageNo,pageSize,query)
+        const res = await reqEndVisitList(pageNo,pageSize,query)      ///20190601返回来的列表变化 ，增加检索条件
         if(!res ||!res.data.code===200) return
           this.tableData = res.data.data.list
           this.totalPage = res.data.data.total
@@ -235,48 +249,73 @@
           }else{
             this.noDataStatus = false
           }
-          for (var i = 0; i < this.tableData.length; i++) {
-          this.tableData[i].number = (this.currentPage-1)*this.pageSize+(i+1)
-            this.tableData[i].isCar === '0'? this.tableData[i].isCar= '否':this.tableData[i].isCar= '是'
-            if(this.tableData[i].isVip === 0){
-              this.tableData[i].isVip = '一般访客'
-            }else if(this.tableData[i].isVip === 1){
-              this.tableData[i].isVip = 'Vip'
+          this.tableData.forEach((item,index)=>{
+            item.number = (this.currentPage-1)*this.pageSize+(index+1)
+            item.planBeginTime = item.sanyBussVisitor.planBeginTime
+            switch (item.sanyBussVisitor.visitingTime) {
+              case '03' :item.visitingTime = '全天'
+                break;
+              case '01' :item.visitingTime = '上午'
+                break;
+              case '02' :item.visitingTime = '下午'
+                break
             }
-            if(this.tableData[i].auditingType === '01'){
-              this.tableData[i].auditingType= '个人审核通过'
-            }else if(this.tableData[i].auditingType === '02'){
-              this.tableData[i].auditingType= '门岗审核通过'
+            item.beginTime = item.sanyBussVisitor.beginTime
+            item.endTime = item.sanyBussVisitor.endTime
+            item.vistorNum = item.sanyBussVisitor.vistorNum
+            switch (item.sanyBussVisitor.isCar) {
+              case '0' :item.isCar = '否'
+                break;
+              case '1' :item.isCar = '是'
+                break;
             }
-            if(this.tableData[i].visitorStatus === '01'){
-              this.tableData[i].visitorStatus= '待访问'
-            }else if(this.tableData[i].visitorStatus === '02'){
-              this.tableData[i].visitorStatus= '访问中'
-            }else if(this.tableData[i].visitorStatus === '03'){
-              this.tableData[i].visitorStatus= '访问结束'
+            item.carNum = item.sanyBussVisitor.carNum
+            item.operaterCode = item.sanyBussVisitor.operaterCode
+            switch (item.sanyBussVisitor.visitorStatus) {
+              case '01' :item.visitorStatus = '待访问'
+                break;
+              case '02' :item.visitorStatus = '访问中'
+                break;
+              case '03' :item.visitorStatus = '访问结束'
+                break;
             }
-            if(this.tableData[i].visitingTime === '01'){
-              this.tableData[i].visitingTime= '上午'
-            }else if(this.tableData[i].visitingTime === '02'){
-              this.tableData[i].visitingTime= '下午'
-            }else if(this.tableData[i].visitingTime === '03'){
-              this.tableData[i].visitingTime= '全天'
+            switch (item.sanyBussVisitor.isVip) {
+              case '0' :item.isVip = '一般访客'
+                break;
+              case '1' :item.isVip = 'Vip'
+                break;
             }
-            if(this.tableData[i].recordType === '01'){
-              this.tableData[i].recordType= '被访人录入'
-            }else if(this.tableData[i].recordType === '02'){
-              this.tableData[i].recordType= '访客机录入'
-            }else if(this.tableData[i].recordType === '03'){
-              this.tableData[i].recordType= '门岗录入'
+            switch (item.sanyBussVisitor.auditingType) {
+              case '01' :item.auditingType = '个人审核通过'
+                break;
+              case '02' :item.auditingType = '门岗审核通过'
+                break;
             }
-          }
+            switch (item.sanyBussVisitor.recordType) {
+              case '01' :item.recordType = '被访人录入'
+                break;
+              case '02' :item.recordType = '访客机录入'
+                break;
+              case '03' :item.recordType = '门岗录入'
+                break;
+            }
+            //20190601访客姓名
+            var visitorArr = []
+            item.sanyBussVisitorDetails.forEach(item=>{
+              visitorArr.push(item.visitorName)
+            })
+            item.visitorName = visitorArr.join(',')
+
+          })
+
       },
 
       onSubmit() {
         console.log('submit!');
         const{pageSize,visitDateStart,visitDateEnd} = this
+        const{visitorName,phone,carNo} = this.visitorSearch
         this.currentPage = 1
-        this.getEndVisitList(this.currentPage,pageSize,{startTime:visitDateStart,endTime:visitDateEnd})
+        this.getEndVisitList(this.currentPage,pageSize,{startTime:visitDateStart,endTime:visitDateEnd,visitorName,phone,carNo})
         this.loadingSwitch = true
       },
       handleDateStart(val){
@@ -287,14 +326,15 @@
       },
       handleCurrentChange(val) {
         const{pageSize,visitDateStart,visitDateEnd} = this
+        const{visitorName,phone,carNo} = this.visitorSearch
         this.currentPage = val
-        this.getEndVisitList(this.currentPage,pageSize,{startTime:visitDateStart,endTime:visitDateEnd})
+        this.getEndVisitList(this.currentPage,pageSize,{startTime:visitDateStart,endTime:visitDateEnd,visitorName,phone,carNo})
         this.loadingSwitch = true
       },
       handleSizeChange(val){
         const{currentPage,visitDateStart,visitDateEnd} = this
         this.pageSize = val
-        this.getEndVisitList(currentPage,this.pageSize,{startTime:visitDateStart,endTime:visitDateEnd})
+        this.getEndVisitList(currentPage,this.pageSize,{startTime:visitDateStart,endTime:visitDateEnd,visitorName,phone,carNo})
         this.loadingSwitch = true
       },
       handleEdit(index, row) {
@@ -311,8 +351,8 @@
       lookInformation(index, row) {
         this.visitorInfomation = true
         this.editForm = Object.assign({},row)
-        console.log(index, row);
-        const rowID = row.id
+        console.log('row:', row);
+        const rowID = row.sanyBussVisitor.id
         this.handlerLookInfo(rowID)
       },
 
@@ -374,6 +414,23 @@
   /deep/ .el-dialog__header{
     border-bottom: 1px solid #DCDFE6;
   }
+  /deep/ .searchInfo .el-form-item{
+    margin-left: 0px;
+    margin-right: 0px;
+  }
+  /deep/ .searchInfo .el-form-item:first-child{
+    margin-left: 20px;
+    margin-right: 0px;
+  }
+  /deep/ .searchInfo .el-date-editor{
+    width: 185px;
+  }
+  /deep/ .searchInfo .el-input{
+    width: 85%;
+  }
+  .btnIsBlue{
+    width: 100px;
+  }
 </style>
 <style>
   .endVisitSearchDialog .el-form-item .el-form-item__content{
@@ -388,6 +445,7 @@
   .endVisitSearch .el-dialog__wrapper .el-dialog{
     margin-top: 11vh!important;
   }
+
 
 
 </style>

@@ -178,8 +178,16 @@ const router = new Router({
           name: 'parkcarmanage',
           component: () => import('../views/parkManage/parkCarMangage/parkCarManage.vue'),//园区车辆管理(系统管理页)
           meta: ['园区管理', '园区车辆管理']
-        }
+        },
         // ===========================园区管理模块 end========================
+        // ===========================物资访客管理模块 start========================
+        {
+          path: '/MaterialManage',
+          name: 'materialManage',
+          component: () => import('../views/materialsManage/materialManage.vue'),//园区车辆管理(系统管理页)
+          meta: ['物资访客管理', '访客信息']
+        },
+        // ===========================物资访客管理模块 end========================
       ]
     }
   ]

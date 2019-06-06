@@ -8,11 +8,11 @@
       <el-form ref="loginForm" class="loginForm" :model="loginData" :rules="rules">
         <el-form-item prop="username">
           <i></i>
-          <el-input placeholder="请输入用户名" v-model="loginData.username"><span></span></el-input>
+          <el-input placeholder="请输入域账号" v-model="loginData.username"><span></span></el-input>
         </el-form-item>
         <el-form-item prop="password">
           <i></i>
-          <el-input type="password" v-model="loginData.password" placeholder="请输入密码" @keyup.native="isClickFun" @keyup.enter.native="login()"></el-input>
+          <el-input type="password" v-model="loginData.password" placeholder="请输入域密码" @keyup.native="isClickFun" @keyup.enter.native="login()"></el-input>
         </el-form-item>
       <!--  <el-form-item class="bookpark">
           <i class="bookparkicon"></i>
@@ -26,7 +26,8 @@
           </el-select>
         </el-form-item>-->
          <div class="login_forgetPwd">
-          <span @click="handleForgetPwd">设置密码</span>
+          <!--<span @click="handleForgetPwd">设置密码</span>--><!--2090528使用域账号密码-->
+          <span style="color: #ff0000;">请使用域账号密码登录</span>
         </div>
         <el-form-item>
             <el-button type="primary" block class="submit_btn" @click="login()" :disabled="isClickLogin">登 &nbsp; 录</el-button>
